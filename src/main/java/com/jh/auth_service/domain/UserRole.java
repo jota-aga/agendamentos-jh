@@ -20,9 +20,9 @@ public class UserRole {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	private Role nome;
+	private String nome;
 	
-	enum Role{
+	public enum Role{
 		ADMIN(1L),
 		CLIENT(2L);
 		
