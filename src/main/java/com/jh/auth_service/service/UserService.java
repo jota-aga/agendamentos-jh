@@ -1,13 +1,6 @@
 package com.jh.auth_service.service;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
 import com.jh.auth_service.domain.User;
@@ -20,10 +13,10 @@ import com.jh.auth_service.exceptions.NaoEncotradoException;
 import com.jh.auth_service.repository.UserRepository;
 import com.jh.auth_service.repository.UserRoleRepository;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserService {
 
 	private final UserRepository userRepository;
@@ -31,8 +24,8 @@ public class UserService {
 	private final UserRoleRepository userRoleRepository;
 
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
-
-	private final JwtEncoder jwtEncoder;
+	
+	private final TokenService tokenService;
 
 	public void salvarNovoUsuario(UserRequest userRequest) {
 		validarNovoUser(userRequest);
@@ -46,12 +39,11 @@ public class UserService {
 		User user = userRepository.findByEmail(loginRequest.email())
 				.orElseThrow(() -> new LoginIncorretoException());
 		
-		if (bCryptPasswordEncoder.matches(loginRequest.senha(),
-				user.getSenha()) == false) {
+		if (!bCryptPasswordEncoder.matches(loginRequest.senha(),user.getSenha())) {
 			throw new LoginIncorretoException();
 		}
 		
-		return gerarToken(user);
+		return tokenService.gerarToken(user);
 	}
 
 	private void validarNovoUser(UserRequest userRequest) {
@@ -75,15 +67,5 @@ public class UserService {
 		return user;
 	}
 
-	private String gerarToken(User user) {
-		var scope = user.getRole();
-		Instant expiresAt = LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
-
-		var claims = JwtClaimsSet.builder().issuer("mybackend").subject(user.getId().toString()).issuedAt(Instant.now())
-				.expiresAt(expiresAt).claim("scope", scope).build();
-
-		var jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
-
-		return jwtValue;
-	}
+	
 }
