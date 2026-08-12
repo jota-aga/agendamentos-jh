@@ -14,6 +14,9 @@ import com.jh.auth_service.domain.User;
 import com.jh.auth_service.domain.UserRole;
 import com.jh.auth_service.dto.LoginRequest;
 import com.jh.auth_service.dto.UserRequest;
+import com.jh.auth_service.exceptions.EmailRepetidoExecption;
+import com.jh.auth_service.exceptions.LoginIncorretoException;
+import com.jh.auth_service.exceptions.NaoEncotradoException;
 import com.jh.auth_service.repository.UserRepository;
 import com.jh.auth_service.repository.UserRoleRepository;
 
@@ -41,11 +44,11 @@ public class UserService {
 
 	public String realizarLogin(LoginRequest loginRequest) {
 		User user = userRepository.findByEmail(loginRequest.email())
-				.orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+				.orElseThrow(() -> new LoginIncorretoException());
 		
 		if (bCryptPasswordEncoder.matches(loginRequest.senha(),
 				user.getSenha()) == false) {
-			throw new RuntimeException("Senha incorreta");
+			throw new LoginIncorretoException();
 		}
 		
 		return gerarToken(user);
@@ -53,7 +56,7 @@ public class UserService {
 
 	private void validarNovoUser(UserRequest userRequest) {
 		if (userRepository.findByEmail(userRequest.email()).isPresent())
-			throw new RuntimeException("Email já cadastrado no sistemas");
+			throw new EmailRepetidoExecption();
 	}
 
 	private User criarUsuario(UserRequest userRequest) {
@@ -65,7 +68,7 @@ public class UserService {
 		user.setSenha(senhaCriptografada);
 
 		UserRole role = userRoleRepository.findByNome(UserRole.Role.CLIENT.name())
-				.orElseThrow(() -> new RuntimeException("Role não encontrada"));
+				.orElseThrow(() -> new NaoEncotradoException("Role"));
 
 		user.setRole(role);
 
