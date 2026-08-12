@@ -12,6 +12,7 @@ import com.jh.auth_service.dto.LoginResponse;
 import com.jh.auth_service.dto.UserRequest;
 import com.jh.auth_service.service.UserService;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 @RestController
@@ -22,7 +23,7 @@ public class AuthController {
 	private final UserService userService;
 	
 	@PostMapping("/register")
-	public ResponseEntity<?> registrarUser(@RequestBody UserRequest userRequest){
+	public ResponseEntity<?> registrarUser(@Valid @RequestBody UserRequest userRequest){
 		userService.salvarNovoUsuario(userRequest);
 		
 		return ResponseEntity.status(HttpStatus.CREATED).build();
