@@ -36,8 +36,8 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
 	}
 	
-	@ExceptionHandler(NaoEncotradoException.class)
-	public ResponseEntity<?> handleNaoEncotradoException(NaoEncotradoException ex){
+	@ExceptionHandler(NaoEncontradoException.class)
+	public ResponseEntity<?> handleNaoEncotradoException(NaoEncontradoException ex){
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
 	}
 	

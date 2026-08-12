@@ -9,7 +9,7 @@ import com.jh.auth_service.dto.LoginRequest;
 import com.jh.auth_service.dto.UserRequest;
 import com.jh.auth_service.exceptions.EmailRepetidoExecption;
 import com.jh.auth_service.exceptions.LoginIncorretoException;
-import com.jh.auth_service.exceptions.NaoEncotradoException;
+import com.jh.auth_service.exceptions.NaoEncontradoException;
 import com.jh.auth_service.repository.UserRepository;
 import com.jh.auth_service.repository.UserRoleRepository;
 
@@ -60,7 +60,7 @@ public class UserService {
 		user.setSenha(senhaCriptografada);
 
 		UserRole role = userRoleRepository.findByNome(UserRole.Role.CLIENT.name())
-				.orElseThrow(() -> new NaoEncotradoException("Role"));
+				.orElseThrow(() -> new NaoEncontradoException("Role"));
 
 		user.setRole(role);
 
