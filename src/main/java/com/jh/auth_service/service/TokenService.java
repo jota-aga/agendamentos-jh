@@ -1,8 +1,8 @@
 package com.jh.auth_service.service;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
@@ -16,6 +16,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TokenService {
 	
+	@Value("${token.seconds.expiration}")
+	private Long secondsExpiration;
+	
+	@Value("${token.issuer}")
+	private String issuer;
+	
 	private final JwtEncoder jwtEncoder;
 	
 	public String gerarToken(User user) {
@@ -27,10 +33,10 @@ public class TokenService {
 		
 		Instant now = Instant.now();
 		
-		Instant expiresAt = now.plus(7200, ChronoUnit.HOURS);
+		Instant expiresAt = now.plusSeconds(secondsExpiration);
 
 		var claims = JwtClaimsSet.builder()
-				.issuer("mybackend")
+				.issuer(issuer)
 				.subject(stringId)
 				.issuedAt(now)
 				.expiresAt(expiresAt)
