@@ -13,8 +13,7 @@ public record UserRequest(
 		@NotBlank(message="Nome não deve ser vazio")
 		String nome, 
 		
-		@NotBlank(message = "Senha não deve ser vazia")
-		@Size(min = 8, message = "Senha deve conter mais de 7 caracteres")
+		@Size(min = 8,max = 32, message = "Senha deve ter entre 8 a 32 caracteres")
 		String senha
 		) {
 

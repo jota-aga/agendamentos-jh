@@ -1,5 +1,7 @@
 package com.jh.auth_service.service;
 
+import java.util.Set;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -62,7 +64,7 @@ public class UserService {
 		UserRole role = userRoleRepository.findByNome(UserRole.Role.CLIENT.name())
 				.orElseThrow(() -> new NaoEncontradoException("Role"));
 
-		user.setRole(role);
+		user.setRoles(Set.of(role));
 
 		return user;
 	}

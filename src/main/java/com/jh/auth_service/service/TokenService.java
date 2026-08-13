@@ -1,6 +1,7 @@
 package com.jh.auth_service.service;
 
 import java.time.Instant;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -9,6 +10,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
 import com.jh.auth_service.domain.User;
+import com.jh.auth_service.domain.UserRole;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,8 +27,10 @@ public class TokenService {
 	private final JwtEncoder jwtEncoder;
 	
 	public String gerarToken(User user) {
-		var scope = user.getRole()
-				.getNome();
+		var scope = user.getRoles()
+				.stream()
+				.map(UserRole::getNome)
+				.collect(Collectors.joining(" "));
 		
 		String stringId = user.getId()
 				.toString();

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,7 +59,7 @@ public class UserServiceTest {
     	role = new UserRole(1L, UserRole.Role.CLIENT.name());
     	userRequest = new UserRequest("joao@email.com", "João", "12345678");
     	loginRequest = new LoginRequest("joao@email.com", "12345678");
-    	user = new User(1L, loginRequest.email(), userRequest.nome(), loginRequest.senha(), role);
+    	user = new User(1L, loginRequest.email(), userRequest.nome(), loginRequest.senha(), Set.of(role));
     }
     
     @Test
