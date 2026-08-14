@@ -15,6 +15,7 @@ import com.jh.auth_service.exceptions.NaoEncontradoException;
 import com.jh.auth_service.repository.UserRepository;
 import com.jh.auth_service.repository.UserRoleRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -28,7 +29,8 @@ public class UserService {
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 	
 	private final TokenService tokenService;
-
+	
+	@Transactional
 	public void salvarNovoUsuario(UserRequest userRequest) {
 		validarNovoUser(userRequest);
 

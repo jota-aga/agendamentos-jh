@@ -1,6 +1,10 @@
 package com.jh.auth_service.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -73,6 +77,8 @@ public class AuthControllerTest {
 		.andExpect(jsonPath("$.senha").value("Senha deve ter entre 8 a 32 caracteres"))
 		.andExpect(jsonPath("$.nome").value("Nome não deve ser vazio"))
 		.andExpect(jsonPath("$.email").value("Email não é válido"));
+		
+		verify(userService, never()).salvarNovoUsuario(any());
 	}
 	
 	@Test
@@ -99,6 +105,8 @@ public class AuthControllerTest {
 				.content(objectMapper.writeValueAsString(loginRequest)))
 		.andExpect(status().isOk())
 		.andExpect(jsonPath("$.token").value(token));
+		
+		verify(userService, atLeastOnce()).realizarLogin(loginRequest);
 	}
 	
 	@Test
