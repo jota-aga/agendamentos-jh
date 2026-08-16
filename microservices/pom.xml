@@ -56,5 +56,6 @@
 	</build>
   <modules>
   	<module>auth-service</module>
+  	<module>procedimentos-service</module>
   </modules>
 </project>
