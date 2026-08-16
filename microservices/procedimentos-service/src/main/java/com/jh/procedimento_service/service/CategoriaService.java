@@ -1,5 +1,6 @@
 package com.jh.procedimento_service.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -54,6 +55,14 @@ public class CategoriaService {
 		categoria.setAtivo(ativo);
 		
 		categoriaRepository.save(categoria);
+	}
+	
+	public List<Categoria> listarTodasCategorias(){
+		return categoriaRepository.findAll();
+	}
+	
+	public List<Categoria> listarTodasAtivas(){
+		return categoriaRepository.findByAtivoTrue();
 	}
 
 	private Categoria getCategoriaPorId(Long id) {

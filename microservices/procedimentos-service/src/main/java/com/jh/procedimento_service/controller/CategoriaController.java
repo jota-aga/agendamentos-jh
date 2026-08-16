@@ -1,7 +1,10 @@
 package com.jh.procedimento_service.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jh.procedimento_service.domain.Categoria;
 import com.jh.procedimento_service.dto.CategoriaRequest;
 import com.jh.procedimento_service.service.CategoriaService;
 
@@ -42,5 +46,19 @@ public class CategoriaController {
 		categoriaService.atualizarAtivo(id, ativo);
 		
 		return ResponseEntity.status(HttpStatus.OK).build();
+	}
+	
+	@GetMapping
+	public ResponseEntity<?> listarTodas(){
+		List<Categoria> categorias = categoriaService.listarTodasCategorias();
+		
+		return ResponseEntity.status(HttpStatus.OK).body(categorias);
+	}
+	
+	@GetMapping("/ativas")
+	public ResponseEntity<?> listarTodasAtivas(){
+		List<Categoria> categorias = categoriaService.listarTodasAtivas();
+		
+		return ResponseEntity.status(HttpStatus.OK).body(categorias);
 	}
 }
