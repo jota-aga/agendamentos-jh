@@ -21,19 +21,20 @@ public class CategoriaService {
 	
 	@Transactional
 	public void criarCategoria(CategoriaRequest categoriaRequest) {
-		Optional<Categoria> categoriaRepetida = categoriaRepository.findByName(categoriaRequest.nome());
+		Optional<Categoria> categoriaRepetida = categoriaRepository.findByNome(categoriaRequest.nome());
 		
 		if(categoriaRepetida.isPresent()) throw new CategoriaRepetidaException();
 		
 		Categoria categoria = new Categoria();
 		categoria.setNome(categoriaRequest.nome());
+		categoria.setAtivo(true);
 		
 		categoriaRepository.save(categoria);
 	}
 	
 	@Transactional
 	public void atualizarCategoria(Long id, CategoriaRequest categoriaRequest) {
-		Optional<Categoria> optionalCategoriaRepetida = categoriaRepository.findByName(categoriaRequest.nome());
+		Optional<Categoria> optionalCategoriaRepetida = categoriaRepository.findByNome(categoriaRequest.nome());
 		Categoria categoria = getCategoriaPorId(id);
 		
 		if(optionalCategoriaRepetida.isPresent() ) {

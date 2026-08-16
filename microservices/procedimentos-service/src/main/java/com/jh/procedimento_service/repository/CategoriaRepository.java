@@ -8,6 +8,6 @@ import com.jh.procedimento_service.domain.Categoria;
 
 public interface CategoriaRepository extends JpaRepository<Categoria, Long>{
 
-	Optional<Categoria> findByName(String nome);
+	Optional<Categoria> findByNome(String nome);
 
 }
