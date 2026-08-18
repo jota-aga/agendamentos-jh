@@ -28,11 +28,16 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 		return httpSecurity
 				.authorizeHttpRequests(authorize -> authorize
-															 .requestMatchers(HttpMethod.POST, "/categoria/**").hasAuthority("SCOPE_ADMIN")
-															 .requestMatchers(HttpMethod.PUT, "/categoria/**").hasAuthority("SCOPE_ADMIN")
-															 .requestMatchers(HttpMethod.PATCH, "/categoria/**").hasAuthority("SCOPE_ADMIN")
-															 .requestMatchers(HttpMethod.GET, "/categoria/ativas").permitAll()
+															 .requestMatchers(HttpMethod.POST, "/categoria").hasAuthority("SCOPE_ADMIN")
+															 .requestMatchers(HttpMethod.PUT, "/categoria").hasAuthority("SCOPE_ADMIN")
+															 .requestMatchers(HttpMethod.PATCH, "/categoria").hasAuthority("SCOPE_ADMIN")
+															 .requestMatchers(HttpMethod.GET, "/categoria/ativos").permitAll()
 															 .requestMatchers(HttpMethod.GET, "/categoria").hasAuthority("SCOPE_ADMIN")
+															 .requestMatchers(HttpMethod.POST, "/procedimento").hasAuthority("SCOPE_ADMIN")
+															 .requestMatchers(HttpMethod.PUT, "/procedimento").hasAuthority("SCOPE_ADMIN")
+															 .requestMatchers(HttpMethod.PATCH, "/procedimento").hasAuthority("SCOPE_ADMIN")
+															 .requestMatchers(HttpMethod.GET, "/procedimento/ativos").permitAll()
+															 .requestMatchers(HttpMethod.GET, "/procedimento").hasAuthority("SCOPE_ADMIN")
 															 .anyRequest().authenticated()
 															 )
 															 

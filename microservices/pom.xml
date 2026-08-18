@@ -10,6 +10,9 @@
   <artifactId>microservices</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
+  <properties>  
+  		<org.mapstruct.version>1.6.3</org.mapstruct.version>
+  </properties>
   <build>
 		<plugins>
 			<plugin>
@@ -47,6 +50,11 @@
 									<groupId>org.projectlombok</groupId>
 									<artifactId>lombok</artifactId>
 								</path>
+								<path>
+			                        <groupId>org.mapstruct</groupId>
+			                        <artifactId>mapstruct-processor</artifactId>
+			                        <version>${org.mapstruct.version}</version>
+			                    </path>
 							</annotationProcessorPaths>
 						</configuration>
 					</execution>

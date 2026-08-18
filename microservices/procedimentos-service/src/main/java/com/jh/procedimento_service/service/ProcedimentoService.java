@@ -41,10 +41,10 @@ public class ProcedimentoService {
 	}
 	
 	@Transactional
-	public void atualizarProcedimento(ProcedimentoRequest procedimentoRequest) {
+	public void atualizarProcedimento(Long id, ProcedimentoRequest procedimentoRequest) {
+		Procedimento procedimento = procurarPorId(id);
 		Categoria categoria = procurarCategoriaPorId(procedimentoRequest.categoriaId());
 		
-		Procedimento procedimento = new Procedimento();
 		procedimento.setTitulo(procedimentoRequest.titulo());
 		procedimento.setDescricao(procedimentoRequest.descricao());
 		procedimento.setPreco(procedimentoRequest.preco());
@@ -56,7 +56,7 @@ public class ProcedimentoService {
 	}
 	
 	@Transactional
-	public void mudarAtivo(Long id, Boolean ativo) {
+	public void alterarAtivo(Long id, Boolean ativo) {
 		Procedimento procedimento = procurarPorId(id);
 		
 		procedimento.setAtivo(ativo);
@@ -64,7 +64,7 @@ public class ProcedimentoService {
 	}
 	
 	public List<Procedimento> procurarTodos(){
-		return procedimentoRepository.findAllByAtivoTrue();
+		return procedimentoRepository.findAll();
 	}
 	
 	public List<Procedimento> procurarAtivos(){
