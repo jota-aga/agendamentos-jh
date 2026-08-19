@@ -41,8 +41,7 @@ public class ProcedimentoService {
 	
 	@Transactional
 	public void atualizarProcedimento(Long id, ProcedimentoRequest procedimentoRequest) {
-		Procedimento procedimento = procedimentoRepository.findById(id)
-				.orElseThrow(() -> new NaoEncontradoException("Procedimento por id"));
+		Procedimento procedimento = procurarProcedimentoPorId(id);;
 		
 		Categoria categoria = procurarCategoriaPorId(procedimentoRequest.categoriaId());
 		
@@ -55,8 +54,7 @@ public class ProcedimentoService {
 	
 	@Transactional
 	public void alterarAtivo(Long id, Boolean ativo) {
-		Procedimento procedimento = procedimentoRepository.findById(id)
-				.orElseThrow(() -> new NaoEncontradoException("Procedimento por id"));
+		Procedimento procedimento = procurarProcedimentoPorId(id);;
 		
 		procedimento.setAtivo(ativo);
 		
@@ -77,22 +75,25 @@ public class ProcedimentoService {
 		return response;
 	}
 	
-	public ProcedimentoResponse procurarPorId(Long id) {
+	public ProcedimentoResponse getProcedimentoPorId(Long id) {
 		ProcedimentoResponse response = ProcedimentoMapper.INSTANCE
-				.entityToResponse(procedimentoRepository.findById(id)
-						.orElseThrow(() -> new NaoEncontradoException("Procedimento por id")));
+				.entityToResponse(procurarProcedimentoPorId(id));
 		return response;
+	}
+	
+	public void deletarProcedimento(Long id) {
+		Procedimento procedimento = procurarProcedimentoPorId(id);
+		
+		procedimentoRepository.delete(procedimento);
+	}
+	
+	private Procedimento procurarProcedimentoPorId(Long id) {
+		return procedimentoRepository.findById(id)
+				.orElseThrow(() -> new NaoEncontradoException("Procedimento por id"));
 	}
 	
 	private Categoria procurarCategoriaPorId(Long categoriaId) {
 		return categoriaRepository.findById(categoriaId)
 				.orElseThrow(() -> new NaoEncontradoException("Categoria por id"));
-	}
-
-	public void deletarProcedimento(Long id) {
-		Procedimento procedimento = procedimentoRepository.findById(id)
-				.orElseThrow(() -> new NaoEncontradoException("Procedimento por id"));
-		
-		procedimentoRepository.delete(procedimento);
 	}
 }

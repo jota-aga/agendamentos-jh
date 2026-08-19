@@ -62,6 +62,13 @@ public class ProcedimentoController {
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	
+	@GetMapping("/{id}")
+	public ResponseEntity<?> getProcedimentoPorId(@PathVariable Long id){
+		ProcedimentoResponse response = procedimentoService.getProcedimentoPorId(id);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+	
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> deletarProcedimento(@PathVariable Long id){
 		procedimentoService.deletarProcedimento(id);
