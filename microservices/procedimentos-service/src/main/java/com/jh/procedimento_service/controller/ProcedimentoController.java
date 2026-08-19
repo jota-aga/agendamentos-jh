@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,7 +48,7 @@ public class ProcedimentoController {
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 	
-	@GetMapping()
+	@GetMapping
 	public ResponseEntity<?> listarTodos(){
 		List<ProcedimentoResponse> response = procedimentoService.procurarTodosProcedimentos();
 		
@@ -59,5 +60,12 @@ public class ProcedimentoController {
 		List<ProcedimentoResponse> response = procedimentoService.procurarProcedimentosAtivos();
 		
 		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+	
+	@DeleteMapping("/{id}")
+	public ResponseEntity<?> deletarProcedimento(@PathVariable Long id){
+		procedimentoService.deletarProcedimento(id);
+		
+		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 }

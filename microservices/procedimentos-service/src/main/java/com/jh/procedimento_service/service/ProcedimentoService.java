@@ -30,7 +30,7 @@ public class ProcedimentoService {
 		Categoria categoria = procurarCategoriaPorId(procedimentoRequest.categoriaId());
 		
 		Procedimento procedimento = new Procedimento();
-		ProcedimentoMapper.INSTANCE.requestToEntity(procedimentoRequest);
+		procedimento = ProcedimentoMapper.INSTANCE.requestToEntity(procedimentoRequest);
 		procedimento.setCriadoEm(LocalDateTime.now());
 		procedimento.setAtualizadoEm(LocalDateTime.now());
 		procedimento.setAtivo(true);
@@ -41,10 +41,12 @@ public class ProcedimentoService {
 	
 	@Transactional
 	public void atualizarProcedimento(Long id, ProcedimentoRequest procedimentoRequest) {
-		Procedimento procedimento = procurarPorId(id);
+		Procedimento procedimento = procedimentoRepository.findById(id)
+				.orElseThrow(() -> new NaoEncontradoException("Procedimento por id"));
+		
 		Categoria categoria = procurarCategoriaPorId(procedimentoRequest.categoriaId());
 		
-		procedimento = ProcedimentoMapper.INSTANCE.requestToEntity(procedimentoRequest);
+		ProcedimentoMapper.INSTANCE.updateEntity(procedimentoRequest, procedimento);
 		procedimento.setAtualizadoEm(LocalDateTime.now());
 		procedimento.setCategoria(categoria);
 		
@@ -53,29 +55,44 @@ public class ProcedimentoService {
 	
 	@Transactional
 	public void alterarAtivo(Long id, Boolean ativo) {
-		Procedimento procedimento = procurarPorId(id);
+		Procedimento procedimento = procedimentoRepository.findById(id)
+				.orElseThrow(() -> new NaoEncontradoException("Procedimento por id"));
 		
 		procedimento.setAtivo(ativo);
+		
 		procedimentoRepository.save(procedimento);
 	}
 	
 	public List<ProcedimentoResponse> procurarTodosProcedimentos(){
-		List<ProcedimentoResponse> response = ProcedimentoMapper.INSTANCE.listEntityToListReponse(procedimentoRepository.findAll());
+		List<ProcedimentoResponse> response = ProcedimentoMapper.INSTANCE
+				.listEntityToListReponse(procedimentoRepository.findAll());
+		
 		return response;
 	}
 	
 	public List<ProcedimentoResponse> procurarProcedimentosAtivos(){
-		List<ProcedimentoResponse> response = ProcedimentoMapper.INSTANCE.listEntityToListReponse(procedimentoRepository.findAllByAtivoTrue());
+		List<ProcedimentoResponse> response = ProcedimentoMapper.INSTANCE
+				.listEntityToListReponse(procedimentoRepository.findAllByAtivoTrue());
+		
 		return response;
 	}
 	
-	private Procedimento procurarPorId(Long id) {
-		return procedimentoRepository.findById(id)
-				.orElseThrow(() -> new NaoEncontradoException("Procedimento por id"));
+	public ProcedimentoResponse procurarPorId(Long id) {
+		ProcedimentoResponse response = ProcedimentoMapper.INSTANCE
+				.entityToResponse(procedimentoRepository.findById(id)
+						.orElseThrow(() -> new NaoEncontradoException("Procedimento por id")));
+		return response;
 	}
 	
 	private Categoria procurarCategoriaPorId(Long categoriaId) {
 		return categoriaRepository.findById(categoriaId)
 				.orElseThrow(() -> new NaoEncontradoException("Categoria por id"));
+	}
+
+	public void deletarProcedimento(Long id) {
+		Procedimento procedimento = procedimentoRepository.findById(id)
+				.orElseThrow(() -> new NaoEncontradoException("Procedimento por id"));
+		
+		procedimentoRepository.delete(procedimento);
 	}
 }
