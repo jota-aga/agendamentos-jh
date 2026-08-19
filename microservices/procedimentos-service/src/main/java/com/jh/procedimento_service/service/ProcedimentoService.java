@@ -7,8 +7,10 @@ import org.springframework.stereotype.Service;
 
 import com.jh.procedimento_service.domain.Categoria;
 import com.jh.procedimento_service.domain.Procedimento;
-import com.jh.procedimento_service.dto.ProcedimentoRequest;
+import com.jh.procedimento_service.dto.procedimento.ProcedimentoRequest;
+import com.jh.procedimento_service.dto.procedimento.ProcedimentoResponse;
 import com.jh.procedimento_service.exceptions.NaoEncontradoException;
+import com.jh.procedimento_service.mappers.ProcedimentoMapper;
 import com.jh.procedimento_service.repository.CategoriaRepository;
 import com.jh.procedimento_service.repository.ProcedimentoRepository;
 
@@ -28,10 +30,7 @@ public class ProcedimentoService {
 		Categoria categoria = procurarCategoriaPorId(procedimentoRequest.categoriaId());
 		
 		Procedimento procedimento = new Procedimento();
-		procedimento.setTitulo(procedimentoRequest.titulo());
-		procedimento.setDescricao(procedimentoRequest.descricao());
-		procedimento.setPreco(procedimentoRequest.preco());
-		procedimento.setDuracaoEmMinutos(procedimentoRequest.duracaoEmMinutos());
+		ProcedimentoMapper.INSTANCE.requestToEntity(procedimentoRequest);
 		procedimento.setCriadoEm(LocalDateTime.now());
 		procedimento.setAtualizadoEm(LocalDateTime.now());
 		procedimento.setAtivo(true);
@@ -45,10 +44,7 @@ public class ProcedimentoService {
 		Procedimento procedimento = procurarPorId(id);
 		Categoria categoria = procurarCategoriaPorId(procedimentoRequest.categoriaId());
 		
-		procedimento.setTitulo(procedimentoRequest.titulo());
-		procedimento.setDescricao(procedimentoRequest.descricao());
-		procedimento.setPreco(procedimentoRequest.preco());
-		procedimento.setDuracaoEmMinutos(procedimentoRequest.duracaoEmMinutos());
+		procedimento = ProcedimentoMapper.INSTANCE.requestToEntity(procedimentoRequest);
 		procedimento.setAtualizadoEm(LocalDateTime.now());
 		procedimento.setCategoria(categoria);
 		
@@ -63,12 +59,14 @@ public class ProcedimentoService {
 		procedimentoRepository.save(procedimento);
 	}
 	
-	public List<Procedimento> procurarTodos(){
-		return procedimentoRepository.findAll();
+	public List<ProcedimentoResponse> procurarTodosProcedimentos(){
+		List<ProcedimentoResponse> response = ProcedimentoMapper.INSTANCE.listEntityToListReponse(procedimentoRepository.findAll());
+		return response;
 	}
 	
-	public List<Procedimento> procurarAtivos(){
-		return procedimentoRepository.findAllByAtivoTrue();
+	public List<ProcedimentoResponse> procurarProcedimentosAtivos(){
+		List<ProcedimentoResponse> response = ProcedimentoMapper.INSTANCE.listEntityToListReponse(procedimentoRepository.findAllByAtivoTrue());
+		return response;
 	}
 	
 	private Procedimento procurarPorId(Long id) {

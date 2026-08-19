@@ -1,4 +1,4 @@
-package com.jh.procedimento_service.dto;
+package com.jh.procedimento_service.dto.procedimento;
 
 import java.math.BigDecimal;
 

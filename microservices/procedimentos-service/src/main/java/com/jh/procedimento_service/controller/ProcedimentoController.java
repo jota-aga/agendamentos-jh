@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jh.procedimento_service.domain.Procedimento;
-import com.jh.procedimento_service.dto.ProcedimentoRequest;
+import com.jh.procedimento_service.dto.procedimento.ProcedimentoRequest;
+import com.jh.procedimento_service.dto.procedimento.ProcedimentoResponse;
 import com.jh.procedimento_service.service.ProcedimentoService;
 
 import jakarta.validation.Valid;
@@ -49,15 +49,15 @@ public class ProcedimentoController {
 	
 	@GetMapping()
 	public ResponseEntity<?> listarTodos(){
-		List<Procedimento> procedimentos = procedimentoService.procurarTodos();
+		List<ProcedimentoResponse> response = procedimentoService.procurarTodosProcedimentos();
 		
-		return ResponseEntity.status(HttpStatus.OK).body(procedimentos);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	
 	@GetMapping("/ativos")
 	public ResponseEntity<?> listarAtivos(){
-		List<Procedimento> procedimentos = procedimentoService.procurarAtivos();
+		List<ProcedimentoResponse> response = procedimentoService.procurarProcedimentosAtivos();
 		
-		return ResponseEntity.status(HttpStatus.OK).body(procedimentos);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 }

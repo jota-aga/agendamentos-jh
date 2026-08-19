@@ -6,9 +6,11 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.jh.procedimento_service.domain.Categoria;
-import com.jh.procedimento_service.dto.CategoriaRequest;
+import com.jh.procedimento_service.dto.procedimento.categoria.CategoriaRequest;
+import com.jh.procedimento_service.dto.procedimento.categoria.CategoriaResponse;
 import com.jh.procedimento_service.exceptions.CategoriaRepetidaException;
 import com.jh.procedimento_service.exceptions.NaoEncontradoException;
+import com.jh.procedimento_service.mappers.CategoriaMapper;
 import com.jh.procedimento_service.repository.CategoriaRepository;
 
 import jakarta.transaction.Transactional;
@@ -57,12 +59,14 @@ public class CategoriaService {
 		categoriaRepository.save(categoria);
 	}
 	
-	public List<Categoria> listarTodasCategorias(){
-		return categoriaRepository.findAll();
+	public List<CategoriaResponse> listarTodasCategorias(){
+		List<CategoriaResponse> response = CategoriaMapper.INSTANCE.listEntityToListDTO(categoriaRepository.findAll());
+		return response;
 	}
 	
-	public List<Categoria> listarTodasAtivas(){
-		return categoriaRepository.findByAtivoTrue();
+	public List<CategoriaResponse> listarTodasCategoriasAtivas(){
+		List<CategoriaResponse> response = CategoriaMapper.INSTANCE.listEntityToListDTO(categoriaRepository.findAllByAtivoTrue());
+		return response;
 	}
 
 	private Categoria getCategoriaPorId(Long id) {

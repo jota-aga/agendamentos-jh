@@ -11,6 +11,6 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Long>{
 
 	Optional<Categoria> findByNome(String nome);
 
-	List<Categoria> findByAtivoTrue();
+	List<Categoria> findAllByAtivoTrue();
 
 }

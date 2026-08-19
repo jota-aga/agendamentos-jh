@@ -1,4 +1,4 @@
-package com.jh.procedimento_service.dto;
+package com.jh.procedimento_service.dto.procedimento.categoria;
 
 import jakarta.validation.constraints.NotBlank;
 

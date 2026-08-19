@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jh.procedimento_service.domain.Categoria;
-import com.jh.procedimento_service.dto.CategoriaRequest;
+import com.jh.procedimento_service.dto.procedimento.categoria.CategoriaRequest;
+import com.jh.procedimento_service.dto.procedimento.categoria.CategoriaResponse;
 import com.jh.procedimento_service.service.CategoriaService;
 
 import jakarta.validation.Valid;
@@ -50,14 +50,14 @@ public class CategoriaController {
 	
 	@GetMapping
 	public ResponseEntity<?> listarTodas(){
-		List<Categoria> categorias = categoriaService.listarTodasCategorias();
+		List<CategoriaResponse> categorias = categoriaService.listarTodasCategorias();
 		
 		return ResponseEntity.status(HttpStatus.OK).body(categorias);
 	}
 	
 	@GetMapping("/ativas")
 	public ResponseEntity<?> listarTodasAtivas(){
-		List<Categoria> categorias = categoriaService.listarTodasAtivas();
+		List<CategoriaResponse> categorias = categoriaService.listarTodasCategoriasAtivas();
 		
 		return ResponseEntity.status(HttpStatus.OK).body(categorias);
 	}
