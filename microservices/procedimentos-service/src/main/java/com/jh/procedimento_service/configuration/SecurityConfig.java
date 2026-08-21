@@ -29,8 +29,8 @@ public class SecurityConfig {
 		return httpSecurity
 				.authorizeHttpRequests(authorize -> authorize
 															 .requestMatchers(HttpMethod.POST, "/categoria").hasAuthority("SCOPE_ADMIN")
-															 .requestMatchers(HttpMethod.PUT, "/categoria").hasAuthority("SCOPE_ADMIN")
-															 .requestMatchers(HttpMethod.PATCH, "/categoria").hasAuthority("SCOPE_ADMIN")
+															 .requestMatchers(HttpMethod.PUT, "/categoria/**").hasAuthority("SCOPE_ADMIN")
+															 .requestMatchers(HttpMethod.PATCH, "/categoria/**").hasAuthority("SCOPE_ADMIN")
 															 .requestMatchers(HttpMethod.GET, "/categoria/ativos").permitAll()
 															 .requestMatchers(HttpMethod.GET, "/categoria").hasAuthority("SCOPE_ADMIN")
 															 .requestMatchers(HttpMethod.POST, "/procedimento").hasAuthority("SCOPE_ADMIN")
