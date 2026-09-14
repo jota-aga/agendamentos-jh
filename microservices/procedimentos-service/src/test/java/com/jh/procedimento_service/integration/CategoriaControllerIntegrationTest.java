@@ -41,9 +41,7 @@ public class CategoriaControllerIntegrationTest {
 	private static final String BASE_URL = "/categoria";
 	
 	private static final String ADMIN = "SCOPE_ADMIN";
-	
-	private static final String CLIENT = "SCOPE_CLIENT";
-	
+		
 	@Autowired
 	private MockMvc mockMvc;
 	
@@ -151,6 +149,18 @@ public class CategoriaControllerIntegrationTest {
 		categoria = categoriaRepository.findById(categoria.getId()).get();
 		
 		assertEquals(ativoDiferente, categoria.getAtivo());
+	}
+	
+	@Test
+	@WithMockUser(authorities = ADMIN)
+	public void deveRetornar200ENaoExistirCategoriaAoDeletarCategoria() throws JacksonException, Exception {
+		categoria = categoriaRepository.save(categoria);
+				
+		mockMvc.perform(delete(BASE_URL +"/"+categoria.getId()))
+		.andExpect(status().isOk());
+		
+		
+		assertTrue(categoriaRepository.findAll().isEmpty());	
 	}
 	
 	@Test

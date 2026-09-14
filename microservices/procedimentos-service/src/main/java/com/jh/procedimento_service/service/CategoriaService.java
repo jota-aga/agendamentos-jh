@@ -69,7 +69,7 @@ public class CategoriaService {
 		
 		List<Procedimento> procedimentos = categoria.getProcedimentos();
 		
-		if(!procedimentos.isEmpty()) {
+		if(procedimentos != null && !procedimentos.isEmpty()) {
 			Categoria categoriaNaoDefinida = getCategoriaNaoDefinida();
 			
 			procedimentos.forEach(p -> p.setCategoria(categoriaNaoDefinida));
