@@ -3,12 +3,16 @@ package com.jh.procedimento_service.controller;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.jh.procedimento_service.configuration.SecurityConfig;
 import com.jh.procedimento_service.dto.procedimento.categoria.CategoriaRequest;
+import com.jh.procedimento_service.dto.procedimento.categoria.CategoriaResponse;
 import com.jh.procedimento_service.exceptions.CategoriaRepetidaException;
 import com.jh.procedimento_service.exceptions.NaoEncontradoException;
 import com.jh.procedimento_service.service.CategoriaService;
@@ -220,13 +225,20 @@ public class CategoriaControllerTest {
 	
 	@Test
 	@WithMockUser(authorities = ADMIN)
-	public void deveListarTodasCateogoriasERetonar200QuandoUsuarioForAdmin() throws JacksonException, Exception {
+	public void deveListarTodasCategoriasERetonar200QuandoUsuarioForAdmin() throws JacksonException, Exception {
+		List<CategoriaResponse> categoriasResponse = criarListaDeCategoriaResponse();
+		
+		when(categoriaService.listarTodasCategorias()).thenReturn(categoriasResponse);
+		
+		String jsonResponse = objectMapper.writeValueAsString(categoriasResponse);
 
-		mockMvc.perform(get(BASE_URL)).andExpect(status().isOk());
+		mockMvc.perform(get(BASE_URL))
+		.andExpect(status().isOk())
+		.andExpect(content().json(jsonResponse));
 
 		verify(categoriaService).listarTodasCategorias();
 	}
-	
+
 	@Test
 	@WithMockUser(authorities = CLIENT)
 	public void deveRetornar403QuandoUsuarioNaoForAdminAoListarTodasAsCategorias()
@@ -234,5 +246,26 @@ public class CategoriaControllerTest {
 		
 		mockMvc.perform(get(BASE_URL))
 		.andExpect(status().isForbidden());
+	}
+	
+	@Test
+	public void deveListarTodasCategoriasAtivasERetonar200() throws JacksonException, Exception {
+		List<CategoriaResponse> categoriasResponse = criarListaDeCategoriaResponse();
+		
+		when(categoriaService.listarTodasCategoriasAtivas()).thenReturn(categoriasResponse);
+		
+		String jsonResponse = objectMapper.writeValueAsString(categoriasResponse);
+
+		mockMvc.perform(get(BASE_URL+"/ativas"))
+		.andExpect(status().isOk())
+		.andExpect(content().json(jsonResponse));
+
+		verify(categoriaService).listarTodasCategoriasAtivas();
+	}
+	
+	private List<CategoriaResponse> criarListaDeCategoriaResponse(){
+		CategoriaResponse categoriaResponse = new CategoriaResponse(1L, "categoria", true);
+		
+		return List.of(categoriaResponse);
 	}
 }
