@@ -70,5 +70,6 @@
   <modules>
   	<module>auth-service</module>
   	<module>procedimentos-service</module>
+  	<module>agendamento-service</module>
   </modules>
 </project>

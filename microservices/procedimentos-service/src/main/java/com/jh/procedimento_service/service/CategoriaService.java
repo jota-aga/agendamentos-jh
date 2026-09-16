@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 
 import com.jh.procedimento_service.domain.Categoria;
 import com.jh.procedimento_service.domain.Procedimento;
-import com.jh.procedimento_service.dto.procedimento.categoria.CategoriaRequest;
-import com.jh.procedimento_service.dto.procedimento.categoria.CategoriaResponse;
+import com.jh.procedimento_service.dto.categoria.CategoriaRequest;
+import com.jh.procedimento_service.dto.categoria.CategoriaResponse;
 import com.jh.procedimento_service.exceptions.CategoriaRepetidaException;
 import com.jh.procedimento_service.exceptions.NaoEncontradoException;
 import com.jh.procedimento_service.mappers.CategoriaMapper;

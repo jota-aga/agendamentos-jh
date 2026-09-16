@@ -28,9 +28,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.jh.procedimento_service.configuration.SecurityConfig;
+import com.jh.procedimento_service.dto.categoria.CategoriaResponse;
 import com.jh.procedimento_service.dto.procedimento.ProcedimentoRequest;
 import com.jh.procedimento_service.dto.procedimento.ProcedimentoResponse;
-import com.jh.procedimento_service.dto.procedimento.categoria.CategoriaResponse;
 import com.jh.procedimento_service.exceptions.NaoEncontradoException;
 import com.jh.procedimento_service.service.ProcedimentoService;
 

@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
 import com.jh.procedimento_service.domain.Categoria;
-import com.jh.procedimento_service.dto.procedimento.categoria.CategoriaResponse;
+import com.jh.procedimento_service.dto.categoria.CategoriaResponse;
 
 @Mapper(componentModel = "spring")
 public interface CategoriaMapper {

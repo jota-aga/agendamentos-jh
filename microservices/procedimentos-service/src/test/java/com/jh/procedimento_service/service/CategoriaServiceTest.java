@@ -19,7 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.jh.procedimento_service.domain.Categoria;
 import com.jh.procedimento_service.domain.Procedimento;
-import com.jh.procedimento_service.dto.procedimento.categoria.CategoriaRequest;
+import com.jh.procedimento_service.dto.categoria.CategoriaRequest;
 import com.jh.procedimento_service.exceptions.CategoriaRepetidaException;
 import com.jh.procedimento_service.repository.CategoriaRepository;
 import com.jh.procedimento_service.repository.ProcedimentoRepository;
