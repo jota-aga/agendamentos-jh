@@ -26,7 +26,6 @@ import com.jh.procedimento_service.domain.Procedimento;
 import com.jh.procedimento_service.dto.procedimento.categoria.CategoriaRequest;
 import com.jh.procedimento_service.repository.CategoriaRepository;
 import com.jh.procedimento_service.repository.ProcedimentoRepository;
-import com.jh.procedimento_service.service.CategoriaService;
 
 import jakarta.transaction.Transactional;
 import tools.jackson.core.JacksonException;
