@@ -2,8 +2,11 @@ package com.jh.procedimento_service.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.math.BigDecimal;
@@ -147,6 +150,48 @@ public class ProcedimentoControllerIntegrationTest {
 		assertNotEquals(procedimentoRequest.preco(), procedimento.getPreco());
 		assertNotEquals(procedimentoRequest.duracaoEmMinutos(), procedimento.getDuracaoEmMinutos());
 		assertNotEquals(procedimentoRequest.categoriaId(), procedimento.getCategoria().getId());
+	}
+	
+	@Test
+	@WithMockUser(authorities = SCOPE_ADMIN)
+	public void deveAlterarAtivoERetornar200() throws JacksonException, Exception {
+		Procedimento procedimento = criarProcedimento();
+
+		mockMvc.perform(patch(BASE_URL+"/ativo/"+procedimento.getId())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(false)))
+		.andExpect(status().isOk());
+		
+		procedimento = procedimentoRepository.findById(procedimento.getId()).get();
+		
+		assertEquals(false, procedimento.getAtivo());
+	}
+	
+	@Test
+	@WithMockUser(authorities = SCOPE_ADMIN)
+	public void deveRetornar201ENaoDeveAtualizarQuandoProcedimentoNaoForEncontradoAoAlterarAtivo() throws JacksonException, Exception {
+		Procedimento procedimento = criarProcedimento();
+
+		mockMvc.perform(patch(BASE_URL+"/ativo/"+Long.MAX_VALUE)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(false)))
+		.andExpect(status().isNotFound());
+		
+		procedimento = procedimentoRepository.findById(procedimento.getId()).get();
+		
+		assertNotEquals(false, procedimento.getAtivo());
+	}
+	
+	@Test
+	@WithMockUser(authorities = SCOPE_ADMIN)
+	public void deveDeletarOProcedimentoERetornar200() throws JacksonException, Exception {
+		Procedimento procedimento = criarProcedimento();
+
+		mockMvc.perform(delete(BASE_URL+"/"+procedimento.getId()))
+		.andExpect(status().isOk());
+		
+		List<Procedimento> procedimentos = procedimentoRepository.findAll();
+		assertTrue(procedimentos.isEmpty());
 	}
 	
 	private Procedimento criarProcedimento() {

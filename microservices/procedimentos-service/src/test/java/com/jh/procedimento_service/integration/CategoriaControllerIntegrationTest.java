@@ -49,9 +49,6 @@ public class CategoriaControllerIntegrationTest {
 	private ObjectMapper objectMapper;
 	
 	@Autowired
-	private CategoriaService categoriaService;
-	
-	@Autowired
 	private CategoriaRepository categoriaRepository;
 	
 	@Autowired
@@ -73,7 +70,7 @@ public class CategoriaControllerIntegrationTest {
 	
 	@Test
 	@WithMockUser(authorities = ADMIN)
-	public void deveRetornar201EDeveTerApenasUmaCategoriaExistenteAoCriarCategoria() throws JacksonException, Exception {
+	public void deveCriarCategoriaERetornar201() throws JacksonException, Exception {
 		mockMvc.perform(post(BASE_URL)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(categoriaRequest)))
@@ -101,7 +98,7 @@ public class CategoriaControllerIntegrationTest {
 	
 	@Test
 	@WithMockUser(authorities = ADMIN)
-	public void deveRetornar200EAtualizarCategoria() throws JacksonException, Exception {
+	public void deveAtualizarCategoriaERetornar200() throws JacksonException, Exception {
 		categoria = categoriaRepository.save(categoria);
 		categoriaRequest = new CategoriaRequest("novo nome");
 
@@ -137,7 +134,7 @@ public class CategoriaControllerIntegrationTest {
 	
 	@Test
 	@WithMockUser(authorities = ADMIN)
-	public void deveRetornar200EAlterarAtivoDaCategoria() throws JacksonException, Exception {
+	public void deveAlterarCategoriaERetornar200() throws JacksonException, Exception {
 		categoria = categoriaRepository.save(categoria);
 		Boolean ativoDiferente = !categoria.getAtivo();
 
@@ -153,7 +150,7 @@ public class CategoriaControllerIntegrationTest {
 	
 	@Test
 	@WithMockUser(authorities = ADMIN)
-	public void deveRetornar200ENaoExistirCategoriaAoDeletarCategoria() throws JacksonException, Exception {
+	public void deveDeletarCategoriaERetornar200() throws JacksonException, Exception {
 		categoria = categoriaRepository.save(categoria);
 				
 		mockMvc.perform(delete(BASE_URL +"/"+categoria.getId()))

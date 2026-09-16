@@ -100,7 +100,7 @@ public class ProcedimentoServiceTest {
 	}
 	
 	@Test
-	public void devealterarAtivoComSucesso() {
+	public void deveAlterarAtivoComSucesso() {
 		when(procedimentoRepository.findById(procedimento.getId())).thenReturn(Optional.of(procedimento));
 		
 		procedimentoService.alterarAtivo(procedimento.getId(), true);
