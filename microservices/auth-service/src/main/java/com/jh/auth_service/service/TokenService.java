@@ -35,6 +35,8 @@ public class TokenService {
 		String stringId = user.getId()
 				.toString();
 		
+		String nomeDoUsuario = user.getNome();
+		
 		Instant now = Instant.now();
 		
 		Instant expiresAt = now.plusSeconds(secondsExpiration);
@@ -45,6 +47,7 @@ public class TokenService {
 				.issuedAt(now)
 				.expiresAt(expiresAt)
 				.claim("scope", scope)
+				.claim("nome", nomeDoUsuario)
 				.build();
 
 		var jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
