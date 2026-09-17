@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class ProcedimentoExternalService {
 	
-	private WebClient webClient;
+	private final WebClient webClient;
 	
 	public ProcedimentoResponse procurarProcedimentoPorId(Long id) {
 		return webClient.get()

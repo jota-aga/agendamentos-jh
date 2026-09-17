@@ -1,4 +1,4 @@
-package com.jh.procedimento_service.configuration;
+package com.jh.agendamento_service.config;
 
 import java.security.interfaces.RSAPublicKey;
 
@@ -28,18 +28,6 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 		return httpSecurity
 				.authorizeHttpRequests(authorize -> authorize
-															 .requestMatchers(HttpMethod.POST, "/categoria").hasAuthority("SCOPE_ADMIN")
-															 .requestMatchers(HttpMethod.PUT, "/categoria/**").hasAuthority("SCOPE_ADMIN")
-															 .requestMatchers(HttpMethod.PATCH, "/categoria/**").hasAuthority("SCOPE_ADMIN")
-															 .requestMatchers(HttpMethod.GET, "/categoria/ativas").permitAll()
-															 .requestMatchers(HttpMethod.GET, "/categoria").hasAuthority("SCOPE_ADMIN")
-															 .requestMatchers(HttpMethod.POST, "/procedimento").hasAuthority("SCOPE_ADMIN")
-															 .requestMatchers(HttpMethod.PUT, "/procedimento/**").hasAuthority("SCOPE_ADMIN")
-															 .requestMatchers(HttpMethod.PATCH, "/procedimento/**").hasAuthority("SCOPE_ADMIN")
-															 .requestMatchers(HttpMethod.DELETE, "/procedimento/**").hasAuthority("SCOPE_ADMIN")
-															 .requestMatchers(HttpMethod.GET, "/procedimento/ativos").permitAll()
-															 .requestMatchers(HttpMethod.GET, "/procedimento").hasAuthority("SCOPE_ADMIN")
-															 .requestMatchers(HttpMethod.GET, "/procedimento/*").permitAll()
 															 .anyRequest().authenticated()
 															 )
 															 

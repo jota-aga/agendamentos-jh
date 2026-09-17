@@ -1,12 +1,13 @@
 package com.jh.agendamento_service.repository;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.time.LocalTime;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import com.jh.agendamento_service.domain.Agendamento;
 
 public interface AgendamentoRepository extends MongoRepository<Agendamento, Long>{
-	List<Agendamento> findAllByData(LocalDate data); 
+	
+	Boolean existsByDataAndInicioLessThanAndFimGreaterThan(LocalDate data, LocalTime inicio, LocalTime fim); 
 }

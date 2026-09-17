@@ -3,6 +3,7 @@ package com.jh.agendamento_service.domain;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -20,21 +21,23 @@ import lombok.Setter;
 public class Agendamento {
 	
 	@Id
-	private Long id;
+	private String id;
+	
+	private Long usuarioId;
 	
 	private LocalDateTime criadoEm;
 	
 	private LocalDate data;
 	
-	private LocalDateTime inicio;
+	private LocalTime inicio;
 	
-	private LocalDateTime fim;
+	private LocalTime fim;
 	
-	private String nomeDoProcedimento;
+	private String tituloDoProcedimento;
 	
 	private Integer duracaoEmMinutos;
 	
-	private BigDecimal valor;
+	private BigDecimal preco;
 	
 	private String nomeDaCategoria;
 	
