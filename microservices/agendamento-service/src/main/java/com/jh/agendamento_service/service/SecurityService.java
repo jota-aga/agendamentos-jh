@@ -5,12 +5,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
-import com.jh.agendamento_service.dto.UsuarioAutenticado;
+import com.jh.agendamento_service.dto.UsuarioAutenticadoDTO;
 
 @Service
 public class SecurityService {
 	
-	public UsuarioAutenticado getUsuarioAutenticado() {
+	public UsuarioAutenticadoDTO getUsuarioAutenticado() {
 		Authentication authentication = SecurityContextHolder.getContext()
 			.getAuthentication();
 		
@@ -19,7 +19,7 @@ public class SecurityService {
 		Long usuarioId = Long.valueOf(jwt.getSubject());
 		String nomeDoUsuario = jwt.getClaimAsString("nome");
 		
-		UsuarioAutenticado usuarioAutenticado = new UsuarioAutenticado(usuarioId, nomeDoUsuario);
+		UsuarioAutenticadoDTO usuarioAutenticado = new UsuarioAutenticadoDTO(usuarioId, nomeDoUsuario);
 		return usuarioAutenticado;
 	}
 }

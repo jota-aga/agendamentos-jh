@@ -10,7 +10,9 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,16 +21,15 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 
 import com.jh.agendamento_service.domain.Agendamento;
 import com.jh.agendamento_service.dto.AgendamentoRequest;
 import com.jh.agendamento_service.dto.CategoriaResponse;
 import com.jh.agendamento_service.dto.ProcedimentoResponse;
+import com.jh.agendamento_service.dto.UsuarioAutenticadoDTO;
 import com.jh.agendamento_service.exception.ConflitoDeHorarioException;
+import com.jh.agendamento_service.exception.NaoAutorizadoException;
 import com.jh.agendamento_service.exception.NaoEncontradoException;
 import com.jh.agendamento_service.exception.ProcedimentoNaoDisponivelException;
 import com.jh.agendamento_service.repository.AgendamentoRepository;
@@ -53,13 +54,7 @@ public class AgendamentoServiceTest {
 	private SecurityContextHolder securityContextHolder;
 
 	@Mock
-	private SecurityContext securityContext;
-
-	@Mock
-	private Authentication authentication;
-
-	@Mock
-	private Jwt jwt;
+	private SecurityService securityService;
 	
 	ArgumentCaptor<Agendamento> agendamentoCaptor;
 
@@ -77,7 +72,7 @@ public class AgendamentoServiceTest {
 		procedimentoResponse = new ProcedimentoResponse(1L, "titulo", "descrição", BigDecimal.TEN, 30, true,
 				categoriaResponse);
 		agendamentoRequest = new AgendamentoRequest(LocalDate.now(), LocalTime.now(), procedimentoResponse.id());
-		
+	
 		agendamentoCaptor = ArgumentCaptor.forClass(Agendamento.class);
 	}
 
@@ -108,6 +103,7 @@ public class AgendamentoServiceTest {
 	
 	@Test
 	public void deveLancarNaoEncontradoExceptionQuandoProcedimentoNaoForEncontradoAoCriarAgendamento() {
+		configurarUsuarioAutenticado();
 		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId())).thenThrow(NaoEncontradoException.class);
 		
 		assertThrows(NaoEncontradoException.class, () -> agendamentoService.criarAgendamento(agendamentoRequest));
@@ -117,6 +113,7 @@ public class AgendamentoServiceTest {
 	
 	@Test
 	public void deveLancarConflitDeHorarioExceptionQuandoJaExistirAgendamentoNaqueleIntervaloAoCriarAgendamento() {
+		configurarUsuarioAutenticado();
 		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId()))
 			.thenReturn(procedimentoResponse);
 
@@ -129,6 +126,7 @@ public class AgendamentoServiceTest {
 	
 	@Test
 	public void deveLancarProcedimentoNaoDisponivelExceptionQuandoAtivoDoProcedimentoForFalsoAoCriarAgendamento() {
+		configurarUsuarioAutenticado();
 		procedimentoResponse = new ProcedimentoResponse(1L, "titulo", "descrição", BigDecimal.TEN, 30, false,
 				categoriaResponse);
 		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId()))
@@ -139,13 +137,111 @@ public class AgendamentoServiceTest {
 		verify(agendamentoRepository, never()).save(any());
 	}
 	
-	private void configurarUsuarioAutenticado() {
-		SecurityContextHolder.getContext().setAuthentication(authentication);
+	@Test
+	public void deveAtualizarProcedimentoComoCliente() {
+		configurarUsuarioAutenticado();
+		agendamento = criarAgendamento();
 		
-		when(authentication.getPrincipal()).thenReturn(jwt);
+		agendamentoRequest = new AgendamentoRequest(agendamento.getData().plusDays(1), agendamento.getInicio().plusMinutes(60), 2L);
+		
+		categoriaResponse = new CategoriaResponse(2L, "diferente", false);
+		
+		procedimentoResponse = new ProcedimentoResponse(2L, "diferente", "diferente", BigDecimal.ONE, 15, true,
+				categoriaResponse);
+		
+		when(agendamentoRepository.findById(1L)).thenReturn(Optional.of(agendamento));
+		
+		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId()))
+				.thenReturn(procedimentoResponse);
+		
+		when(agendamentoRepository.existsByDataAndInicioLessThanAndFimGreaterThanAndIdNot(any(), any(), any(), any()))
+				.thenReturn(false);
+		
+		agendamentoService.atualizarAgendamentoComoCliente(1L, agendamentoRequest);
 
-		when(jwt.getSubject()).thenReturn(ID_DO_USUARIO.toString());
+		verify(agendamentoRepository, atLeastOnce()).save(agendamentoCaptor.capture());
+		
+		agendamento = agendamentoCaptor.getValue();
+	
+		assertEquals(agendamento.getData(), agendamentoRequest.data());
+		assertEquals(agendamento.getInicio(), agendamentoRequest.inicio());
+		assertEquals(agendamento.getFim(), agendamento.getInicio().plusMinutes(procedimentoResponse.duracaoEmMinutos()));
+		assertEquals(agendamento.getUsuarioId(), ID_DO_USUARIO);
+		assertEquals(agendamento.getNomeDoUsuario(), NOME_DO_USUARIO);
+		assertEquals(agendamento.getTituloDoProcedimento(), procedimentoResponse.titulo());
+		assertEquals(agendamento.getPreco(), procedimentoResponse.preco());
+		assertEquals(agendamento.getNomeDaCategoria(), categoriaResponse.nome());
+	}
+	
+	@Test
+	public void deveLancarNaoEncontradoExceptionQuandoProcedimentoNaoForEncontradoAoAtualizarAgendamentoComoCliente() {
+		agendamento = criarAgendamento();
+		configurarUsuarioAutenticado();
+		when(agendamentoRepository.findById(1L)).thenReturn(Optional.of(agendamento));
+		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId())).thenThrow(NaoEncontradoException.class);
+		
+		assertThrows(NaoEncontradoException.class, () -> agendamentoService.atualizarAgendamentoComoCliente(1L, agendamentoRequest));
 
-		when(jwt.getClaimAsString("nome")).thenReturn(NOME_DO_USUARIO);
+		verify(agendamentoRepository, never()).save(any());
+	}
+	
+	@Test
+	public void deveLancarConflitDeHorarioExceptionQuandoJaExistirAgendamentoNaqueleIntervaloAoAtualizarAgendamentoComoCliente() {
+		agendamento = criarAgendamento();
+		configurarUsuarioAutenticado();
+		when(agendamentoRepository.findById(1L)).thenReturn(Optional.of(agendamento));
+		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId()))
+			.thenReturn(procedimentoResponse);
+
+		when(agendamentoRepository.existsByDataAndInicioLessThanAndFimGreaterThanAndIdNot(any(), any(), any(), any()))
+			.thenReturn(true);		
+		
+		assertThrows(ConflitoDeHorarioException.class, () -> agendamentoService.atualizarAgendamentoComoCliente(1L, agendamentoRequest));
+
+		verify(agendamentoRepository, never()).save(any());
+	}
+	
+	@Test
+	public void deveLancarProcedimentoNaoDisponivelExceptionQuandoAtivoDoProcedimentoForFalsoAoAtualizarAgendamentoComoCliente() {
+		agendamento = criarAgendamento();
+		configurarUsuarioAutenticado();
+		when(agendamentoRepository.findById(1L)).thenReturn(Optional.of(agendamento));
+		procedimentoResponse = new ProcedimentoResponse(1L, "titulo", "descrição", BigDecimal.TEN, 30, false,
+				categoriaResponse);
+		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId()))
+			.thenReturn(procedimentoResponse);
+	
+		assertThrows(ProcedimentoNaoDisponivelException.class, () -> agendamentoService.atualizarAgendamentoComoCliente(1L, agendamentoRequest));
+
+		verify(agendamentoRepository, never()).save(any());
+	}
+	
+	@Test
+	public void deveLancarNaoAutorizadoExceptionQuandoForUmUsuarioDiferenteAoAtualizarAgendamentoComoCliente() {
+		agendamento = criarAgendamento();
+		agendamento.setUsuarioId(Long.MAX_VALUE);
+		
+		configurarUsuarioAutenticado();
+		when(agendamentoRepository.findById(1L)).thenReturn(Optional.of(agendamento));
+		procedimentoResponse = new ProcedimentoResponse(1L, "titulo", "descrição", BigDecimal.TEN, 30, false,
+				categoriaResponse);
+	
+		assertThrows(NaoAutorizadoException.class, () -> agendamentoService.atualizarAgendamentoComoCliente(1L, agendamentoRequest));
+
+		verify(agendamentoRepository, never()).save(any());
+	}
+	
+	private void configurarUsuarioAutenticado() {
+		UsuarioAutenticadoDTO usuarioAutenticado = new UsuarioAutenticadoDTO(ID_DO_USUARIO, NOME_DO_USUARIO);
+		
+		when(securityService.getUsuarioAutenticado()).thenReturn(usuarioAutenticado);
+	}
+	
+	private Agendamento criarAgendamento() {
+		Agendamento agendamento = new Agendamento("id", ID_DO_USUARIO, NOME_DO_USUARIO, LocalDateTime.now(),
+				LocalDate.of(2026, 9, 18), LocalTime.of(1, 0), LocalTime.of(1, 30), procedimentoResponse.titulo(),
+				procedimentoResponse.duracaoEmMinutos(), procedimentoResponse.preco(), categoriaResponse.nome());
+		
+		return agendamento;
 	}
 }

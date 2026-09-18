@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import com.jh.agendamento_service.domain.Agendamento;
 import com.jh.agendamento_service.dto.AgendamentoRequest;
 import com.jh.agendamento_service.dto.ProcedimentoResponse;
-import com.jh.agendamento_service.dto.UsuarioAutenticado;
+import com.jh.agendamento_service.dto.UsuarioAutenticadoDTO;
 import com.jh.agendamento_service.exception.ConflitoDeHorarioException;
 import com.jh.agendamento_service.exception.NaoAutorizadoException;
 import com.jh.agendamento_service.exception.NaoEncontradoException;
@@ -40,7 +40,7 @@ public class AgendamentoService {
 
 	public void atualizarAgendamentoComoCliente(Long id, AgendamentoRequest agendamentoRequest) {
 		Agendamento agendamento = procurarPorId(id);
-		UsuarioAutenticado usuarioAutenticado = securityService.getUsuarioAutenticado();
+		UsuarioAutenticadoDTO usuarioAutenticado = securityService.getUsuarioAutenticado();
 
 		if (!agendamento.getUsuarioId().equals(usuarioAutenticado.id()))
 			throw new NaoAutorizadoException("Esse agendamento não lhe pertence");
@@ -89,7 +89,7 @@ public class AgendamentoService {
 	}
 
 	private void setarInformacoesDoUsuario(Agendamento agendamento) {
-		UsuarioAutenticado usuarioAutenticado = securityService.getUsuarioAutenticado();
+		UsuarioAutenticadoDTO usuarioAutenticado = securityService.getUsuarioAutenticado();
 
 		agendamento.setUsuarioId(usuarioAutenticado.id());
 		agendamento.setNomeDoUsuario(usuarioAutenticado.nome());
