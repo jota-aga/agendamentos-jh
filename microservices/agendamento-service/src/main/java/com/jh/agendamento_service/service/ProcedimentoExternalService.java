@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.jh.agendamento_service.dto.ProcedimentoResponse;
+import com.jh.agendamento_service.exception.NaoEncontradoException;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -21,7 +22,7 @@ public class ProcedimentoExternalService {
 		.onStatus(
 	            status -> status.value() == 404,
 	            response -> Mono.error(
-	                new RuntimeException("Procedimento não encontrado")
+	                new NaoEncontradoException("Procedimento")
 	            )
 	     )
 		.bodyToMono(ProcedimentoResponse.class)

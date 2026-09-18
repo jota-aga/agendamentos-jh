@@ -2,7 +2,6 @@ package com.jh.agendamento_service.service;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,15 +28,15 @@ public class AgendamentoService {
 	public void criarAgendamento(AgendamentoRequest agendamentoRequest) {
 		Agendamento agendamento = AgendamentoMapper.INSTANCE.requestToEntity(agendamentoRequest);
 		agendamento.setCriadoEm(LocalDateTime.now());
-		getProcedimento(agendamentoRequest.procedimentoId(), agendamento);
 		
+		setarInformacoesDoProcedimento(agendamentoRequest.procedimentoId(), agendamento);
+		setarInformacoesDoUsuario(agendamento);
 		validarHorario(agendamento);
-		agendamento.setUsuarioId(getUsuarioId());
 		
 		agendamentoRepository.save(agendamento);
 	}
 	
-	private void getProcedimento(Long procedimentoId, Agendamento agendamento) {
+	private void setarInformacoesDoProcedimento(Long procedimentoId, Agendamento agendamento) {
 		ProcedimentoResponse procedimento = procedimentoExternalService.procurarProcedimentoPorId(procedimentoId);
 		LocalTime fimDoProcedimento = agendamento.getInicio().plusMinutes(procedimento.duracaoEmMinutos());
 
@@ -55,12 +54,16 @@ public class AgendamentoService {
 		if(existeConflito) throw new ConflitoDeHorarioException();
 	}
 	
-	private Long getUsuarioId() {
+	private void setarInformacoesDoUsuario(Agendamento agendamento) {
 		Authentication authentication = SecurityContextHolder.getContext()
 			.getAuthentication();
 		
 		Jwt jwt = (Jwt) authentication.getPrincipal();
-
-        return Long.valueOf(jwt.getSubject());
+		
+		Long usuarioId = Long.valueOf(jwt.getSubject());
+		String nomeDoUsuario = jwt.getClaimAsString("nome");
+		
+		agendamento.setUsuarioId(usuarioId);
+		agendamento.setNomeDoUsuario(nomeDoUsuario);
 	}
 }

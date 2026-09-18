@@ -25,6 +25,8 @@ public class Agendamento {
 	
 	private Long usuarioId;
 	
+	private String nomeDoUsuario;
+	
 	private LocalDateTime criadoEm;
 	
 	private LocalDate data;
@@ -40,6 +42,4 @@ public class Agendamento {
 	private BigDecimal preco;
 	
 	private String nomeDaCategoria;
-	
-	
 }
