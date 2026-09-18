@@ -1,8 +1,10 @@
 package com.jh.agendamento_service.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -26,6 +28,9 @@ import com.jh.agendamento_service.domain.Agendamento;
 import com.jh.agendamento_service.dto.AgendamentoRequest;
 import com.jh.agendamento_service.dto.CategoriaResponse;
 import com.jh.agendamento_service.dto.ProcedimentoResponse;
+import com.jh.agendamento_service.exception.ConflitoDeHorarioException;
+import com.jh.agendamento_service.exception.NaoEncontradoException;
+import com.jh.agendamento_service.exception.ProcedimentoNaoDisponivelException;
 import com.jh.agendamento_service.repository.AgendamentoRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -72,20 +77,13 @@ public class AgendamentoServiceTest {
 		procedimentoResponse = new ProcedimentoResponse(1L, "titulo", "descrição", BigDecimal.TEN, 30, true,
 				categoriaResponse);
 		agendamentoRequest = new AgendamentoRequest(LocalDate.now(), LocalTime.now(), procedimentoResponse.id());
-
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-
-		when(authentication.getPrincipal()).thenReturn(jwt);
-
-		when(jwt.getSubject()).thenReturn(ID_DO_USUARIO.toString());
-
-		when(jwt.getClaimAsString("nome")).thenReturn(NOME_DO_USUARIO);
 		
 		agendamentoCaptor = ArgumentCaptor.forClass(Agendamento.class);
 	}
 
 	@Test
 	public void deveCriarAgendamentoComSucesso() {
+		configurarUsuarioAutenticado();
 		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId()))
 				.thenReturn(procedimentoResponse);
 		
@@ -106,5 +104,48 @@ public class AgendamentoServiceTest {
 		assertEquals(agendamento.getTituloDoProcedimento(), procedimentoResponse.titulo());
 		assertEquals(agendamento.getPreco(), procedimentoResponse.preco());
 		assertEquals(agendamento.getNomeDaCategoria(), categoriaResponse.nome());
+	}
+	
+	@Test
+	public void deveLancarNaoEncontradoExceptionQuandoProcedimentoNaoForEncontradoAoCriarAgendamento() {
+		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId())).thenThrow(NaoEncontradoException.class);
+		
+		assertThrows(NaoEncontradoException.class, () -> agendamentoService.criarAgendamento(agendamentoRequest));
+
+		verify(agendamentoRepository, never()).save(any());
+	}
+	
+	@Test
+	public void deveLancarConflitDeHorarioExceptionQuandoJaExistirAgendamentoNaqueleIntervaloAoCriarAgendamento() {
+		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId()))
+			.thenReturn(procedimentoResponse);
+
+		when(agendamentoRepository.existsByDataAndInicioLessThanAndFimGreaterThan(any(), any(), any()))
+			.thenReturn(true);		
+		assertThrows(ConflitoDeHorarioException.class, () -> agendamentoService.criarAgendamento(agendamentoRequest));
+
+		verify(agendamentoRepository, never()).save(any());
+	}
+	
+	@Test
+	public void deveLancarProcedimentoNaoDisponivelExceptionQuandoAtivoDoProcedimentoForFalsoAoCriarAgendamento() {
+		procedimentoResponse = new ProcedimentoResponse(1L, "titulo", "descrição", BigDecimal.TEN, 30, false,
+				categoriaResponse);
+		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId()))
+			.thenReturn(procedimentoResponse);
+	
+		assertThrows(ProcedimentoNaoDisponivelException.class, () -> agendamentoService.criarAgendamento(agendamentoRequest));
+
+		verify(agendamentoRepository, never()).save(any());
+	}
+	
+	private void configurarUsuarioAutenticado() {
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+		
+		when(authentication.getPrincipal()).thenReturn(jwt);
+
+		when(jwt.getSubject()).thenReturn(ID_DO_USUARIO.toString());
+
+		when(jwt.getClaimAsString("nome")).thenReturn(NOME_DO_USUARIO);
 	}
 }

@@ -10,4 +10,5 @@ import com.jh.agendamento_service.domain.Agendamento;
 public interface AgendamentoRepository extends MongoRepository<Agendamento, Long>{
 	
 	Boolean existsByDataAndInicioLessThanAndFimGreaterThan(LocalDate data, LocalTime inicio, LocalTime fim); 
+	Boolean existsByDataAndInicioLessThanAndFimGreaterThanAndIdNot(LocalDate data, LocalTime inicio, LocalTime fim, String id);
 }

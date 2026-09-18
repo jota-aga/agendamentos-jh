@@ -39,4 +39,9 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<?> handleNaoEncontradoException(NaoEncontradoException ex){
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
 	}
+	
+	@ExceptionHandler(ProcedimentoNaoDisponivelException.class)
+	public ResponseEntity<?> handleProcedimentoNaoDisponivelException(ProcedimentoNaoDisponivelException ex){
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+	}
 }
