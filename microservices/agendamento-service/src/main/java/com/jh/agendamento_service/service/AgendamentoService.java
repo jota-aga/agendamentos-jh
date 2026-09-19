@@ -43,7 +43,7 @@ public class AgendamentoService {
 		agendamentoRepository.save(agendamento);
 	}
 
-	public void atualizarAgendamentoComoCliente(Long id, AgendamentoRequest agendamentoRequest) {
+	public void atualizarAgendamentoComoCliente(String id, AgendamentoRequest agendamentoRequest) {
 		Agendamento agendamento = procurarPorId(id);
 		UsuarioAutenticadoDTO usuarioAutenticado = securityService.getUsuarioAutenticado();
 
@@ -62,7 +62,7 @@ public class AgendamentoService {
 		agendamentoRepository.save(agendamento);
 	}
 
-	public Agendamento procurarPorId(Long id) {
+	public Agendamento procurarPorId(String id) {
 		return agendamentoRepository.findById(id).orElseThrow(() -> new NaoEncontradoException("Agendamento"));
 	}
 
