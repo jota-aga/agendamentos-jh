@@ -15,4 +15,6 @@ public record AgendamentoRequest(
 		@NotNull(message = "Id do procedimento não deve ser vazio")
 		Long procedimentoId
 		) 
+
+		
 {}

@@ -28,6 +28,7 @@ import com.jh.agendamento_service.dto.AgendamentoRequest;
 import com.jh.agendamento_service.dto.CategoriaResponse;
 import com.jh.agendamento_service.dto.ProcedimentoResponse;
 import com.jh.agendamento_service.dto.UsuarioAutenticadoDTO;
+import com.jh.agendamento_service.enums.AgendamentoStatus;
 import com.jh.agendamento_service.exception.ConflitoDeHorarioException;
 import com.jh.agendamento_service.exception.NaoAutorizadoException;
 import com.jh.agendamento_service.exception.NaoEncontradoException;
@@ -99,6 +100,7 @@ public class AgendamentoServiceTest {
 		assertEquals(agendamento.getTituloDoProcedimento(), procedimentoResponse.titulo());
 		assertEquals(agendamento.getPreco(), procedimentoResponse.preco());
 		assertEquals(agendamento.getNomeDaCategoria(), categoriaResponse.nome());
+		assertEquals(agendamento.getStatus(), AgendamentoStatus.AGENDADO);
 	}
 	
 	@Test
@@ -240,7 +242,7 @@ public class AgendamentoServiceTest {
 	private Agendamento criarAgendamento() {
 		Agendamento agendamento = new Agendamento("id", ID_DO_USUARIO, NOME_DO_USUARIO, LocalDateTime.now(),
 				LocalDate.of(2026, 9, 18), LocalTime.of(1, 0), LocalTime.of(1, 30), procedimentoResponse.titulo(),
-				procedimentoResponse.duracaoEmMinutos(), procedimentoResponse.preco(), categoriaResponse.nome());
+				procedimentoResponse.duracaoEmMinutos(), procedimentoResponse.preco(), categoriaResponse.nome(), AgendamentoStatus.AGENDADO);
 		
 		return agendamento;
 	}

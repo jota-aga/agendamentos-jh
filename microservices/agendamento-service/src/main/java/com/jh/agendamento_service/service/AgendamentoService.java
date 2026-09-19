@@ -10,7 +10,9 @@ import com.jh.agendamento_service.domain.Agendamento;
 import com.jh.agendamento_service.dto.AgendamentoRequest;
 import com.jh.agendamento_service.dto.ProcedimentoResponse;
 import com.jh.agendamento_service.dto.UsuarioAutenticadoDTO;
+import com.jh.agendamento_service.enums.AgendamentoStatus;
 import com.jh.agendamento_service.exception.ConflitoDeHorarioException;
+import com.jh.agendamento_service.exception.ConflitoDeOperacaoException;
 import com.jh.agendamento_service.exception.NaoAutorizadoException;
 import com.jh.agendamento_service.exception.NaoEncontradoException;
 import com.jh.agendamento_service.exception.ProcedimentoNaoDisponivelException;
@@ -31,6 +33,7 @@ public class AgendamentoService {
 	public void criarAgendamento(AgendamentoRequest agendamentoRequest) {
 		Agendamento agendamento = AgendamentoMapper.INSTANCE.requestToEntity(agendamentoRequest);
 		agendamento.setCriadoEm(LocalDateTime.now());
+		agendamento.setStatus(AgendamentoStatus.AGENDADO);
 		
 		setarInformacoesDoUsuario(agendamento);
 		setarInformacoesDoProcedimento(agendamentoRequest.procedimentoId(), agendamento);
@@ -46,7 +49,10 @@ public class AgendamentoService {
 		if (!agendamento.getUsuarioId().equals(usuarioAutenticado.id()))
 			throw new NaoAutorizadoException("Esse agendamento não lhe pertence");
 		
-		agendamento = AgendamentoMapper.INSTANCE.updateEntity(agendamento, agendamentoRequest);
+		if(agendamento.getStatus() != AgendamentoStatus.AGENDADO)
+			throw new ConflitoDeOperacaoException("Não é possível atualizar o agendamento");
+		
+		agendamento = AgendamentoMapper.INSTANCE.updateEntityComoCliente(agendamento, agendamentoRequest);
 
 		setarInformacoesDoProcedimento(agendamentoRequest.procedimentoId(), agendamento);
 		validarConflitoDeHorario(agendamento);
@@ -101,7 +107,7 @@ public class AgendamentoService {
 		Duration duracao = Duration.between(agora, dataHoraDoAgendamento);
 		
 		if(duracao.toHours() < 12) {
-			throw new RuntimeException("Não é possível finalizar a operação, pois faltam menos de 12 horas para o agendamento");
+			throw new ConflitoDeOperacaoException("Não é possível finalizar a operação, pois faltam menos de 12 horas para o agendamento");
 		}
 	}
 }

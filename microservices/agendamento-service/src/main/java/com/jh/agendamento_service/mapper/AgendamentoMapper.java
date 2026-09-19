@@ -15,8 +15,9 @@ public interface AgendamentoMapper {
 	AgendamentoMapper INSTANCE = Mappers.getMapper(AgendamentoMapper.class);
 
 	Agendamento requestToEntity(AgendamentoRequest request);
-
-	Agendamento updateEntity(@MappingTarget Agendamento agendamento, AgendamentoRequest request);
+	
+	@Mapping(target="status", ignore = true)
+	Agendamento updateEntityComoCliente(@MappingTarget Agendamento agendamento, AgendamentoRequest request);
 
 	@Mapping(target = "tituloDoProcedimento", source = "procedimentoResponse.titulo")
 	@Mapping(target = "preco", source = "procedimentoResponse.preco")
