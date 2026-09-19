@@ -1,5 +1,6 @@
 package com.jh.agendamento_service.service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -33,7 +34,7 @@ public class AgendamentoService {
 		
 		setarInformacoesDoUsuario(agendamento);
 		setarInformacoesDoProcedimento(agendamentoRequest.procedimentoId(), agendamento);
-		validarHorario(agendamento);
+		validarConflitoDeHorario(agendamento);
 
 		agendamentoRepository.save(agendamento);
 	}
@@ -44,11 +45,12 @@ public class AgendamentoService {
 
 		if (!agendamento.getUsuarioId().equals(usuarioAutenticado.id()))
 			throw new NaoAutorizadoException("Esse agendamento não lhe pertence");
-
+		
 		agendamento = AgendamentoMapper.INSTANCE.updateEntity(agendamento, agendamentoRequest);
 
 		setarInformacoesDoProcedimento(agendamentoRequest.procedimentoId(), agendamento);
-		validarHorario(agendamento);
+		validarConflitoDeHorario(agendamento);
+		validarAntecedenciaMinima(agendamento);
 
 		agendamentoRepository.save(agendamento);
 	}
@@ -66,14 +68,11 @@ public class AgendamentoService {
 
 		LocalTime fimDoProcedimento = agendamento.getInicio().plusMinutes(procedimento.duracaoEmMinutos());
 
-		agendamento.setTituloDoProcedimento(procedimento.titulo());
-		agendamento.setPreco(procedimento.preco());
-		agendamento.setDuracaoEmMinutos(procedimento.duracaoEmMinutos());
-		agendamento.setNomeDaCategoria(procedimento.categoria().nome());
+		agendamento = AgendamentoMapper.INSTANCE.setInformacoesDoProcedimento(agendamento, procedimento);
 		agendamento.setFim(fimDoProcedimento);
 	}
 
-	private void validarHorario(Agendamento agendamento) {
+	private void validarConflitoDeHorario(Agendamento agendamento) {
 		Boolean existeConflito = false;
 
 		if (agendamento.getId() == null) {
@@ -93,5 +92,16 @@ public class AgendamentoService {
 
 		agendamento.setUsuarioId(usuarioAutenticado.id());
 		agendamento.setNomeDoUsuario(usuarioAutenticado.nome());
+	}
+	
+	private void validarAntecedenciaMinima(Agendamento agendamento) {
+		LocalDateTime agora = LocalDateTime.now();
+		LocalDateTime dataHoraDoAgendamento = LocalDateTime.of(agendamento.getData(), agendamento.getInicio());
+		
+		Duration duracao = Duration.between(agora, dataHoraDoAgendamento);
+		
+		if(duracao.toHours() < 12) {
+			throw new RuntimeException("Não é possível finalizar a operação, pois faltam menos de 12 horas para o agendamento");
+		}
 	}
 }
