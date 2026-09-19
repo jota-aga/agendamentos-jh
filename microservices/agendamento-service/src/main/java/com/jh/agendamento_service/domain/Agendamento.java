@@ -9,8 +9,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.jh.agendamento_service.enums.AgendamentoStatus;
 
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -47,6 +45,5 @@ public class Agendamento {
 	
 	private String nomeDaCategoria;
 	
-	@Enumerated(value = EnumType.STRING)
 	private AgendamentoStatus status;
 }

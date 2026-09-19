@@ -36,7 +36,7 @@ public class AgendamentoCustomRepository {
 	}
 
 	public List<Agendamento> procurarAgendamentoPorFiltros(Long usuarioId, LocalDate data, LocalTime inicio,
-			LocalTime fim, String tituloDoProcedimento, String sortBy, AgendamentoStatus status) {
+			LocalTime fim, String tituloDoProcedimento, AgendamentoStatus status, String sortBy) {
 
 		Query query = new Query();
 
@@ -57,7 +57,7 @@ public class AgendamentoCustomRepository {
 		}
 
 		if (tituloDoProcedimento != null) {
-			query.addCriteria(Criteria.where("tituloDoProcedimento").regex(tituloDoProcedimento, "i"));
+			query.addCriteria(Criteria.where("tituloDoProcedimento").is(tituloDoProcedimento));
 		}
 
 		if (status != null) {
@@ -71,11 +71,12 @@ public class AgendamentoCustomRepository {
 		case "data" -> "data";
 		case "inicio" -> "inicio";
 		case "criadoEm" -> "criadoEm";
+		case "status" -> "status";
 		default -> "data";
 		};
 
 		query.with(Sort.by(Sort.Direction.DESC, campoOrdenacao));
-
+		
 		return mongoTemplate.find(query, Agendamento.class);
 	}
 }
