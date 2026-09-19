@@ -30,6 +30,7 @@ import com.jh.agendamento_service.dto.ProcedimentoResponse;
 import com.jh.agendamento_service.dto.UsuarioAutenticadoDTO;
 import com.jh.agendamento_service.enums.AgendamentoStatus;
 import com.jh.agendamento_service.exception.ConflitoDeHorarioException;
+import com.jh.agendamento_service.exception.ConflitoDeOperacaoException;
 import com.jh.agendamento_service.exception.NaoAutorizadoException;
 import com.jh.agendamento_service.exception.NaoEncontradoException;
 import com.jh.agendamento_service.exception.ProcedimentoNaoDisponivelException;
@@ -85,13 +86,13 @@ public class AgendamentoServiceTest {
 		
 		when(agendamentoRepository.existsByDataAndInicioLessThanAndFimGreaterThan(any(), any(), any()))
 				.thenReturn(false);
-		
+				
 		agendamentoService.criarAgendamento(agendamentoRequest);
 
 		verify(agendamentoRepository, atLeastOnce()).save(agendamentoCaptor.capture());
 		
 		agendamento = agendamentoCaptor.getValue();
-	
+		
 		assertEquals(agendamento.getData(), agendamentoRequest.data());
 		assertEquals(agendamento.getInicio(), agendamentoRequest.inicio());
 		assertEquals(agendamento.getFim(), agendamento.getInicio().plusMinutes(procedimentoResponse.duracaoEmMinutos()));
@@ -114,13 +115,14 @@ public class AgendamentoServiceTest {
 	}
 	
 	@Test
-	public void deveLancarConflitDeHorarioExceptionQuandoJaExistirAgendamentoNaqueleIntervaloAoCriarAgendamento() {
+	public void deveLancarConflitoDeHorarioExceptionQuandoJaExistirAgendamentoNaqueleIntervaloAoCriarAgendamento() {
 		configurarUsuarioAutenticado();
 		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId()))
 			.thenReturn(procedimentoResponse);
 
 		when(agendamentoRepository.existsByDataAndInicioLessThanAndFimGreaterThan(any(), any(), any()))
-			.thenReturn(true);		
+			.thenReturn(true);
+		
 		assertThrows(ConflitoDeHorarioException.class, () -> agendamentoService.criarAgendamento(agendamentoRequest));
 
 		verify(agendamentoRepository, never()).save(any());
@@ -173,6 +175,7 @@ public class AgendamentoServiceTest {
 		assertEquals(agendamento.getTituloDoProcedimento(), procedimentoResponse.titulo());
 		assertEquals(agendamento.getPreco(), procedimentoResponse.preco());
 		assertEquals(agendamento.getNomeDaCategoria(), categoriaResponse.nome());
+		assertEquals(agendamento.getStatus(), AgendamentoStatus.AGENDADO);
 	}
 	
 	@Test
@@ -188,7 +191,7 @@ public class AgendamentoServiceTest {
 	}
 	
 	@Test
-	public void deveLancarConflitDeHorarioExceptionQuandoJaExistirAgendamentoNaqueleIntervaloAoAtualizarAgendamentoComoCliente() {
+	public void deveLancarConflitoDeHorarioExceptionQuandoJaExistirAgendamentoNaqueleIntervaloAoAtualizarAgendamentoComoCliente() {
 		agendamento = criarAgendamento();
 		configurarUsuarioAutenticado();
 		when(agendamentoRepository.findById(1L)).thenReturn(Optional.of(agendamento));
@@ -225,10 +228,33 @@ public class AgendamentoServiceTest {
 		
 		configurarUsuarioAutenticado();
 		when(agendamentoRepository.findById(1L)).thenReturn(Optional.of(agendamento));
-		procedimentoResponse = new ProcedimentoResponse(1L, "titulo", "descrição", BigDecimal.TEN, 30, false,
-				categoriaResponse);
 	
 		assertThrows(NaoAutorizadoException.class, () -> agendamentoService.atualizarAgendamentoComoCliente(1L, agendamentoRequest));
+
+		verify(agendamentoRepository, never()).save(any());
+	}
+	
+	@Test
+	public void deveLancarNaoEncontradoExceptionQuandoAgendamentoNaoForEncontradoAoAtualizarAgendamentoComoCliente() {
+		agendamento = criarAgendamento();
+		
+		when(agendamentoRepository.findById(1L)).thenReturn(Optional.empty());
+	
+		assertThrows(NaoEncontradoException.class, () -> agendamentoService.atualizarAgendamentoComoCliente(1L, agendamentoRequest));
+
+		verify(agendamentoRepository, never()).save(any());
+	}
+	
+	@Test
+	public void deveLancarConflitoDeOperacaoExceptionQuandoOInicioDoAgendamentoForMenorDoQue12HorasAtualizarAgendamentoComoCliente() {
+		configurarUsuarioAutenticado();
+		agendamento = criarAgendamento();
+		agendamento.setData(LocalDate.now());
+		
+		when(agendamentoRepository.findById(1L)).thenReturn(Optional.of(agendamento));
+		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId())).thenReturn(procedimentoResponse);
+	
+		assertThrows(ConflitoDeOperacaoException.class, () -> agendamentoService.atualizarAgendamentoComoCliente(1L, agendamentoRequest));
 
 		verify(agendamentoRepository, never()).save(any());
 	}
@@ -240,9 +266,14 @@ public class AgendamentoServiceTest {
 	}
 	
 	private Agendamento criarAgendamento() {
-		Agendamento agendamento = new Agendamento("id", ID_DO_USUARIO, NOME_DO_USUARIO, LocalDateTime.now(),
-				LocalDate.of(2026, 9, 18), LocalTime.of(1, 0), LocalTime.of(1, 30), procedimentoResponse.titulo(),
-				procedimentoResponse.duracaoEmMinutos(), procedimentoResponse.preco(), categoriaResponse.nome(), AgendamentoStatus.AGENDADO);
+		LocalDateTime criadoEm = LocalDateTime.now();
+		LocalDate data = LocalDate.now().plusDays(5);
+		LocalTime inicio = LocalTime.now();
+		LocalTime fim = inicio.plusMinutes(procedimentoResponse.duracaoEmMinutos());
+		
+		Agendamento agendamento = new Agendamento("id", ID_DO_USUARIO, NOME_DO_USUARIO, criadoEm,
+				data, inicio, fim, procedimentoResponse.titulo(), procedimentoResponse.duracaoEmMinutos(),
+				procedimentoResponse.preco(), categoriaResponse.nome(), AgendamentoStatus.AGENDADO);
 		
 		return agendamento;
 	}

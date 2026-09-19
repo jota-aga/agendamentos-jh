@@ -13,17 +13,19 @@ import com.jh.agendamento_service.dto.ProcedimentoResponse;
 public interface AgendamentoMapper {
 
 	AgendamentoMapper INSTANCE = Mappers.getMapper(AgendamentoMapper.class);
-
+	
+	@Mapping(target = "id", ignore=true)
 	Agendamento requestToEntity(AgendamentoRequest request);
 	
 	@Mapping(target="status", ignore = true)
 	Agendamento updateEntityComoCliente(@MappingTarget Agendamento agendamento, AgendamentoRequest request);
-
+	
 	@Mapping(target = "tituloDoProcedimento", source = "procedimentoResponse.titulo")
 	@Mapping(target = "preco", source = "procedimentoResponse.preco")
 	@Mapping(target = "duracaoEmMinutos", source = "procedimentoResponse.duracaoEmMinutos")
 	@Mapping(target = "nomeDaCategoria", source = "procedimentoResponse.categoria.nome")
 	@Mapping(target = "fim", ignore = true)
+	@Mapping(target = "id", ignore = true)
 	Agendamento setInformacoesDoProcedimento(@MappingTarget Agendamento agendamento,
 			ProcedimentoResponse procedimentoResponse);
 }

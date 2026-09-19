@@ -32,13 +32,14 @@ public class AgendamentoService {
 
 	public void criarAgendamento(AgendamentoRequest agendamentoRequest) {
 		Agendamento agendamento = AgendamentoMapper.INSTANCE.requestToEntity(agendamentoRequest);
+		System.out.println(agendamento.getId());
+
 		agendamento.setCriadoEm(LocalDateTime.now());
 		agendamento.setStatus(AgendamentoStatus.AGENDADO);
 		
 		setarInformacoesDoUsuario(agendamento);
 		setarInformacoesDoProcedimento(agendamentoRequest.procedimentoId(), agendamento);
 		validarConflitoDeHorario(agendamento);
-
 		agendamentoRepository.save(agendamento);
 	}
 
@@ -52,7 +53,7 @@ public class AgendamentoService {
 		if(agendamento.getStatus() != AgendamentoStatus.AGENDADO)
 			throw new ConflitoDeOperacaoException("Não é possível atualizar o agendamento");
 		
-		agendamento = AgendamentoMapper.INSTANCE.updateEntityComoCliente(agendamento, agendamentoRequest);
+		AgendamentoMapper.INSTANCE.updateEntityComoCliente(agendamento, agendamentoRequest);
 
 		setarInformacoesDoProcedimento(agendamentoRequest.procedimentoId(), agendamento);
 		validarConflitoDeHorario(agendamento);
@@ -74,13 +75,13 @@ public class AgendamentoService {
 
 		LocalTime fimDoProcedimento = agendamento.getInicio().plusMinutes(procedimento.duracaoEmMinutos());
 
-		agendamento = AgendamentoMapper.INSTANCE.setInformacoesDoProcedimento(agendamento, procedimento);
+		AgendamentoMapper.INSTANCE.setInformacoesDoProcedimento(agendamento, procedimento);
 		agendamento.setFim(fimDoProcedimento);
 	}
 
 	private void validarConflitoDeHorario(Agendamento agendamento) {
 		Boolean existeConflito = false;
-
+		
 		if (agendamento.getId() == null) {
 			existeConflito = agendamentoRepository.existsByDataAndInicioLessThanAndFimGreaterThan(agendamento.getData(),
 					agendamento.getInicio(), agendamento.getFim());
