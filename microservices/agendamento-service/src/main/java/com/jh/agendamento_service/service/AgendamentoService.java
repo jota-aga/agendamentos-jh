@@ -36,7 +36,7 @@ public class AgendamentoService {
 
 		agendamento.setCriadoEm(LocalDateTime.now());
 		agendamento.setStatus(AgendamentoStatus.AGENDADO);
-		
+
 		setarInformacoesDoUsuario(agendamento);
 		setarInformacoesDoProcedimento(agendamentoRequest.procedimentoId(), agendamento);
 		validarConflitoDeHorario(agendamento);
@@ -49,10 +49,10 @@ public class AgendamentoService {
 
 		if (!agendamento.getUsuarioId().equals(usuarioAutenticado.id()))
 			throw new NaoAutorizadoException("Esse agendamento não lhe pertence");
-		
-		if(agendamento.getStatus() != AgendamentoStatus.AGENDADO)
+
+		if (agendamento.getStatus() != AgendamentoStatus.AGENDADO)
 			throw new ConflitoDeOperacaoException("Não é possível atualizar o agendamento");
-		
+
 		AgendamentoMapper.INSTANCE.updateEntityComoCliente(agendamento, agendamentoRequest);
 
 		setarInformacoesDoProcedimento(agendamentoRequest.procedimentoId(), agendamento);
@@ -81,7 +81,7 @@ public class AgendamentoService {
 
 	private void validarConflitoDeHorario(Agendamento agendamento) {
 		Boolean existeConflito = false;
-		
+
 		if (agendamento.getId() == null) {
 			existeConflito = agendamentoRepository.existsByDataAndInicioLessThanAndFimGreaterThan(agendamento.getData(),
 					agendamento.getInicio(), agendamento.getFim());
@@ -100,15 +100,16 @@ public class AgendamentoService {
 		agendamento.setUsuarioId(usuarioAutenticado.id());
 		agendamento.setNomeDoUsuario(usuarioAutenticado.nome());
 	}
-	
+
 	private void validarAntecedenciaMinima(Agendamento agendamento) {
 		LocalDateTime agora = LocalDateTime.now();
 		LocalDateTime dataHoraDoAgendamento = LocalDateTime.of(agendamento.getData(), agendamento.getInicio());
-		
+
 		Duration duracao = Duration.between(agora, dataHoraDoAgendamento);
-		
-		if(duracao.toHours() < 12) {
-			throw new ConflitoDeOperacaoException("Não é possível finalizar a operação, pois faltam menos de 12 horas para o agendamento");
+
+		if (duracao.toHours() < 12) {
+			throw new ConflitoDeOperacaoException(
+					"Não é possível finalizar a operação, pois faltam menos de 12 horas para o agendamento");
 		}
 	}
 }
