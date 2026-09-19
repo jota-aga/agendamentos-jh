@@ -282,6 +282,24 @@ public class AgendamentoCustomRepositoryTest {
 		assertEquals(1, agendamentos.size());
 		assertEquals(agendamento.getId(), agendamentos.get(0).getId());
 	}
+	
+	@Test
+	public void deveRetornarTodosOsAgendamentosOrdenadosPorDataQuandoNenhumParametroForInformado() {
+		agendamento = criarAgendamento();
+
+		Agendamento agendamentoDiferente = new Agendamento("id diferente", 2L, "usuario diferente",
+				LocalDateTime.now().plusSeconds(5), data.plusDays(1), inicio.minusHours(2), fim.minusHours(2),
+				"procedimento diferente", duracaoEmMinutosDoProcedimento + 5, BigDecimal.TEN, "categoria",
+				AgendamentoStatus.CONCLUIDO);
+		agendamentoDiferente = agendamentoRepository.save(agendamentoDiferente);
+
+		List<Agendamento> agendamentos = agendamentoCustomRepository.procurarAgendamentoPorFiltros(null, null, null,
+				null, null, null, null);
+
+		assertEquals(2, agendamentos.size());
+		assertEquals(agendamentoDiferente.getId(), agendamentos.get(0).getId());
+		assertEquals(agendamento.getId(), agendamentos.get(1).getId());
+	}
 
 	private Agendamento criarAgendamento() {
 		Agendamento agendamentoSalvo = new Agendamento("id", 1L, "usuario", LocalDateTime.now(), data, inicio, fim,
