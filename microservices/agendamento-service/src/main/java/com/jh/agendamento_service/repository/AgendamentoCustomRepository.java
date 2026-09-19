@@ -18,9 +18,23 @@ import lombok.RequiredArgsConstructor;
 @Repository
 @RequiredArgsConstructor
 public class AgendamentoCustomRepository {
-	
+
 	private final MongoTemplate mongoTemplate;
-	
+
+	public boolean existeConflitoDeHorario(LocalDate data, LocalTime inicio, LocalTime fim, AgendamentoStatus status, String id) {
+
+		Query query = new Query();
+
+		query.addCriteria(
+				Criteria.where("data").is(data).and("inicio").lt(fim).and("fim").gt(inicio).and("status").ne(status));
+		
+		 if (id != null) {
+		        query.addCriteria(Criteria.where("_id").ne(id));
+		    }
+
+		return mongoTemplate.exists(query, Agendamento.class);
+	}
+
 	public List<Agendamento> procurarAgendamentoPorFiltros(Long usuarioId, LocalDate data, LocalTime inicio,
 			LocalTime fim, String tituloDoProcedimento, String sortBy, AgendamentoStatus status) {
 
@@ -49,10 +63,10 @@ public class AgendamentoCustomRepository {
 		if (status != null) {
 			query.addCriteria(Criteria.where("status").is(status));
 		}
-		
-		if(sortBy == null)
+
+		if (sortBy == null)
 			sortBy = "data";
-		
+
 		String campoOrdenacao = switch (sortBy) {
 		case "data" -> "data";
 		case "inicio" -> "inicio";

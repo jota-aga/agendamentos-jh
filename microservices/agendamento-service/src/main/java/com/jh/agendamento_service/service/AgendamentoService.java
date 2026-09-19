@@ -17,6 +17,7 @@ import com.jh.agendamento_service.exception.NaoAutorizadoException;
 import com.jh.agendamento_service.exception.NaoEncontradoException;
 import com.jh.agendamento_service.exception.ProcedimentoNaoDisponivelException;
 import com.jh.agendamento_service.mapper.AgendamentoMapper;
+import com.jh.agendamento_service.repository.AgendamentoCustomRepository;
 import com.jh.agendamento_service.repository.AgendamentoRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -29,16 +30,18 @@ public class AgendamentoService {
 	private final ProcedimentoExternalService procedimentoExternalService;
 
 	private final AgendamentoRepository agendamentoRepository;
+	
+	private final AgendamentoCustomRepository agendamentoCustomRepository;
 
 	public void criarAgendamento(AgendamentoRequest agendamentoRequest) {
 		Agendamento agendamento = AgendamentoMapper.INSTANCE.requestToEntity(agendamentoRequest);
-		System.out.println(agendamento.getId());
 
 		agendamento.setCriadoEm(LocalDateTime.now());
 		agendamento.setStatus(AgendamentoStatus.AGENDADO);
 
 		setarInformacoesDoUsuario(agendamento);
 		setarInformacoesDoProcedimento(agendamentoRequest.procedimentoId(), agendamento);
+
 		validarConflitoDeHorario(agendamento);
 		agendamentoRepository.save(agendamento);
 	}
@@ -82,13 +85,9 @@ public class AgendamentoService {
 	private void validarConflitoDeHorario(Agendamento agendamento) {
 		Boolean existeConflito = false;
 
-		if (agendamento.getId() == null) {
-			existeConflito = agendamentoRepository.existsByDataAndInicioLessThanAndFimGreaterThanAndStatusIsNotCANCELADO(agendamento.getData(),
-					agendamento.getInicio(), agendamento.getFim());
-		} else {
-			existeConflito = agendamentoRepository.existsByDataAndInicioLessThanAndFimGreaterThanAndIdNotAndStatusIsNotCANCELADO(
-					agendamento.getData(), agendamento.getInicio(), agendamento.getFim(), agendamento.getId());
-		}
+		
+		existeConflito = agendamentoCustomRepository.existeConflitoDeHorario(agendamento.getData(),
+				agendamento.getInicio(), agendamento.getFim(), AgendamentoStatus.CANCELADO, agendamento.getId());
 
 		if (existeConflito)
 			throw new ConflitoDeHorarioException();

@@ -34,6 +34,7 @@ import com.jh.agendamento_service.exception.ConflitoDeOperacaoException;
 import com.jh.agendamento_service.exception.NaoAutorizadoException;
 import com.jh.agendamento_service.exception.NaoEncontradoException;
 import com.jh.agendamento_service.exception.ProcedimentoNaoDisponivelException;
+import com.jh.agendamento_service.repository.AgendamentoCustomRepository;
 import com.jh.agendamento_service.repository.AgendamentoRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,6 +49,9 @@ public class AgendamentoServiceTest {
 
 	@Mock
 	private AgendamentoRepository agendamentoRepository;
+	
+	@Mock
+	private AgendamentoCustomRepository agendamentoCustomRepository;
 
 	@Mock
 	private ProcedimentoExternalService procedimentoExternalService;
@@ -67,13 +71,22 @@ public class AgendamentoServiceTest {
 	private AgendamentoRequest agendamentoRequest;
 	
 	private Agendamento agendamento;
+	
+	private LocalDate data;
+	
+	private LocalTime inicio;
+	
+	private LocalTime fim;
 
 	@BeforeEach
 	public void setUp() {
 		categoriaResponse = new CategoriaResponse(1L, "categoria", true);
 		procedimentoResponse = new ProcedimentoResponse(1L, "titulo", "descrição", BigDecimal.TEN, 30, true,
 				categoriaResponse);
-		agendamentoRequest = new AgendamentoRequest(LocalDate.now(), LocalTime.now(), procedimentoResponse.id());
+		data = LocalDate.of(2026, 9, 19);
+		inicio = LocalTime.of(2, 0);
+		fim = inicio.plusMinutes(procedimentoResponse.duracaoEmMinutos());
+		agendamentoRequest = new AgendamentoRequest(data, inicio, procedimentoResponse.id());
 	
 		agendamentoCaptor = ArgumentCaptor.forClass(Agendamento.class);
 	}
@@ -84,7 +97,7 @@ public class AgendamentoServiceTest {
 		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId()))
 				.thenReturn(procedimentoResponse);
 		
-		when(agendamentoRepository.existsByDataAndInicioLessThanAndFimGreaterThan(any(), any(), any()))
+		when(agendamentoCustomRepository.existeConflitoDeHorario(data, inicio, fim, AgendamentoStatus.CANCELADO, null))
 				.thenReturn(false);
 				
 		agendamentoService.criarAgendamento(agendamentoRequest);
@@ -120,7 +133,7 @@ public class AgendamentoServiceTest {
 		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId()))
 			.thenReturn(procedimentoResponse);
 
-		when(agendamentoRepository.existsByDataAndInicioLessThanAndFimGreaterThan(any(), any(), any()))
+		when(agendamentoCustomRepository.existeConflitoDeHorario(data, inicio, fim, AgendamentoStatus.CANCELADO, null))
 			.thenReturn(true);
 		
 		assertThrows(ConflitoDeHorarioException.class, () -> agendamentoService.criarAgendamento(agendamentoRequest));
@@ -173,12 +186,16 @@ public class AgendamentoServiceTest {
 		procedimentoResponse = new ProcedimentoResponse(2L, "diferente", "diferente", BigDecimal.ONE, 15, true,
 				categoriaResponse);
 		
+		data = agendamentoRequest.data();
+		inicio = agendamentoRequest.inicio();
+		fim = inicio.plusMinutes(procedimentoResponse.duracaoEmMinutos());
+		
 		when(agendamentoRepository.findById(agendamento.getId())).thenReturn(Optional.of(agendamento));
 		
 		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId()))
 				.thenReturn(procedimentoResponse);
 		
-		when(agendamentoRepository.existsByDataAndInicioLessThanAndFimGreaterThanAndIdNot(any(), any(), any(), any()))
+		when(agendamentoCustomRepository.existeConflitoDeHorario(data, inicio, fim, AgendamentoStatus.CANCELADO, agendamento.getId()))
 				.thenReturn(false);
 		
 		agendamentoService.atualizarAgendamentoComoCliente(agendamento.getId(), agendamentoRequest);
@@ -218,7 +235,7 @@ public class AgendamentoServiceTest {
 		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId()))
 			.thenReturn(procedimentoResponse);
 
-		when(agendamentoRepository.existsByDataAndInicioLessThanAndFimGreaterThanAndIdNot(any(), any(), any(), any()))
+		when(agendamentoCustomRepository.existeConflitoDeHorario(data, inicio, fim, AgendamentoStatus.CANCELADO, agendamento.getId()))
 			.thenReturn(true);		
 		
 		assertThrows(ConflitoDeHorarioException.class, () -> agendamentoService.atualizarAgendamentoComoCliente(agendamento.getId(), agendamentoRequest));
