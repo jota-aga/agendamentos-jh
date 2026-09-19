@@ -83,10 +83,10 @@ public class AgendamentoService {
 		Boolean existeConflito = false;
 
 		if (agendamento.getId() == null) {
-			existeConflito = agendamentoRepository.existsByDataAndInicioLessThanAndFimGreaterThan(agendamento.getData(),
+			existeConflito = agendamentoRepository.existsByDataAndInicioLessThanAndFimGreaterThanAndStatusIsNotCANCELADO(agendamento.getData(),
 					agendamento.getInicio(), agendamento.getFim());
 		} else {
-			existeConflito = agendamentoRepository.existsByDataAndInicioLessThanAndFimGreaterThanAndIdNot(
+			existeConflito = agendamentoRepository.existsByDataAndInicioLessThanAndFimGreaterThanAndIdNotAndStatusIsNotCANCELADO(
 					agendamento.getData(), agendamento.getInicio(), agendamento.getFim(), agendamento.getId());
 		}
 
