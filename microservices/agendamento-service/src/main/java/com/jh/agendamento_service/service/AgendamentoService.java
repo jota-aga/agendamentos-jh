@@ -1,8 +1,11 @@
 package com.jh.agendamento_service.service;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -30,7 +33,7 @@ public class AgendamentoService {
 	private final ProcedimentoExternalService procedimentoExternalService;
 
 	private final AgendamentoRepository agendamentoRepository;
-	
+
 	private final AgendamentoCustomRepository agendamentoCustomRepository;
 
 	public void criarAgendamento(AgendamentoRequest agendamentoRequest) {
@@ -69,6 +72,39 @@ public class AgendamentoService {
 		return agendamentoRepository.findById(id).orElseThrow(() -> new NaoEncontradoException("Agendamento"));
 	}
 
+	public List<LocalTime> horariosDisponiveis(LocalTime inicioDoExpediente, LocalTime fimDoExpediente, LocalDate data,
+			Long procedimentoId) {
+
+		List<Agendamento> agendamentoJaMarcados = agendamentoRepository.findAllByData(data);
+
+		ProcedimentoResponse procedimentoResponse = procedimentoExternalService
+				.procurarProcedimentoPorId(procedimentoId);
+
+		List<LocalTime> horariosDisponiveis = new ArrayList<>();
+
+		LocalTime horario = inicioDoExpediente;
+
+		Integer duracaoEmMinutosDoProcedimento = procedimentoResponse.duracaoEmMinutos();
+
+		while (!horario.plusMinutes(duracaoEmMinutosDoProcedimento).isAfter(fimDoExpediente)) {
+			
+			LocalTime horarioInicial = horario;
+			LocalTime horarioFim = horarioInicial.plusMinutes(duracaoEmMinutosDoProcedimento);
+
+			boolean possuiConflito = agendamentoJaMarcados.stream()
+					.anyMatch(agendamento -> agendamento.getInicio().isBefore(horarioFim)
+							&& agendamento.getFim().isAfter(horarioInicial));
+
+			if (!possuiConflito) {
+				horariosDisponiveis.add(horarioInicial);
+			}
+
+			horario = horario.plusMinutes(duracaoEmMinutosDoProcedimento);
+		}
+
+		return horariosDisponiveis;
+	}
+
 	private void setarInformacoesDoProcedimento(Long procedimentoId, Agendamento agendamento) {
 		ProcedimentoResponse procedimento = procedimentoExternalService.procurarProcedimentoPorId(procedimentoId);
 
@@ -85,7 +121,6 @@ public class AgendamentoService {
 	private void validarConflitoDeHorario(Agendamento agendamento) {
 		Boolean existeConflito = false;
 
-		
 		existeConflito = agendamentoCustomRepository.existeConflitoDeHorario(agendamento.getData(),
 				agendamento.getInicio(), agendamento.getFim(), AgendamentoStatus.CANCELADO, agendamento.getId());
 
