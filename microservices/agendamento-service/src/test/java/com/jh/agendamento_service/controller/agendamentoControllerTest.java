@@ -1,0 +1,69 @@
+package com.jh.agendamento_service.controller;
+
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import com.jh.agendamento_service.config.SecurityConfig;
+import com.jh.agendamento_service.dto.AgendamentoRequest;
+import com.jh.agendamento_service.service.AgendamentoService;
+
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+
+@ExtendWith(MockitoExtension.class)
+@WebMvcTest(value = AgendamentoController.class)
+@Import(SecurityConfig.class)
+public class agendamentoControllerTest {
+	private static final String BASE_URL = "/agendamento";
+	
+	private static final String ADMIN = "SCOPE_ADMIN";
+		
+	@Autowired
+	private MockMvc mockMvc;
+	
+	@Autowired
+	private ObjectMapper objectMapper;
+	
+	@MockitoBean
+	private AgendamentoService agendamentoService;
+	
+	private AgendamentoRequest agendamentoRequest;
+	
+	private LocalDate data;
+	
+	private LocalTime horario;
+	
+	@BeforeEach
+	public void setUp() {
+		data = LocalDate.of(2026, 9, 18);
+		horario = LocalTime.of(14, 0);
+		agendamentoRequest = new AgendamentoRequest(data, horario, 1L);
+	}
+	
+	@Test
+	@WithMockUser
+	public void deveRetornar201AoCriarAgendamento() throws JacksonException, Exception {
+		mockMvc.perform(post(BASE_URL)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(agendamentoRequest)))
+		.andExpect(status().isCreated());
+		
+		verify(agendamentoService).criarAgendamento(agendamentoRequest);
+	}
+}
