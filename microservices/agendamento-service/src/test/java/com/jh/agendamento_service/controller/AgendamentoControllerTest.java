@@ -5,6 +5,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,7 +36,7 @@ import tools.jackson.databind.ObjectMapper;
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(value = AgendamentoController.class)
 @Import(SecurityConfig.class)
-public class agendamentoControllerTest {
+public class AgendamentoControllerTest {
 	private static final String BASE_URL = "/agendamento";
 	
 	private static final String ADMIN = "SCOPE_ADMIN";
@@ -104,6 +105,70 @@ public class agendamentoControllerTest {
 		doThrow(exception).when(agendamentoService).criarAgendamento(agendamentoRequest);
 		
 		mockMvc.perform(post(BASE_URL)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(agendamentoRequest)))
+		.andExpect(status().isConflict())
+		.andExpect(content().string(exception.getMessage()));
+	}
+	
+	@Test
+	@WithMockUser
+	public void deveRetornar200AoAtualizarAgendamentoComoCliente() throws JacksonException, Exception {
+		mockMvc.perform(put(BASE_URL+"/id")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(agendamentoRequest)))
+		.andExpect(status().isOk());
+		
+		verify(agendamentoService).atualizarAgendamentoComoCliente("id", agendamentoRequest);
+	}
+	
+	@Test
+	@WithMockUser
+	public void deveRetornar404QuandoAgendamentoNaoForEncontradoAoAtualizarAgendamentoComoCliente() throws JacksonException, Exception {
+		NaoEncontradoException exception = new NaoEncontradoException("Agendamento");
+		doThrow(exception).when(agendamentoService).atualizarAgendamentoComoCliente("id", agendamentoRequest);
+		
+		mockMvc.perform(put(BASE_URL+"/id")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(agendamentoRequest)))
+		.andExpect(status().isNotFound())
+		.andExpect(content().string(exception.getMessage()));
+		
+		verify(agendamentoService).atualizarAgendamentoComoCliente("id", agendamentoRequest);
+
+	}
+	
+	@Test
+	@WithMockUser
+	public void deveRetornar400QuandoRequestForInvalidoAoAtualizarAgendamentoComoCliente() throws JacksonException, Exception {
+		mockMvc.perform(put(BASE_URL+"/id")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(new AgendamentoRequest(null, null, null))))
+		.andExpect(status().isBadRequest());
+		
+		verify(agendamentoService, never()).atualizarAgendamentoComoCliente("id", agendamentoRequest);
+	}
+	
+	@Test
+	@WithMockUser
+	public void deveRetornar404QuandoProcedimentoNaoForEncontradoAoAtualizarAgendamento() throws JacksonException, Exception {
+		NaoEncontradoException exception = new NaoEncontradoException("Procedimento");
+		doThrow(exception).when(agendamentoService).atualizarAgendamentoComoCliente("id", agendamentoRequest);
+		
+		mockMvc.perform(put(BASE_URL+"/id")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(agendamentoRequest)))
+		.andExpect(status().isNotFound())
+		.andExpect(content().string(exception.getMessage()));
+	}
+	
+	@Test
+	@WithMockUser
+	public void deveRetornar409QuandoAgendamentoResultarEmConflitoAoAtualizarAgendamentoComoCliente() throws JacksonException, Exception {
+		ConflitoDeHorarioException exception = new ConflitoDeHorarioException();
+		doThrow(exception).when(agendamentoService).atualizarAgendamentoComoCliente("id", agendamentoRequest);
+		
+		mockMvc.perform(put(BASE_URL+"/id")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(agendamentoRequest)))
 		.andExpect(status().isConflict())
