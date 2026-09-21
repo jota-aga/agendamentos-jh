@@ -26,4 +26,5 @@ public class AgendamentoController {
 		
 		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
+	
 }
