@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jh.agendamento_service.dto.AgendamentoRequest;
+import com.jh.agendamento_service.dto.AgendamentoResponse;
 import com.jh.agendamento_service.service.AgendamentoService;
 
 import jakarta.validation.Valid;
@@ -35,5 +36,12 @@ public class AgendamentoController {
 		agendamentoService.atualizarAgendamentoComoCliente(id, agendamentoRequest);
 		
 		return ResponseEntity.status(HttpStatus.OK).build();
+	}
+	
+	@GetMapping("/{id}")
+	public ResponseEntity<?> procurarAgendamentoPorId(@PathVariable String id){
+		AgendamentoResponse response = agendamentoService.procurarAgendamentoPorId(id);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 }

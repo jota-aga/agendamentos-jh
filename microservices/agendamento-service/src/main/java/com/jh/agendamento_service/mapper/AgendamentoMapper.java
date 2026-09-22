@@ -7,6 +7,7 @@ import org.mapstruct.factory.Mappers;
 
 import com.jh.agendamento_service.domain.Agendamento;
 import com.jh.agendamento_service.dto.AgendamentoRequest;
+import com.jh.agendamento_service.dto.AgendamentoResponse;
 import com.jh.agendamento_service.dto.ProcedimentoResponse;
 
 @Mapper
@@ -18,7 +19,7 @@ public interface AgendamentoMapper {
 	Agendamento requestToEntity(AgendamentoRequest request);
 	
 	@Mapping(target="status", ignore = true)
-	Agendamento updateEntityComoCliente(@MappingTarget Agendamento agendamento, AgendamentoRequest request);
+	Agendamento updateEntity(@MappingTarget Agendamento agendamento, AgendamentoRequest request);
 	
 	@Mapping(target = "tituloDoProcedimento", source = "procedimentoResponse.titulo")
 	@Mapping(target = "preco", source = "procedimentoResponse.preco")
@@ -28,4 +29,6 @@ public interface AgendamentoMapper {
 	@Mapping(target = "id", ignore = true)
 	Agendamento setInformacoesDoProcedimento(@MappingTarget Agendamento agendamento,
 			ProcedimentoResponse procedimentoResponse);
+
+	AgendamentoResponse entityToResponse(Agendamento agendamento);
 }

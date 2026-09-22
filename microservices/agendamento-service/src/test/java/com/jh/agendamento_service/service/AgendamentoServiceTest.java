@@ -164,7 +164,7 @@ public class AgendamentoServiceTest {
 		agendamento = criarAgendamento();
 		when(agendamentoRepository.findById(agendamento.getId())).thenReturn(Optional.of(agendamento));
 
-		agendamentoService.procurarPorId(agendamento.getId());
+		agendamentoService.procurarAgendamentoPorId(agendamento.getId());
 
 		verify(agendamentoRepository).findById(agendamento.getId());
 	}
@@ -174,7 +174,7 @@ public class AgendamentoServiceTest {
 		agendamento = criarAgendamento();
 		when(agendamentoRepository.findById(agendamento.getId())).thenReturn(Optional.empty());
 
-		assertThrows(NaoEncontradoException.class, () -> agendamentoService.procurarPorId(agendamento.getId()));
+		assertThrows(NaoEncontradoException.class, () -> agendamentoService.procurarAgendamentoPorId(agendamento.getId()));
 
 		verify(agendamentoRepository).findById(agendamento.getId());
 	}

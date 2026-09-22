@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.jh.agendamento_service.domain.Agendamento;
 import com.jh.agendamento_service.dto.AgendamentoRequest;
+import com.jh.agendamento_service.dto.AgendamentoResponse;
 import com.jh.agendamento_service.dto.ProcedimentoResponse;
 import com.jh.agendamento_service.dto.UsuarioAutenticadoDTO;
 import com.jh.agendamento_service.enums.AgendamentoStatus;
@@ -59,7 +60,7 @@ public class AgendamentoService {
 		if (agendamento.getStatus() != AgendamentoStatus.AGENDADO)
 			throw new ConflitoDeOperacaoException("Não é possível atualizar o agendamento");
 
-		AgendamentoMapper.INSTANCE.updateEntityComoCliente(agendamento, agendamentoRequest);
+		AgendamentoMapper.INSTANCE.updateEntity(agendamento, agendamentoRequest);
 
 		setarInformacoesDoProcedimento(agendamentoRequest.procedimentoId(), agendamento);
 		validarConflitoDeHorario(agendamento);
@@ -67,9 +68,19 @@ public class AgendamentoService {
 
 		agendamentoRepository.save(agendamento);
 	}
+	
+	public void atualizarAgendamentoComoAdmin(String id, AgendamentoRequest agendamentoRequest) {
+		Agendamento agendamento = procurarPorId(id);
 
-	public Agendamento procurarPorId(String id) {
-		return agendamentoRepository.findById(id).orElseThrow(() -> new NaoEncontradoException("Agendamento"));
+		if (agendamento.getStatus() != AgendamentoStatus.AGENDADO)
+			throw new ConflitoDeOperacaoException("Não é possível atualizar o agendamento");
+
+		AgendamentoMapper.INSTANCE.updateEntity(agendamento, agendamentoRequest);
+
+		setarInformacoesDoProcedimento(agendamentoRequest.procedimentoId(), agendamento);
+		validarConflitoDeHorario(agendamento);
+
+		agendamentoRepository.save(agendamento);
 	}
 
 	public List<LocalTime> horariosDisponiveis(LocalTime inicioDoExpediente, LocalTime fimDoExpediente, LocalDate data,
@@ -103,6 +114,16 @@ public class AgendamentoService {
 		}
 
 		return horariosDisponiveis;
+	}
+	
+	public AgendamentoResponse procurarAgendamentoPorId(String id) {
+		Agendamento agendamento = procurarPorId(id);
+		
+		return AgendamentoMapper.INSTANCE.entityToResponse(agendamento);
+	}
+	
+	private Agendamento procurarPorId(String id) {
+		return agendamentoRepository.findById(id).orElseThrow(() -> new NaoEncontradoException("Agendamento"));
 	}
 
 	private void setarInformacoesDoProcedimento(Long procedimentoId, Agendamento agendamento) {
