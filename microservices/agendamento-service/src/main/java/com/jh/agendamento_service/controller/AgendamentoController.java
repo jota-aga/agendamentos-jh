@@ -38,6 +38,13 @@ public class AgendamentoController {
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 	
+	@PutMapping("/{id}/admin")
+	public ResponseEntity<?> atualizarAgendamentoComoAdmin(@PathVariable String id, @Valid @RequestBody AgendamentoRequest agendamentoRequest){
+		agendamentoService.atualizarAgendamentoComoAdmin(id, agendamentoRequest);
+		
+		return ResponseEntity.status(HttpStatus.OK).build();
+	}
+	
 	@GetMapping("/{id}")
 	public ResponseEntity<?> procurarAgendamentoPorId(@PathVariable String id){
 		AgendamentoResponse response = agendamentoService.procurarAgendamentoPorId(id);
