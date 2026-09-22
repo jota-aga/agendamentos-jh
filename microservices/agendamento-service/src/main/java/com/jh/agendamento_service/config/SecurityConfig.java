@@ -28,8 +28,8 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 		return httpSecurity
 				.authorizeHttpRequests(authorize -> authorize
-															 .anyRequest().authenticated()
 															 .requestMatchers(HttpMethod.PUT, "/agendamento/*/admin").hasAuthority("SCOPE_ADMIN")
+															 .anyRequest().authenticated()
 															 )
 															 
 				.csrf(csrf -> csrf.disable())

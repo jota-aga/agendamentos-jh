@@ -46,6 +46,8 @@ public class AgendamentoControllerTest {
 	private static final String BASE_URL = "/agendamento";
 
 	private static final String ADMIN = "SCOPE_ADMIN";
+	
+	private static final String AGENDAMENTO_ID = "id";
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -69,7 +71,7 @@ public class AgendamentoControllerTest {
 		data = LocalDate.of(2026, 9, 18);
 		horario = LocalTime.of(14, 0);
 		agendamentoRequest = new AgendamentoRequest(data, horario, 1L);
-		agendamentoResponse = new AgendamentoResponse("id", 1L, "usuario", LocalDateTime.now(), data, horario,
+		agendamentoResponse = new AgendamentoResponse(AGENDAMENTO_ID, 1L, "usuario", LocalDateTime.now(), data, horario,
 				horario.plusMinutes(30), "procedimento", 30, BigDecimal.TEN, "categoria", AgendamentoStatus.AGENDADO);
 
 	}
@@ -123,7 +125,7 @@ public class AgendamentoControllerTest {
 		mockMvc.perform(put(BASE_URL + "/id").contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(agendamentoRequest))).andExpect(status().isOk());
 
-		verify(agendamentoService).atualizarAgendamentoComoCliente("id", agendamentoRequest);
+		verify(agendamentoService).atualizarAgendamentoComoCliente(AGENDAMENTO_ID, agendamentoRequest);
 	}
 
 	@Test
@@ -131,13 +133,13 @@ public class AgendamentoControllerTest {
 	public void deveRetornar404QuandoAgendamentoNaoForEncontradoAoAtualizarAgendamentoComoCliente()
 			throws JacksonException, Exception {
 		NaoEncontradoException exception = new NaoEncontradoException("Agendamento");
-		doThrow(exception).when(agendamentoService).atualizarAgendamentoComoCliente("id", agendamentoRequest);
+		doThrow(exception).when(agendamentoService).atualizarAgendamentoComoCliente(AGENDAMENTO_ID, agendamentoRequest);
 
 		mockMvc.perform(put(BASE_URL + "/id").contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(agendamentoRequest))).andExpect(status().isNotFound())
 				.andExpect(content().string(exception.getMessage()));
 
-		verify(agendamentoService).atualizarAgendamentoComoCliente("id", agendamentoRequest);
+		verify(agendamentoService).atualizarAgendamentoComoCliente(AGENDAMENTO_ID, agendamentoRequest);
 
 	}
 
@@ -149,15 +151,15 @@ public class AgendamentoControllerTest {
 				.content(objectMapper.writeValueAsString(new AgendamentoRequest(null, null, null))))
 				.andExpect(status().isBadRequest());
 
-		verify(agendamentoService, never()).atualizarAgendamentoComoCliente("id", agendamentoRequest);
+		verify(agendamentoService, never()).atualizarAgendamentoComoCliente(AGENDAMENTO_ID, agendamentoRequest);
 	}
 
 	@Test
 	@WithMockUser
-	public void deveRetornar404QuandoProcedimentoNaoForEncontradoAoAtualizarAgendamento()
+	public void deveRetornar404QuandoProcedimentoNaoForEncontradoAoAtualizarAgendamentoComoCliente()
 			throws JacksonException, Exception {
 		NaoEncontradoException exception = new NaoEncontradoException("Procedimento");
-		doThrow(exception).when(agendamentoService).atualizarAgendamentoComoCliente("id", agendamentoRequest);
+		doThrow(exception).when(agendamentoService).atualizarAgendamentoComoCliente(AGENDAMENTO_ID, agendamentoRequest);
 
 		mockMvc.perform(put(BASE_URL + "/id").contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(agendamentoRequest))).andExpect(status().isNotFound())
@@ -169,9 +171,68 @@ public class AgendamentoControllerTest {
 	public void deveRetornar409QuandoAgendamentoResultarEmConflitoAoAtualizarAgendamentoComoCliente()
 			throws JacksonException, Exception {
 		ConflitoDeHorarioException exception = new ConflitoDeHorarioException();
-		doThrow(exception).when(agendamentoService).atualizarAgendamentoComoCliente("id", agendamentoRequest);
+		doThrow(exception).when(agendamentoService).atualizarAgendamentoComoCliente(AGENDAMENTO_ID, agendamentoRequest);
 
 		mockMvc.perform(put(BASE_URL + "/id").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(agendamentoRequest))).andExpect(status().isConflict())
+				.andExpect(content().string(exception.getMessage()));
+	}
+	
+	@Test
+	@WithMockUser(authorities = ADMIN)
+	public void deveRetornar200AoAtualizarAgendamentoComoAdmin() throws JacksonException, Exception {
+		mockMvc.perform(put(BASE_URL + "/id/admin").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(agendamentoRequest))).andExpect(status().isOk());
+
+		verify(agendamentoService).atualizarAgendamentoComoAdmin(AGENDAMENTO_ID, agendamentoRequest);
+	}
+
+	@Test
+	@WithMockUser(authorities = ADMIN)
+	public void deveRetornar404QuandoAgendamentoNaoForEncontradoAoAtualizarAgendamentoComoAdmin()
+			throws JacksonException, Exception {
+		NaoEncontradoException exception = new NaoEncontradoException("Agendamento");
+		doThrow(exception).when(agendamentoService).atualizarAgendamentoComoAdmin(AGENDAMENTO_ID, agendamentoRequest);
+
+		mockMvc.perform(put(BASE_URL + "/id/admin").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(agendamentoRequest))).andExpect(status().isNotFound())
+				.andExpect(content().string(exception.getMessage()));
+
+		verify(agendamentoService).atualizarAgendamentoComoAdmin(AGENDAMENTO_ID, agendamentoRequest);
+
+	}
+
+	@Test
+	@WithMockUser(authorities = ADMIN)
+	public void deveRetornar400QuandoRequestForInvalidoAoAtualizarAgendamentoComoAdmin()
+			throws JacksonException, Exception {
+		mockMvc.perform(put(BASE_URL + "/id/admin").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(new AgendamentoRequest(null, null, null))))
+				.andExpect(status().isBadRequest());
+
+		verify(agendamentoService, never()).atualizarAgendamentoComoAdmin(AGENDAMENTO_ID, agendamentoRequest);
+	}
+
+	@Test
+	@WithMockUser(authorities = ADMIN)
+	public void deveRetornar404QuandoProcedimentoNaoForEncontradoAoAtualizarAgendamentoComoAdmin()
+			throws JacksonException, Exception {
+		NaoEncontradoException exception = new NaoEncontradoException("Procedimento");
+		doThrow(exception).when(agendamentoService).atualizarAgendamentoComoCliente(AGENDAMENTO_ID, agendamentoRequest);
+
+		mockMvc.perform(put(BASE_URL + "/id").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(agendamentoRequest))).andExpect(status().isNotFound())
+				.andExpect(content().string(exception.getMessage()));
+	}
+
+	@Test
+	@WithMockUser(authorities = ADMIN)
+	public void deveRetornar409QuandoHorarioDoAgendamentoResultarEmConflitoAoAtualizarAgendamentoComoAdmin()
+			throws JacksonException, Exception {
+		ConflitoDeHorarioException exception = new ConflitoDeHorarioException();
+		doThrow(exception).when(agendamentoService).atualizarAgendamentoComoAdmin(AGENDAMENTO_ID, agendamentoRequest);
+
+		mockMvc.perform(put(BASE_URL + "/id/admin").contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(agendamentoRequest))).andExpect(status().isConflict())
 				.andExpect(content().string(exception.getMessage()));
 	}
@@ -179,7 +240,7 @@ public class AgendamentoControllerTest {
 	@Test
 	@WithMockUser
 	public void deveRetornar200EOsDadosDoResponseDevemEstarCorretoAoProcurarAgendamentoPorId() throws JacksonException, Exception {
-		when(agendamentoService.procurarAgendamentoPorId("id")).thenReturn(agendamentoResponse);
+		when(agendamentoService.procurarAgendamentoPorId(AGENDAMENTO_ID)).thenReturn(agendamentoResponse);
 		
 		mockMvc.perform(get(BASE_URL+"/id"))
 		.andExpect(status().isOk())
@@ -189,7 +250,7 @@ public class AgendamentoControllerTest {
 	@Test
 	@WithMockUser
 	public void devRetornar404QuandoAgendamentoNaoForEncontradoAoProcurarAgendamentoPorId() throws JacksonException, Exception {
-		doThrow(new NaoEncontradoException("Agendamento")).when(agendamentoService).procurarAgendamentoPorId("id");
+		doThrow(new NaoEncontradoException("Agendamento")).when(agendamentoService).procurarAgendamentoPorId(AGENDAMENTO_ID);
 		
 		mockMvc.perform(get(BASE_URL+"/id"))
 		.andExpect(status().isNotFound());
