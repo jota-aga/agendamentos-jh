@@ -27,6 +27,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.jh.agendamento_service.domain.Agendamento;
 import com.jh.agendamento_service.dto.AgendamentoRequest;
+import com.jh.agendamento_service.dto.AgendamentoStatusRequest;
 import com.jh.agendamento_service.dto.CategoriaResponse;
 import com.jh.agendamento_service.dto.ProcedimentoResponse;
 import com.jh.agendamento_service.dto.UsuarioAutenticadoDTO;
@@ -405,6 +406,32 @@ public class AgendamentoServiceTest {
 
 		assertThrows(NaoEncontradoException.class,
 				() -> agendamentoService.atualizarAgendamentoComoAdmin(agendamento.getId(), agendamentoRequest));
+
+		verify(agendamentoRepository, never()).save(any());
+	}
+	
+	@Test
+	public void deveAtualizarStatusDoAgendamento() {
+		agendamento = criarAgendamento();
+		AgendamentoStatusRequest statusRequest = new AgendamentoStatusRequest(AgendamentoStatus.CANCELADO);
+		
+		when(agendamentoRepository.findById(agendamento.getId())).thenReturn(Optional.of(agendamento));
+		
+		agendamentoService.alterarStatusDoAgendamento(agendamento.getId(), statusRequest);
+		
+		verify(agendamentoRepository).save(agendamentoCaptor.capture());
+		
+		assertEquals(statusRequest.status(), agendamentoCaptor.getValue().getStatus());
+	}
+	
+	@Test
+	public void deveLancarNaoEncontradoExceptionQuandoProcedimentoNaoForEncontradoAoAtualizarStatus() {
+		agendamento = criarAgendamento();
+		AgendamentoStatusRequest statusRequest = new AgendamentoStatusRequest(AgendamentoStatus.CANCELADO);
+		
+		when(agendamentoRepository.findById(agendamento.getId())).thenReturn(Optional.empty());
+		
+		assertThrows(NaoEncontradoException.class, () -> agendamentoService.alterarStatusDoAgendamento(agendamento.getId(), statusRequest));
 
 		verify(agendamentoRepository, never()).save(any());
 	}

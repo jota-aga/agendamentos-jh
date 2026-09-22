@@ -5,9 +5,10 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,6 +32,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.jh.agendamento_service.config.SecurityConfig;
 import com.jh.agendamento_service.dto.AgendamentoRequest;
 import com.jh.agendamento_service.dto.AgendamentoResponse;
+import com.jh.agendamento_service.dto.AgendamentoStatusRequest;
 import com.jh.agendamento_service.enums.AgendamentoStatus;
 import com.jh.agendamento_service.exception.ConflitoDeHorarioException;
 import com.jh.agendamento_service.exception.NaoEncontradoException;
@@ -222,7 +224,8 @@ public class AgendamentoControllerTest {
 
 		mockMvc.perform(put(BASE_URL + "/id").contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(agendamentoRequest))).andExpect(status().isNotFound())
-				.andExpect(content().string(exception.getMessage()));
+				.andExpect(content().string(exception.getMessage()))
+				.andExpect(status().isNotFound());
 	}
 
 	@Test
@@ -234,9 +237,48 @@ public class AgendamentoControllerTest {
 
 		mockMvc.perform(put(BASE_URL + "/id/admin").contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(agendamentoRequest))).andExpect(status().isConflict())
-				.andExpect(content().string(exception.getMessage()));
+				.andExpect(content().string(exception.getMessage()))
+				.andExpect(status().isConflict());
 	}
+	
+	@Test
+	@WithMockUser
+	public void deveRetornar403QuandoUsuarioNaoAdminTentarAtualizarAgendamentoComoAdmin()
+			throws JacksonException, Exception {
+		ConflitoDeHorarioException exception = new ConflitoDeHorarioException();
+		doThrow(exception).when(agendamentoService).atualizarAgendamentoComoAdmin(AGENDAMENTO_ID, agendamentoRequest);
 
+		mockMvc.perform(put(BASE_URL + "/id/admin").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(agendamentoRequest)))
+				.andExpect(status().isForbidden());
+	}
+	
+	@Test
+	@WithMockUser(authorities = ADMIN)
+	public void deveRetornar200QuandoAtualizarStatusDoAgendamento() throws JacksonException, Exception {
+		AgendamentoStatusRequest statusRequest = new AgendamentoStatusRequest(AgendamentoStatus.CANCELADO);
+		
+		mockMvc.perform(patch(BASE_URL+"/id/status/admin")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(statusRequest)))
+		.andExpect(status().isOk());
+		
+		verify(agendamentoService).alterarStatusDoAgendamento(AGENDAMENTO_ID, statusRequest);
+	}
+	
+	@Test
+	@WithMockUser
+	public void deveRetornar403QuandoUsuarioNaoForAdminAoAtualizarStatusDoAgendamento() throws JacksonException, Exception {
+		AgendamentoStatusRequest statusRequest = new AgendamentoStatusRequest(AgendamentoStatus.CANCELADO);
+		
+		mockMvc.perform(patch(BASE_URL+"/id/status/admin")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(statusRequest)))
+		.andExpect(status().isForbidden());
+		
+		verify(agendamentoService, never()).alterarStatusDoAgendamento(AGENDAMENTO_ID, statusRequest);
+	}
+	
 	@Test
 	@WithMockUser
 	public void deveRetornar200EOsDadosDoResponseDevemEstarCorretoAoProcurarAgendamentoPorId() throws JacksonException, Exception {
