@@ -72,9 +72,6 @@ public class AgendamentoService {
 	public void atualizarAgendamentoComoAdmin(String id, AgendamentoRequest agendamentoRequest) {
 		Agendamento agendamento = procurarPorId(id);
 
-		if (agendamento.getStatus() != AgendamentoStatus.AGENDADO)
-			throw new ConflitoDeOperacaoException("Não é possível atualizar o agendamento");
-
 		AgendamentoMapper.INSTANCE.updateEntity(agendamento, agendamentoRequest);
 
 		setarInformacoesDoProcedimento(agendamentoRequest.procedimentoId(), agendamento);

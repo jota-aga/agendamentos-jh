@@ -310,6 +310,104 @@ public class AgendamentoServiceTest {
 
 		verify(agendamentoRepository, never()).save(any());
 	}
+	
+	@Test
+	public void deveAtualizarAgendamentoComoAdminComSucesso() {
+		agendamento = criarAgendamento();
+
+		agendamentoRequest = new AgendamentoRequest(agendamento.getData().plusDays(1),
+				agendamento.getInicio().plusMinutes(60), 2L);
+
+		categoriaResponse = new CategoriaResponse(2L, "diferente", false);
+
+		procedimentoResponse = new ProcedimentoResponse(2L, "diferente", "diferente", BigDecimal.ONE, 15, true,
+				categoriaResponse);
+
+		data = agendamentoRequest.data();
+		inicio = agendamentoRequest.inicio();
+		fim = inicio.plusMinutes(procedimentoResponse.duracaoEmMinutos());
+
+		when(agendamentoRepository.findById(agendamento.getId())).thenReturn(Optional.of(agendamento));
+
+		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId()))
+				.thenReturn(procedimentoResponse);
+
+		when(agendamentoCustomRepository.existeConflitoDeHorario(data, inicio, fim, AgendamentoStatus.CANCELADO,
+				agendamento.getId())).thenReturn(false);
+
+		agendamentoService.atualizarAgendamentoComoAdmin(agendamento.getId(), agendamentoRequest);
+
+		verify(agendamentoRepository, atLeastOnce()).save(agendamentoCaptor.capture());
+
+		agendamento = agendamentoCaptor.getValue();
+
+		assertEquals(agendamentoRequest.data(), agendamento.getData());
+		assertEquals(agendamentoRequest.inicio(), agendamento.getInicio());
+		assertEquals(agendamento.getInicio().plusMinutes(procedimentoResponse.duracaoEmMinutos()),
+				agendamento.getFim());
+		assertEquals(ID_DO_USUARIO, agendamento.getUsuarioId());
+		assertEquals(NOME_DO_USUARIO, agendamento.getNomeDoUsuario());
+		assertEquals(procedimentoResponse.titulo(), agendamento.getTituloDoProcedimento());
+		assertEquals(procedimentoResponse.preco(), agendamento.getPreco());
+		assertEquals(categoriaResponse.nome(), agendamento.getNomeDaCategoria());
+		assertEquals(AgendamentoStatus.AGENDADO, agendamento.getStatus());
+	}
+
+	@Test
+	public void deveLancarNaoEncontradoExceptionQuandoProcedimentoNaoForEncontradoAoAtualizarAgendamentoComoAdmin() {
+		agendamento = criarAgendamento();
+		when(agendamentoRepository.findById(agendamento.getId())).thenReturn(Optional.of(agendamento));
+		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId()))
+				.thenThrow(NaoEncontradoException.class);
+
+		assertThrows(NaoEncontradoException.class,
+				() -> agendamentoService.atualizarAgendamentoComoAdmin(agendamento.getId(), agendamentoRequest));
+
+		verify(agendamentoRepository, never()).save(any());
+	}
+
+	@Test
+	public void deveLancarConflitoDeHorarioExceptionQuandoJaExistirAgendamentoNaqueleIntervaloAoAtualizarAgendamentoComoAdmin() {
+		agendamento = criarAgendamento();
+		when(agendamentoRepository.findById(agendamento.getId())).thenReturn(Optional.of(agendamento));
+		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId()))
+				.thenReturn(procedimentoResponse);
+
+		when(agendamentoCustomRepository.existeConflitoDeHorario(data, inicio, fim, AgendamentoStatus.CANCELADO,
+				agendamento.getId())).thenReturn(true);
+
+		assertThrows(ConflitoDeHorarioException.class,
+				() -> agendamentoService.atualizarAgendamentoComoAdmin(agendamento.getId(), agendamentoRequest));
+
+		verify(agendamentoRepository, never()).save(any());
+	}
+
+	@Test
+	public void deveLancarProcedimentoNaoDisponivelExceptionQuandoAtivoDoProcedimentoForFalsoAoAtualizarAgendamentoComoAdmin() {
+		agendamento = criarAgendamento();
+		when(agendamentoRepository.findById(agendamento.getId())).thenReturn(Optional.of(agendamento));
+		procedimentoResponse = new ProcedimentoResponse(1L, "titulo", "descrição", BigDecimal.TEN, 30, false,
+				categoriaResponse);
+		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId()))
+				.thenReturn(procedimentoResponse);
+
+		assertThrows(ProcedimentoNaoDisponivelException.class,
+				() -> agendamentoService.atualizarAgendamentoComoAdmin(agendamento.getId(), agendamentoRequest));
+
+		verify(agendamentoRepository, never()).save(any());
+	}
+
+	@Test
+	public void deveLancarNaoEncontradoExceptionQuandoAgendamentoNaoForEncontradoAoAtualizarAgendamentoComoAdmin() {
+		agendamento = criarAgendamento();
+
+		when(agendamentoRepository.findById(agendamento.getId())).thenReturn(Optional.empty());
+
+		assertThrows(NaoEncontradoException.class,
+				() -> agendamentoService.atualizarAgendamentoComoAdmin(agendamento.getId(), agendamentoRequest));
+
+		verify(agendamentoRepository, never()).save(any());
+	}
 
 	@Test
 	public void deveListarTodosOsHorariosDisponíveisDentroDoIntervalo() {
