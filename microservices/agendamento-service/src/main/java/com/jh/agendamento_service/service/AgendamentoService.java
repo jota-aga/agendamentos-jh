@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.jh.agendamento_service.domain.Agendamento;
 import com.jh.agendamento_service.dto.AgendamentoRequest;
 import com.jh.agendamento_service.dto.AgendamentoResponse;
+import com.jh.agendamento_service.dto.AgendamentoStatusRequest;
 import com.jh.agendamento_service.dto.ProcedimentoResponse;
 import com.jh.agendamento_service.dto.UsuarioAutenticadoDTO;
 import com.jh.agendamento_service.enums.AgendamentoStatus;
@@ -111,6 +112,14 @@ public class AgendamentoService {
 		}
 
 		return horariosDisponiveis;
+	}
+	
+	public void alterarStatusDoAgendamento(String id, AgendamentoStatusRequest statusRequest) {
+		Agendamento agendamento = procurarPorId(id);
+		
+		agendamento.setStatus(statusRequest.status());
+		
+		agendamentoRepository.save(agendamento);
 	}
 	
 	public AgendamentoResponse procurarAgendamentoPorId(String id) {

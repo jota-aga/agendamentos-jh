@@ -29,6 +29,7 @@ public class SecurityConfig {
 		return httpSecurity
 				.authorizeHttpRequests(authorize -> authorize
 															 .requestMatchers(HttpMethod.PUT, "/agendamento/*/admin").hasAuthority("SCOPE_ADMIN")
+															 .requestMatchers(HttpMethod.PATCH, "/agendamento/*/status/admin").hasAuthority("SCOPE_ADMIN")
 															 .anyRequest().authenticated()
 															 )
 															 

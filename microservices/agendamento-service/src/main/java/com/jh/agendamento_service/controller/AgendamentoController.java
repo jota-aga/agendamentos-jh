@@ -3,6 +3,7 @@ package com.jh.agendamento_service.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.jh.agendamento_service.dto.AgendamentoRequest;
 import com.jh.agendamento_service.dto.AgendamentoResponse;
+import com.jh.agendamento_service.dto.AgendamentoStatusRequest;
 import com.jh.agendamento_service.service.AgendamentoService;
 
 import jakarta.validation.Valid;
@@ -41,6 +43,13 @@ public class AgendamentoController {
 	@PutMapping("/{id}/admin")
 	public ResponseEntity<?> atualizarAgendamentoComoAdmin(@PathVariable String id, @Valid @RequestBody AgendamentoRequest agendamentoRequest){
 		agendamentoService.atualizarAgendamentoComoAdmin(id, agendamentoRequest);
+		
+		return ResponseEntity.status(HttpStatus.OK).build();
+	}
+	
+	@PatchMapping("/{id}/status/admin")
+	public ResponseEntity<?> atualizarStatusDoAgendamento(@PathVariable String id, @Valid @RequestBody AgendamentoStatusRequest statusRequest){
+		agendamentoService.alterarStatusDoAgendamento(id, statusRequest);
 		
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
