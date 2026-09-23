@@ -70,10 +70,8 @@ public class AgendamentoService {
 	
 	public void cancelarAgendamento(String id) {
 		Agendamento agendamento = procurarPorId(id);
-		UsuarioAutenticadoDTO usuarioAutenticado = securityService.getUsuarioAutenticado();
-
-		if (!agendamento.getUsuarioId().equals(usuarioAutenticado.id()))
-			throw new NaoAutorizadoException("Esse agendamento não lhe pertence");
+		
+		validarAcessoAoAgendamento(agendamento);
 
 		if (agendamento.getStatus() != AgendamentoStatus.AGENDADO)
 			throw new ConflitoDeOperacaoException("Não é possível cancelar o agendamento");
@@ -87,6 +85,7 @@ public class AgendamentoService {
 	
 	public List<AgendamentoResponse> listarAgendamentosDoUsuario() {
 		UsuarioAutenticadoDTO usuarioAutenticadoDTO = securityService.getUsuarioAutenticado();
+		
 		List<Agendamento> agendamentos = agendamentoRepository.findAllByUsuarioId(usuarioAutenticadoDTO.id());
 		
 		return AgendamentoMapper.INSTANCE.listEntityToListDTO(agendamentos);
@@ -127,14 +126,9 @@ public class AgendamentoService {
 	}
 	
 	public AgendamentoResponse procurarAgendamentoPorId(String id) {
-		UsuarioAutenticadoDTO usuarioAutenticadoDTO = securityService.getUsuarioAutenticado();
 		Agendamento agendamento = procurarPorId(id);
 		
-		Long idDoUsuarioLogado = usuarioAutenticadoDTO.id();
-		Long idDoAgendamento = agendamento.getUsuarioId();
-		
-		if(!idDoUsuarioLogado.equals(idDoAgendamento))
-			throw new NaoAutorizadoException("Agendamento não pertence ao usuário");
+		validarAcessoAoAgendamento(agendamento);
 		
 		return AgendamentoMapper.INSTANCE.entityToResponse(agendamento);
 	}
@@ -183,5 +177,15 @@ public class AgendamentoService {
 			throw new ConflitoDeOperacaoException(
 					"Não é possível finalizar a operação, pois faltam menos de 12 horas para o agendamento");
 		}
+	}
+	
+	private void validarAcessoAoAgendamento(Agendamento agendamento) {
+		UsuarioAutenticadoDTO usuarioAutenticadoDTO = securityService.getUsuarioAutenticado();
+		
+		Long idDoUsuarioLogado = usuarioAutenticadoDTO.id();
+		Long idDoAgendamento = agendamento.getUsuarioId();
+		
+		if(!idDoUsuarioLogado.equals(idDoAgendamento))
+			throw new NaoAutorizadoException("Agendamento não pertence ao usuário");
 	}
 }

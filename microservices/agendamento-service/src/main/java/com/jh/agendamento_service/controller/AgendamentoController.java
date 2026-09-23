@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -34,7 +35,14 @@ public class AgendamentoController {
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<?> atualizarAgendamentoComoCliente(@PathVariable String id, @Valid @RequestBody AgendamentoRequest agendamentoRequest){
+	public ResponseEntity<?> atualizarAgendamento(@PathVariable String id, @Valid @RequestBody AgendamentoRequest agendamentoRequest){
+		agendamentoService.atualizarAgendamento(id, agendamentoRequest);
+		
+		return ResponseEntity.status(HttpStatus.OK).build();
+	}
+	
+	@PatchMapping("/{id}/cancelar")
+	public ResponseEntity<?> cancelarAgendamento(@PathVariable String id, @Valid @RequestBody AgendamentoRequest agendamentoRequest){
 		agendamentoService.atualizarAgendamento(id, agendamentoRequest);
 		
 		return ResponseEntity.status(HttpStatus.OK).build();
@@ -47,7 +55,7 @@ public class AgendamentoController {
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	
-	@GetMapping()
+	@GetMapping
 	public ResponseEntity<?> listarAgendamentoDoUsuario(){
 		List<AgendamentoResponse> response = agendamentoService.listarAgendamentosDoUsuario();
 		

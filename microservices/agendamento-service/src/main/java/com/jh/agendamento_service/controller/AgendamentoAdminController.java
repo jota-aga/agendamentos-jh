@@ -55,7 +55,7 @@ public class AgendamentoAdminController {
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 
-	@GetMapping("/filter")
+	@GetMapping()
 	public ResponseEntity<?> listarAgendamentoFiltrados(@RequestParam(required = false) Long usuarioId,
 			@RequestParam(required = false) LocalDate data, @RequestParam(required = false) LocalTime inicio,
 			@RequestParam(required = false) LocalTime fim, @RequestParam(required = false) String tituloDoProcedimento,

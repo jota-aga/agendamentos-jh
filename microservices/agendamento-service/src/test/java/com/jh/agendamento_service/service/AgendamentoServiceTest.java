@@ -27,6 +27,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.jh.agendamento_service.domain.Agendamento;
 import com.jh.agendamento_service.dto.AgendamentoRequest;
+import com.jh.agendamento_service.dto.AgendamentoResponse;
 import com.jh.agendamento_service.dto.CategoriaResponse;
 import com.jh.agendamento_service.dto.ProcedimentoResponse;
 import com.jh.agendamento_service.dto.UsuarioAutenticadoDTO;
@@ -36,6 +37,7 @@ import com.jh.agendamento_service.exception.ConflitoDeOperacaoException;
 import com.jh.agendamento_service.exception.NaoAutorizadoException;
 import com.jh.agendamento_service.exception.NaoEncontradoException;
 import com.jh.agendamento_service.exception.ProcedimentoNaoDisponivelException;
+import com.jh.agendamento_service.mapper.AgendamentoMapper;
 import com.jh.agendamento_service.repository.AgendamentoCustomRepository;
 import com.jh.agendamento_service.repository.AgendamentoRepository;
 
@@ -162,8 +164,8 @@ public class AgendamentoServiceTest {
 	@Test
 	public void deveProcurarAgendamentoPorIdComSucesso() {
 		agendamento = criarAgendamento();
+		configurarUsuarioAutenticado();
 		when(agendamentoRepository.findById(agendamento.getId())).thenReturn(Optional.of(agendamento));
-
 		agendamentoService.procurarAgendamentoPorId(agendamento.getId());
 
 		verify(agendamentoRepository).findById(agendamento.getId());
@@ -180,7 +182,7 @@ public class AgendamentoServiceTest {
 	}
 
 	@Test
-	public void deveAtualizarAgendamentoComoClienteComSucesso() {
+	public void deveAtualizarAgendamentoComSucesso() {
 		configurarUsuarioAutenticado();
 		agendamento = criarAgendamento();
 
@@ -237,7 +239,7 @@ public class AgendamentoServiceTest {
 	}
 
 	@Test
-	public void deveLancarConflitoDeHorarioExceptionQuandoJaExistirAgendamentoNaqueleIntervaloAoAtualizarAgendamentoComoCliente() {
+	public void deveLancarConflitoDeHorarioExceptionQuandoJaExistirAgendamentoNaqueleIntervaloAoAtualizarAgendamento() {
 		agendamento = criarAgendamento();
 		configurarUsuarioAutenticado();
 		when(agendamentoRepository.findById(agendamento.getId())).thenReturn(Optional.of(agendamento));
@@ -254,7 +256,7 @@ public class AgendamentoServiceTest {
 	}
 
 	@Test
-	public void deveLancarProcedimentoNaoDisponivelExceptionQuandoAtivoDoProcedimentoForFalsoAoAtualizarAgendamentoComoCliente() {
+	public void deveLancarProcedimentoNaoDisponivelExceptionQuandoAtivoDoProcedimentoForFalsoAoAtualizarAgendamento() {
 		agendamento = criarAgendamento();
 		configurarUsuarioAutenticado();
 		when(agendamentoRepository.findById(agendamento.getId())).thenReturn(Optional.of(agendamento));
@@ -270,7 +272,7 @@ public class AgendamentoServiceTest {
 	}
 
 	@Test
-	public void deveLancarNaoAutorizadoExceptionQuandoForUmUsuarioDiferenteAoAtualizarAgendamentoComoCliente() {
+	public void deveLancarNaoAutorizadoExceptionQuandoForUmUsuarioDiferenteAoAtualizarAgendamento() {
 		agendamento = criarAgendamento();
 		agendamento.setUsuarioId(Long.MAX_VALUE);
 
@@ -284,7 +286,7 @@ public class AgendamentoServiceTest {
 	}
 
 	@Test
-	public void deveLancarNaoEncontradoExceptionQuandoAgendamentoNaoForEncontradoAoAtualizarAgendamentoComoCliente() {
+	public void deveLancarNaoEncontradoExceptionQuandoAgendamentoNaoForEncontradoAoAtualizarAgendamentoComo() {
 		agendamento = criarAgendamento();
 
 		when(agendamentoRepository.findById(agendamento.getId())).thenReturn(Optional.empty());
@@ -296,7 +298,7 @@ public class AgendamentoServiceTest {
 	}
 
 	@Test
-	public void deveLancarConflitoDeOperacaoExceptionQuandoOInicioDoAgendamentoForMenorDoQue12HorasAtualizarAgendamentoComoCliente() {
+	public void deveLancarConflitoDeOperacaoExceptionQuandoOInicioDoAgendamentoForMenorDoQue12HorasAtualizarAgendamento() {
 		configurarUsuarioAutenticado();
 		agendamento = criarAgendamento();
 		agendamento.setData(LocalDate.now());
@@ -310,9 +312,65 @@ public class AgendamentoServiceTest {
 
 		verify(agendamentoRepository, never()).save(any());
 	}
+	
+	@Test
+	public void deveCancelarAgendamentoComSucesso() {
+		configurarUsuarioAutenticado();
+		agendamento = criarAgendamento();
+
+		when(agendamentoRepository.findById(agendamento.getId())).thenReturn(Optional.of(agendamento));
+
+		agendamentoService.cancelarAgendamento(agendamento.getId());
+
+		verify(agendamentoRepository, atLeastOnce()).save(agendamentoCaptor.capture());
+
+		agendamento = agendamentoCaptor.getValue();
+
+		assertEquals(AgendamentoStatus.CANCELADO, agendamento.getStatus());
+	}
 
 	@Test
-	public void deveListarTodosOsHorariosDisponíveisDentroDoIntervalo() {
+	public void deveLancarNaoAutorizadoExceptionQuandoForUmUsuarioDiferenteAoCancelarAgendamento() {
+		agendamento = criarAgendamento();
+		agendamento.setUsuarioId(Long.MAX_VALUE);
+
+		configurarUsuarioAutenticado();
+		when(agendamentoRepository.findById(agendamento.getId())).thenReturn(Optional.of(agendamento));
+
+		assertThrows(NaoAutorizadoException.class,
+				() -> agendamentoService.cancelarAgendamento(agendamento.getId()));
+
+		verify(agendamentoRepository, never()).save(any());
+	}
+
+	@Test
+	public void deveLancarNaoEncontradoExceptionQuandoAgendamentoNaoForEncontradoAoCancelarAgendamento() {
+		agendamento = criarAgendamento();
+
+		when(agendamentoRepository.findById(agendamento.getId())).thenReturn(Optional.empty());
+
+		assertThrows(NaoEncontradoException.class,
+				() -> agendamentoService.cancelarAgendamento(agendamento.getId()));
+
+		verify(agendamentoRepository, never()).save(any());
+	}
+
+	@Test
+	public void deveLancarConflitoDeOperacaoExceptionQuandoOInicioDoAgendamentoForMenorDoQue12HorasCancelarAgendamento() {
+		configurarUsuarioAutenticado();
+		agendamento = criarAgendamento();
+		agendamento.setData(LocalDate.now());
+
+		when(agendamentoRepository.findById(agendamento.getId())).thenReturn(Optional.of(agendamento));
+
+		assertThrows(ConflitoDeOperacaoException.class,
+				() -> agendamentoService.cancelarAgendamento(agendamento.getId()));
+
+		verify(agendamentoRepository, never()).save(any());
+	}
+
+	@Test
+	public void deveListarTodosOsHorariosDisponiveisDentroDoIntervalo() {
 		LocalTime inicioDoExpediente = LocalTime.of(8, 0);
 		LocalTime fimDoExpediente = LocalTime.of(18, 0);
 
@@ -339,6 +397,19 @@ public class AgendamentoServiceTest {
 				fimDoExpediente, data, procedimentoResponse.id());
 		assertEquals(19, horariosDisponiveis.size());
 		assertFalse(horariosDisponiveis.contains(agendamento.getInicio()));
+	}
+	
+	@Test
+	public void deveListarAgendamentosDoUsuarioAutenticado() {
+		agendamento = criarAgendamento();
+		configurarUsuarioAutenticado();
+		
+		when(agendamentoRepository.findAllByUsuarioId(ID_DO_USUARIO)).thenReturn(List.of(agendamento));
+
+		List<AgendamentoResponse> agendamentosDoUsuario = agendamentoService.listarAgendamentosDoUsuario();
+		
+		assertEquals(1, agendamentosDoUsuario.size());
+		assertEquals(AgendamentoMapper.INSTANCE.entityToResponse(agendamento), agendamentosDoUsuario.get(0));
 	}
 
 	private void configurarUsuarioAutenticado() {
