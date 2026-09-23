@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import com.jh.agendamento_service.domain.Agendamento;
 import com.jh.agendamento_service.dto.AgendamentoRequest;
 import com.jh.agendamento_service.dto.AgendamentoResponse;
-import com.jh.agendamento_service.dto.AgendamentoStatusRequest;
 import com.jh.agendamento_service.dto.ProcedimentoResponse;
 import com.jh.agendamento_service.dto.UsuarioAutenticadoDTO;
 import com.jh.agendamento_service.enums.AgendamentoStatus;
@@ -41,7 +40,6 @@ public class AgendamentoService {
 	public void criarAgendamento(AgendamentoRequest agendamentoRequest) {
 		Agendamento agendamento = AgendamentoMapper.INSTANCE.requestToEntity(agendamentoRequest);
 
-		agendamento.setCriadoEm(LocalDateTime.now());
 		agendamento.setStatus(AgendamentoStatus.AGENDADO);
 
 		setarInformacoesDoUsuario(agendamento);
@@ -51,7 +49,7 @@ public class AgendamentoService {
 		agendamentoRepository.save(agendamento);
 	}
 
-	public void atualizarAgendamentoComoCliente(String id, AgendamentoRequest agendamentoRequest) {
+	public void atualizarAgendamento(String id, AgendamentoRequest agendamentoRequest) {
 		Agendamento agendamento = procurarPorId(id);
 		UsuarioAutenticadoDTO usuarioAutenticado = securityService.getUsuarioAutenticado();
 
@@ -70,16 +68,30 @@ public class AgendamentoService {
 		agendamentoRepository.save(agendamento);
 	}
 	
-	public void atualizarAgendamentoComoAdmin(String id, AgendamentoRequest agendamentoRequest) {
+	public void cancelarAgendamento(String id) {
 		Agendamento agendamento = procurarPorId(id);
+		UsuarioAutenticadoDTO usuarioAutenticado = securityService.getUsuarioAutenticado();
 
-		AgendamentoMapper.INSTANCE.updateEntity(agendamento, agendamentoRequest);
+		if (!agendamento.getUsuarioId().equals(usuarioAutenticado.id()))
+			throw new NaoAutorizadoException("Esse agendamento não lhe pertence");
 
-		setarInformacoesDoProcedimento(agendamentoRequest.procedimentoId(), agendamento);
-		validarConflitoDeHorario(agendamento);
+		if (agendamento.getStatus() != AgendamentoStatus.AGENDADO)
+			throw new ConflitoDeOperacaoException("Não é possível cancelar o agendamento");
+
+		validarAntecedenciaMinima(agendamento);
+		
+		agendamento.setStatus(AgendamentoStatus.CANCELADO);
 
 		agendamentoRepository.save(agendamento);
 	}
+	
+	public List<AgendamentoResponse> listarAgendamentosDoUsuario() {
+		UsuarioAutenticadoDTO usuarioAutenticadoDTO = securityService.getUsuarioAutenticado();
+		List<Agendamento> agendamentos = agendamentoRepository.findAllByUsuarioId(usuarioAutenticadoDTO.id());
+		
+		return AgendamentoMapper.INSTANCE.listEntityToListDTO(agendamentos);
+	}
+	
 
 	public List<LocalTime> horariosDisponiveis(LocalTime inicioDoExpediente, LocalTime fimDoExpediente, LocalDate data,
 			Long procedimentoId) {
@@ -114,16 +126,15 @@ public class AgendamentoService {
 		return horariosDisponiveis;
 	}
 	
-	public void alterarStatusDoAgendamento(String id, AgendamentoStatusRequest statusRequest) {
-		Agendamento agendamento = procurarPorId(id);
-		
-		agendamento.setStatus(statusRequest.status());
-		
-		agendamentoRepository.save(agendamento);
-	}
-	
 	public AgendamentoResponse procurarAgendamentoPorId(String id) {
+		UsuarioAutenticadoDTO usuarioAutenticadoDTO = securityService.getUsuarioAutenticado();
 		Agendamento agendamento = procurarPorId(id);
+		
+		Long idDoUsuarioLogado = usuarioAutenticadoDTO.id();
+		Long idDoAgendamento = agendamento.getUsuarioId();
+		
+		if(!idDoUsuarioLogado.equals(idDoAgendamento))
+			throw new NaoAutorizadoException("Agendamento não pertence ao usuário");
 		
 		return AgendamentoMapper.INSTANCE.entityToResponse(agendamento);
 	}

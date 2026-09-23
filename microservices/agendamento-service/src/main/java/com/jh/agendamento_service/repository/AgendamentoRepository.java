@@ -10,5 +10,5 @@ import com.jh.agendamento_service.domain.Agendamento;
 public interface AgendamentoRepository extends MongoRepository<Agendamento, String>{
 
 	List<Agendamento> findAllByData(LocalDate data);
-	
+	List<Agendamento> findAllByUsuarioId(Long usuarioId);
 }

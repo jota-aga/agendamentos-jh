@@ -5,7 +5,6 @@ import java.security.interfaces.RSAPublicKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,8 +27,7 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 		return httpSecurity
 				.authorizeHttpRequests(authorize -> authorize
-															 .requestMatchers(HttpMethod.PUT, "/agendamento/*/admin").hasAuthority("SCOPE_ADMIN")
-															 .requestMatchers(HttpMethod.PATCH, "/agendamento/*/status/admin").hasAuthority("SCOPE_ADMIN")
+															 .requestMatchers("/agendamento/admin/**").hasAuthority("SCOPE_ADMIN")
 															 .anyRequest().authenticated()
 															 )
 															 
