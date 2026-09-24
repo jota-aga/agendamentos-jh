@@ -21,7 +21,8 @@ public class AgendamentoCustomRepository {
 
 	private final MongoTemplate mongoTemplate;
 
-	public boolean existeConflitoDeHorario(LocalDate data, LocalTime inicio, LocalTime fim, AgendamentoStatus status, String id) {
+	public boolean existeConflitoDeHorario(LocalDate data, LocalTime inicio, LocalTime fim, String id) {
+		AgendamentoStatus status = AgendamentoStatus.CANCELADO;
 
 		Query query = new Query();
 

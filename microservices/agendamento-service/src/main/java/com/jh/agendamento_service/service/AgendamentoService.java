@@ -154,7 +154,7 @@ public class AgendamentoService {
 		Boolean existeConflito = false;
 
 		existeConflito = agendamentoCustomRepository.existeConflitoDeHorario(agendamento.getData(),
-				agendamento.getInicio(), agendamento.getFim(), AgendamentoStatus.CANCELADO, agendamento.getId());
+				agendamento.getInicio(), agendamento.getFim(), agendamento.getId());
 
 		if (existeConflito)
 			throw new ConflitoDeHorarioException();

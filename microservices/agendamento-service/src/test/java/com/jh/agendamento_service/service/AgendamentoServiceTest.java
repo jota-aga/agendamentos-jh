@@ -101,8 +101,7 @@ public class AgendamentoServiceTest {
 		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId()))
 				.thenReturn(procedimentoResponse);
 
-		when(agendamentoCustomRepository.existeConflitoDeHorario(data, inicio, fim, AgendamentoStatus.CANCELADO, null))
-				.thenReturn(false);
+		when(agendamentoCustomRepository.existeConflitoDeHorario(data, inicio, fim, null)).thenReturn(false);
 
 		agendamentoService.criarAgendamento(agendamentoRequest);
 
@@ -139,8 +138,7 @@ public class AgendamentoServiceTest {
 		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId()))
 				.thenReturn(procedimentoResponse);
 
-		when(agendamentoCustomRepository.existeConflitoDeHorario(data, inicio, fim, AgendamentoStatus.CANCELADO, null))
-				.thenReturn(true);
+		when(agendamentoCustomRepository.existeConflitoDeHorario(data, inicio, fim, null)).thenReturn(true);
 
 		assertThrows(ConflitoDeHorarioException.class, () -> agendamentoService.criarAgendamento(agendamentoRequest));
 
@@ -176,7 +174,8 @@ public class AgendamentoServiceTest {
 		agendamento = criarAgendamento();
 		when(agendamentoRepository.findById(agendamento.getId())).thenReturn(Optional.empty());
 
-		assertThrows(NaoEncontradoException.class, () -> agendamentoService.procurarAgendamentoPorId(agendamento.getId()));
+		assertThrows(NaoEncontradoException.class,
+				() -> agendamentoService.procurarAgendamentoPorId(agendamento.getId()));
 
 		verify(agendamentoRepository).findById(agendamento.getId());
 	}
@@ -203,8 +202,8 @@ public class AgendamentoServiceTest {
 		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId()))
 				.thenReturn(procedimentoResponse);
 
-		when(agendamentoCustomRepository.existeConflitoDeHorario(data, inicio, fim, AgendamentoStatus.CANCELADO,
-				agendamento.getId())).thenReturn(false);
+		when(agendamentoCustomRepository.existeConflitoDeHorario(data, inicio, fim, agendamento.getId()))
+				.thenReturn(false);
 
 		agendamentoService.atualizarAgendamento(agendamento.getId(), agendamentoRequest);
 
@@ -246,8 +245,8 @@ public class AgendamentoServiceTest {
 		when(procedimentoExternalService.procurarProcedimentoPorId(agendamentoRequest.procedimentoId()))
 				.thenReturn(procedimentoResponse);
 
-		when(agendamentoCustomRepository.existeConflitoDeHorario(data, inicio, fim, AgendamentoStatus.CANCELADO,
-				agendamento.getId())).thenReturn(true);
+		when(agendamentoCustomRepository.existeConflitoDeHorario(data, inicio, fim, agendamento.getId()))
+				.thenReturn(true);
 
 		assertThrows(ConflitoDeHorarioException.class,
 				() -> agendamentoService.atualizarAgendamento(agendamento.getId(), agendamentoRequest));
@@ -312,7 +311,7 @@ public class AgendamentoServiceTest {
 
 		verify(agendamentoRepository, never()).save(any());
 	}
-	
+
 	@Test
 	public void deveCancelarAgendamentoComSucesso() {
 		configurarUsuarioAutenticado();
@@ -337,8 +336,7 @@ public class AgendamentoServiceTest {
 		configurarUsuarioAutenticado();
 		when(agendamentoRepository.findById(agendamento.getId())).thenReturn(Optional.of(agendamento));
 
-		assertThrows(NaoAutorizadoException.class,
-				() -> agendamentoService.cancelarAgendamento(agendamento.getId()));
+		assertThrows(NaoAutorizadoException.class, () -> agendamentoService.cancelarAgendamento(agendamento.getId()));
 
 		verify(agendamentoRepository, never()).save(any());
 	}
@@ -349,8 +347,7 @@ public class AgendamentoServiceTest {
 
 		when(agendamentoRepository.findById(agendamento.getId())).thenReturn(Optional.empty());
 
-		assertThrows(NaoEncontradoException.class,
-				() -> agendamentoService.cancelarAgendamento(agendamento.getId()));
+		assertThrows(NaoEncontradoException.class, () -> agendamentoService.cancelarAgendamento(agendamento.getId()));
 
 		verify(agendamentoRepository, never()).save(any());
 	}
@@ -398,16 +395,16 @@ public class AgendamentoServiceTest {
 		assertEquals(19, horariosDisponiveis.size());
 		assertFalse(horariosDisponiveis.contains(agendamento.getInicio()));
 	}
-	
+
 	@Test
 	public void deveListarAgendamentosDoUsuarioAutenticado() {
 		agendamento = criarAgendamento();
 		configurarUsuarioAutenticado();
-		
+
 		when(agendamentoRepository.findAllByUsuarioId(ID_DO_USUARIO)).thenReturn(List.of(agendamento));
 
 		List<AgendamentoResponse> agendamentosDoUsuario = agendamentoService.listarAgendamentosDoUsuario();
-		
+
 		assertEquals(1, agendamentosDoUsuario.size());
 		assertEquals(AgendamentoMapper.INSTANCE.entityToResponse(agendamento), agendamentosDoUsuario.get(0));
 	}

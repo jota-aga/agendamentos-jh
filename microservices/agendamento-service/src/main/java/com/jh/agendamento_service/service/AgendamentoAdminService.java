@@ -14,7 +14,6 @@ import com.jh.agendamento_service.dto.ProcedimentoResponse;
 import com.jh.agendamento_service.enums.AgendamentoStatus;
 import com.jh.agendamento_service.exception.ConflitoDeHorarioException;
 import com.jh.agendamento_service.exception.NaoEncontradoException;
-import com.jh.agendamento_service.exception.ProcedimentoNaoDisponivelException;
 import com.jh.agendamento_service.mapper.AgendamentoMapper;
 import com.jh.agendamento_service.repository.AgendamentoCustomRepository;
 import com.jh.agendamento_service.repository.AgendamentoRepository;
@@ -33,7 +32,8 @@ public class AgendamentoAdminService {
 
 	public void criarAgendamento(AgendamentoAdminRequest agendamentoAdminRequest) {
 		Agendamento agendamento = AgendamentoMapper.INSTANCE.requestToEntity(agendamentoAdminRequest);
-
+		
+		setarInformacoesDoProcedimento(agendamentoAdminRequest.procedimentoId(), agendamento);
 		validarConflitoDeHorario(agendamento);
 
 		agendamentoRepository.save(agendamento);
@@ -74,10 +74,6 @@ public class AgendamentoAdminService {
 	private void setarInformacoesDoProcedimento(Long procedimentoId, Agendamento agendamento) {
 		ProcedimentoResponse procedimento = procedimentoExternalService.procurarProcedimentoPorId(procedimentoId);
 
-		if (!procedimento.ativo()) {
-			throw new ProcedimentoNaoDisponivelException();
-		}
-
 		LocalTime fimDoProcedimento = agendamento.getInicio().plusMinutes(procedimento.duracaoEmMinutos());
 
 		AgendamentoMapper.INSTANCE.setInformacoesDoProcedimento(agendamento, procedimento);
@@ -88,7 +84,7 @@ public class AgendamentoAdminService {
 		Boolean existeConflito = false;
 
 		existeConflito = agendamentoCustomRepository.existeConflitoDeHorario(agendamento.getData(),
-				agendamento.getInicio(), agendamento.getFim(), AgendamentoStatus.CANCELADO, agendamento.getId());
+				agendamento.getInicio(), agendamento.getFim(), agendamento.getId());
 
 		if (existeConflito)
 			throw new ConflitoDeHorarioException();

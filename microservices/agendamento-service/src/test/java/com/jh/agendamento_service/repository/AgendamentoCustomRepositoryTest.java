@@ -57,7 +57,7 @@ public class AgendamentoCustomRepositoryTest {
 		agendamentoRepository.save(agendamentoSalvo);
 
 		boolean existeConflito = agendamentoCustomRepository.existeConflitoDeHorario(data, fim,
-				fim.plusMinutes(duracaoEmMinutosDoProcedimento), AgendamentoStatus.CANCELADO, null);
+				fim.plusMinutes(duracaoEmMinutosDoProcedimento), null);
 
 		assertFalse(existeConflito);
 	}
@@ -69,8 +69,7 @@ public class AgendamentoCustomRepositoryTest {
 
 		agendamentoRepository.save(agendamentoSalvo);
 
-		boolean existeConflito = agendamentoCustomRepository.existeConflitoDeHorario(data, inicio, fim,
-				AgendamentoStatus.CANCELADO, null);
+		boolean existeConflito = agendamentoCustomRepository.existeConflitoDeHorario(data, inicio, fim, null);
 
 		assertFalse(existeConflito);
 	}
@@ -80,7 +79,7 @@ public class AgendamentoCustomRepositoryTest {
 		agendamento = criarAgendamento();
 
 		boolean existeConflito = agendamentoCustomRepository.existeConflitoDeHorario(data, inicio, fim,
-				AgendamentoStatus.CANCELADO, agendamento.getId());
+				agendamento.getId());
 
 		assertFalse(existeConflito);
 	}
@@ -93,8 +92,7 @@ public class AgendamentoCustomRepositoryTest {
 
 		agendamentoRepository.save(agendamentoSalvo);
 
-		boolean existeConflito = agendamentoCustomRepository.existeConflitoDeHorario(data, inicio, fim,
-				AgendamentoStatus.CANCELADO, null);
+		boolean existeConflito = agendamentoCustomRepository.existeConflitoDeHorario(data, inicio, fim, null);
 
 		assertTrue(existeConflito);
 	}
@@ -282,7 +280,7 @@ public class AgendamentoCustomRepositoryTest {
 		assertEquals(1, agendamentos.size());
 		assertEquals(agendamento.getId(), agendamentos.get(0).getId());
 	}
-	
+
 	@Test
 	public void deveRetornarTodosOsAgendamentosOrdenadosPorDataQuandoNenhumParametroForInformado() {
 		agendamento = criarAgendamento();
