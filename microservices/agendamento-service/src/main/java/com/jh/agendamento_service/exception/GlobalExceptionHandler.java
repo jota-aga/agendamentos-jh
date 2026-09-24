@@ -35,6 +35,11 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
 	}
 	
+	@ExceptionHandler(ConflitoDeOperacaoException.class)
+	public ResponseEntity<?> handleConflitoDeOperacaoException(ConflitoDeOperacaoException ex){
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+	}
+	
 	@ExceptionHandler(NaoEncontradoException.class)
 	public ResponseEntity<?> handleNaoEncontradoException(NaoEncontradoException ex){
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
@@ -43,5 +48,10 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(ProcedimentoNaoDisponivelException.class)
 	public ResponseEntity<?> handleProcedimentoNaoDisponivelException(ProcedimentoNaoDisponivelException ex){
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+	}
+	
+	@ExceptionHandler(NaoAutorizadoException.class)
+	public ResponseEntity<?> handleNaoAutorizadoException(NaoAutorizadoException ex){
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
 	}
 }

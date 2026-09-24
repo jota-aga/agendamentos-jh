@@ -1,5 +1,7 @@
 package com.jh.agendamento_service.controller;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jh.agendamento_service.dto.AgendamentoRequest;
@@ -24,42 +27,50 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/agendamento")
 @RequiredArgsConstructor
 public class AgendamentoController {
-	
+
 	private final AgendamentoService agendamentoService;
-	
+
 	@PostMapping
-	public ResponseEntity<?> criarAgendamento(@Valid @RequestBody AgendamentoRequest agendamentoRequest){
+	public ResponseEntity<?> criarAgendamento(@Valid @RequestBody AgendamentoRequest agendamentoRequest) {
 		agendamentoService.criarAgendamento(agendamentoRequest);
-		
+
 		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
-	
+
 	@PutMapping("/{id}")
-	public ResponseEntity<?> atualizarAgendamento(@PathVariable String id, @Valid @RequestBody AgendamentoRequest agendamentoRequest){
+	public ResponseEntity<?> atualizarAgendamento(@PathVariable String id,
+			@Valid @RequestBody AgendamentoRequest agendamentoRequest) {
 		agendamentoService.atualizarAgendamento(id, agendamentoRequest);
-		
+
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
-	
+
 	@PatchMapping("/{id}/cancelar")
-	public ResponseEntity<?> cancelarAgendamento(@PathVariable String id, @Valid @RequestBody AgendamentoRequest agendamentoRequest){
-		agendamentoService.atualizarAgendamento(id, agendamentoRequest);
-		
-		return ResponseEntity.status(HttpStatus.OK).build();
+	public ResponseEntity<?> cancelarAgendamento(@PathVariable String id) {
+		agendamentoService.cancelarAgendamento(id);
+
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
-	
+
 	@GetMapping("/{id}")
-	public ResponseEntity<?> procurarAgendamentoPorId(@PathVariable String id){
+	public ResponseEntity<?> procurarAgendamentoPorId(@PathVariable String id) {
 		AgendamentoResponse response = agendamentoService.procurarAgendamentoPorId(id);
-		
+
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
-	
+
 	@GetMapping
-	public ResponseEntity<?> listarAgendamentoDoUsuario(){
+	public ResponseEntity<?> listarAgendamentoDoUsuario() {
 		List<AgendamentoResponse> response = agendamentoService.listarAgendamentosDoUsuario();
-		
+
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
-	
+
+	@GetMapping("/horarios")
+	public ResponseEntity<?> listarHorariosDisponiveis(@RequestParam LocalTime inicioDoExpediente,
+			@RequestParam LocalTime fimDoExepediente, @RequestParam LocalDate data, @RequestParam Long procedimentoId) {
+		List<LocalTime> horariosDisponiveis = agendamentoService.horariosDisponiveis(inicioDoExpediente, fimDoExepediente, data, procedimentoId);
+
+		return ResponseEntity.status(HttpStatus.OK).body(horariosDisponiveis);
+	}
 }

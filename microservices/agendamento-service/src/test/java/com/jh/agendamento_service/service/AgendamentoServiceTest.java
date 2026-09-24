@@ -286,7 +286,7 @@ public class AgendamentoServiceTest {
 	}
 
 	@Test
-	public void deveLancarNaoEncontradoExceptionQuandoAgendamentoNaoForEncontradoAoAtualizarAgendamentoComo() {
+	public void deveLancarNaoEncontradoExceptionQuandoAgendamentoNaoForEncontradoAoAtualizarAgendamento() {
 		agendamento = criarAgendamento();
 
 		when(agendamentoRepository.findById(agendamento.getId())).thenReturn(Optional.empty());
@@ -298,7 +298,7 @@ public class AgendamentoServiceTest {
 	}
 
 	@Test
-	public void deveLancarConflitoDeOperacaoExceptionQuandoOInicioDoAgendamentoForMenorDoQue12HorasAtualizarAgendamento() {
+	public void deveLancarConflitoDeOperacaoExceptionQuandoOInicioDoAgendamentoForMenorDoQue12HorasAoAtualizarAgendamento() {
 		configurarUsuarioAutenticado();
 		agendamento = criarAgendamento();
 		agendamento.setData(LocalDate.now());
@@ -356,7 +356,7 @@ public class AgendamentoServiceTest {
 	}
 
 	@Test
-	public void deveLancarConflitoDeOperacaoExceptionQuandoOInicioDoAgendamentoForMenorDoQue12HorasCancelarAgendamento() {
+	public void deveLancarConflitoDeOperacaoExceptionQuandoOInicioDoAgendamentoForMenorDoQue12HorasAoCancelarAgendamento() {
 		configurarUsuarioAutenticado();
 		agendamento = criarAgendamento();
 		agendamento.setData(LocalDate.now());
@@ -374,9 +374,9 @@ public class AgendamentoServiceTest {
 		LocalTime inicioDoExpediente = LocalTime.of(8, 0);
 		LocalTime fimDoExpediente = LocalTime.of(18, 0);
 
-		when(agendamentoRepository.findAllByData(data)).thenReturn(List.of());
 		when(procedimentoExternalService.procurarProcedimentoPorId(procedimentoResponse.id()))
 				.thenReturn(procedimentoResponse);
+		when(agendamentoRepository.findAllByData(data)).thenReturn(List.of());
 
 		List<LocalTime> horariosDisponiveis = agendamentoService.horariosDisponiveis(inicioDoExpediente,
 				fimDoExpediente, data, procedimentoResponse.id());
