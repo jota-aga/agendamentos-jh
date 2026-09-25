@@ -32,11 +32,18 @@ public class AgendamentoAdminController {
 
 	private final AgendamentoAdminService agendamentoAdminService;
 
-	@PostMapping()
+	@PostMapping
 	public ResponseEntity<?> criarAgendamento(@Valid @RequestBody AgendamentoAdminRequest agendamentoRequest) {
 		agendamentoAdminService.criarAgendamento(agendamentoRequest);
 
 		return ResponseEntity.status(HttpStatus.OK).build();
+	}
+	
+	@GetMapping("/{id}")
+	public ResponseEntity<AgendamentoResponse> getAgendamentoPorId(@PathVariable String id){
+		AgendamentoResponse response = agendamentoAdminService.getAgendamentoPorId(id);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 
 	@PutMapping("/{id}")
