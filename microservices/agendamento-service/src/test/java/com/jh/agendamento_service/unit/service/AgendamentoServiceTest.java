@@ -1,4 +1,4 @@
-package com.jh.agendamento_service.service;
+package com.jh.agendamento_service.unit.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -40,6 +40,9 @@ import com.jh.agendamento_service.exception.ProcedimentoNaoDisponivelException;
 import com.jh.agendamento_service.mapper.AgendamentoMapper;
 import com.jh.agendamento_service.repository.AgendamentoCustomRepository;
 import com.jh.agendamento_service.repository.AgendamentoRepository;
+import com.jh.agendamento_service.service.AgendamentoService;
+import com.jh.agendamento_service.service.ProcedimentoExternalService;
+import com.jh.agendamento_service.service.SecurityService;
 
 @ExtendWith(MockitoExtension.class)
 public class AgendamentoServiceTest {
