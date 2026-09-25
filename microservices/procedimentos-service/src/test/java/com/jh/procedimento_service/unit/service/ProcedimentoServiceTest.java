@@ -1,4 +1,4 @@
-package com.jh.procedimento_service.service;
+package com.jh.procedimento_service.unit.service;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,6 +24,7 @@ import com.jh.procedimento_service.dto.procedimento.ProcedimentoRequest;
 import com.jh.procedimento_service.exceptions.NaoEncontradoException;
 import com.jh.procedimento_service.repository.CategoriaRepository;
 import com.jh.procedimento_service.repository.ProcedimentoRepository;
+import com.jh.procedimento_service.service.ProcedimentoService;
 
 @ExtendWith(MockitoExtension.class)
 public class ProcedimentoServiceTest {

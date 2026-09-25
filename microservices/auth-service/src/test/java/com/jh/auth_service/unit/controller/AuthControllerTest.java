@@ -1,4 +1,4 @@
-package com.jh.auth_service.controller;
+package com.jh.auth_service.unit.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
@@ -21,6 +21,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.jh.auth_service.controller.AuthController;
 import com.jh.auth_service.dto.LoginRequest;
 import com.jh.auth_service.dto.UserRequest;
 import com.jh.auth_service.exceptions.EmailRepetidoExecption;

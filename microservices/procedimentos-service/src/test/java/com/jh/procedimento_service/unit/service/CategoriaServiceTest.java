@@ -1,4 +1,4 @@
-package com.jh.procedimento_service.service;
+package com.jh.procedimento_service.unit.service;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,6 +23,7 @@ import com.jh.procedimento_service.dto.categoria.CategoriaRequest;
 import com.jh.procedimento_service.exceptions.CategoriaRepetidaException;
 import com.jh.procedimento_service.repository.CategoriaRepository;
 import com.jh.procedimento_service.repository.ProcedimentoRepository;
+import com.jh.procedimento_service.service.CategoriaService;
 
 @ExtendWith(MockitoExtension.class)
 public class CategoriaServiceTest {

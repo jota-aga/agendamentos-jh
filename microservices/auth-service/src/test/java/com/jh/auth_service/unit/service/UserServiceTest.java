@@ -1,4 +1,4 @@
-package com.jh.auth_service.service;
+package com.jh.auth_service.unit.service;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -27,6 +27,8 @@ import com.jh.auth_service.exceptions.LoginIncorretoException;
 import com.jh.auth_service.exceptions.NaoEncontradoException;
 import com.jh.auth_service.repository.UserRepository;
 import com.jh.auth_service.repository.UserRoleRepository;
+import com.jh.auth_service.service.TokenService;
+import com.jh.auth_service.service.UserService;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {

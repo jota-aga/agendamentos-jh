@@ -1,4 +1,4 @@
-package com.jh.procedimento_service.controller;
+package com.jh.procedimento_service.unit.controller;
 
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -26,6 +26,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.jh.procedimento_service.controller.CategoriaController;
 import com.jh.procedimento_service.dto.categoria.CategoriaRequest;
 import com.jh.procedimento_service.dto.categoria.CategoriaResponse;
 import com.jh.procedimento_service.exceptions.CategoriaRepetidaException;
