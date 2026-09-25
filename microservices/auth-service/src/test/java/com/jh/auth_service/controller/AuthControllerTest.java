@@ -21,11 +21,11 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.jh.auth_service.configuration.SecurityConfig;
 import com.jh.auth_service.dto.LoginRequest;
 import com.jh.auth_service.dto.UserRequest;
 import com.jh.auth_service.exceptions.EmailRepetidoExecption;
 import com.jh.auth_service.exceptions.LoginIncorretoException;
+import com.jh.auth_service.infra.SecurityConfig;
 import com.jh.auth_service.service.UserService;
 
 import tools.jackson.core.JacksonException;

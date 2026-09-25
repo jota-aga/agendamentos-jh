@@ -1,4 +1,4 @@
-package com.jh.auth_service.configuration;
+package com.jh.auth_service.infra;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;

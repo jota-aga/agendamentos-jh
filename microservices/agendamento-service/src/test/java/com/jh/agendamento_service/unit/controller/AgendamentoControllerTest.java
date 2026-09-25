@@ -30,7 +30,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.jh.agendamento_service.config.SecurityConfig;
 import com.jh.agendamento_service.controller.AgendamentoController;
 import com.jh.agendamento_service.dto.AgendamentoRequest;
 import com.jh.agendamento_service.dto.AgendamentoResponse;
@@ -39,6 +38,7 @@ import com.jh.agendamento_service.exception.ConflitoDeHorarioException;
 import com.jh.agendamento_service.exception.ConflitoDeOperacaoException;
 import com.jh.agendamento_service.exception.NaoAutorizadoException;
 import com.jh.agendamento_service.exception.NaoEncontradoException;
+import com.jh.agendamento_service.infra.SecurityConfig;
 import com.jh.agendamento_service.service.AgendamentoService;
 
 import tools.jackson.core.JacksonException;
