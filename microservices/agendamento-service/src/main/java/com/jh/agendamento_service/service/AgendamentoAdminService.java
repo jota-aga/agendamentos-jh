@@ -66,6 +66,12 @@ public class AgendamentoAdminService {
 		
 		return AgendamentoMapper.INSTANCE.listEntityToListDTO(agendamentos);
 	}
+	
+	public AgendamentoResponse getAgendamentoPorId(String id) {
+		Agendamento agendamento = procurarPorId(id);
+		
+		return AgendamentoMapper.INSTANCE.entityToResponse(agendamento);
+	}
 
 	private Agendamento procurarPorId(String id) {
 		return agendamentoRepository.findById(id).orElseThrow(() -> new NaoEncontradoException("Agendamento"));
