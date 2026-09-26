@@ -3,9 +3,9 @@ package com.jh.agendamento_service.integration.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.math.BigDecimal;
@@ -136,7 +136,7 @@ public class AgendamentoControllerTest {
 	@Test
 	@WithMockUser
 	public void naoDeveAtualizarAgendamentoQuandoExistirConflito() throws JacksonException, Exception {
-		Agendamento agendamento = criarAgendamento();
+		criarAgendamento();
 		
 		Agendamento agendamentoParaAtualizacao = Agendamento.builder()
 				.usuarioId(1L).nomeDoUsuario("usuario")
@@ -175,7 +175,8 @@ public class AgendamentoControllerTest {
 
 	private Agendamento criarAgendamento() {
 		Agendamento agendamento = Agendamento.builder()
-				.usuarioId(1L).nomeDoUsuario("usuario")
+				.usuarioId(1L)
+				.nomeDoUsuario("usuario")
 				.criadoEm(LocalDateTime.now())
 				.inicio(horario)
 				.fim(horario.plusMinutes(30))
