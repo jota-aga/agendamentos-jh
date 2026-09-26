@@ -36,7 +36,7 @@ public class AgendamentoAdminController {
 	public ResponseEntity<?> criarAgendamento(@Valid @RequestBody AgendamentoAdminRequest agendamentoRequest) {
 		agendamentoAdminService.criarAgendamento(agendamentoRequest);
 
-		return ResponseEntity.status(HttpStatus.OK).build();
+		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 	
 	@GetMapping("/{id}")
