@@ -64,11 +64,11 @@ public class AgendamentoAdminController {
 
 	@GetMapping()
 	public ResponseEntity<?> listarAgendamentoFiltrados(@RequestParam(required = false) Long usuarioId,
-			@RequestParam(required = false) LocalDate data, @RequestParam(required = false) LocalTime inicio,
-			@RequestParam(required = false) LocalTime fim, @RequestParam(required = false) String tituloDoProcedimento,
+			@RequestParam(required = false) LocalDate data, @RequestParam(required = false) LocalTime inicioDoExpediente,
+			@RequestParam(required = false) LocalTime fimDoExpediente, @RequestParam(required = false) String tituloDoProcedimento,
 			@RequestParam(required = false) AgendamentoStatus status, @RequestParam(required = false) String sortBy) {
-		List<AgendamentoResponse> response = agendamentoAdminService.listarAgendamentoFiltrados(usuarioId, data, inicio,
-				fim, tituloDoProcedimento, status, sortBy);
+		List<AgendamentoResponse> response = agendamentoAdminService.listarAgendamentoFiltrados(usuarioId, data, inicioDoExpediente,
+				fimDoExpediente, tituloDoProcedimento, status, sortBy);
 
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
