@@ -1,5 +1,6 @@
 package com.jh.agendamento_service.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -13,11 +14,14 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class ProcedimentoExternalService {
 	
+	@Value("${procedimento.service.url}")
+	private String PROCEDIMENTO_SERVICE_URL;
+	
 	private final WebClient webClient;
 	
 	public ProcedimentoResponse procurarProcedimentoPorId(Long id) {
 		return webClient.get()
-		.uri("/procedimento/"+id)
+		.uri(PROCEDIMENTO_SERVICE_URL+"/procedimento/"+id)
 		.retrieve()
 		.onStatus(
 	            status -> status.value() == 404,
