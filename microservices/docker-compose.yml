@@ -1,0 +1,113 @@
+services:
+
+  mysql:
+    image: mysql:8.4
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: microservices
+      MYSQL_USER: microservices
+      MYSQL_PASSWORD: microservices
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - microservices-network
+
+  mongodb:
+    image: mongo:8
+    container_name: mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - microservices-network
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - microservices-network
+
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/microservices
+      SPRING_DATASOURCE_USERNAME: microservices
+      SPRING_DATASOURCE_PASSWORD: microservices
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - mysql
+    networks:
+      - microservices-network
+
+
+  procedimento-service:
+    build:
+      context: ./procedimentos-service
+      dockerfile: Dockerfile
+    container_name: procedimento-service
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/microservices
+      SPRING_DATASOURCE_USERNAME: microservices
+      SPRING_DATASOURCE_PASSWORD: microservices
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - mysql
+    networks:
+      - microservices-network
+
+
+  agendamento-service:
+    build:
+      context: ./agendamento-service
+      dockerfile: Dockerfile
+    container_name: agendamento-service
+    restart: unless-stopped
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_MONGODB_URI: "mongodb://root:root@mongodb:27017/agendamento?authSource=admin"
+      PROCEDIMENTO_SERVICE_URL: http://procedimento-service:8082
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - mongodb
+      - procedimento-service
+    networks:
+      - microservices-network
+
+volumes:
+
+  mysql_data:
+  mongodb_data:
+  rabbitmq_data:
+
+networks:
+
+  microservices-network:
+    driver: bridge

@@ -5,12 +5,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import com.jh.agendamento_service.enums.AgendamentoStatus;
 
-import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,13 +24,13 @@ import lombok.Setter;
 @Builder
 public class Agendamento {
 	
-	@Id
+	@MongoId
 	private String id;
 	
 	private Long usuarioId;
 	
 	private String nomeDoUsuario;
-	@CreationTimestamp
+
 	private LocalDateTime criadoEm;
 	
 	private LocalDate data;

@@ -3,9 +3,9 @@ package com.jh.agendamento_service.integration.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.math.BigDecimal;
@@ -32,13 +32,11 @@ import com.jh.agendamento_service.enums.AgendamentoStatus;
 import com.jh.agendamento_service.repository.AgendamentoRepository;
 import com.jh.agendamento_service.service.ProcedimentoExternalService;
 
-import jakarta.transaction.Transactional;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
 public class AgendamentoAdminControllerTest {
 	
 	private final String BASE_URL = "/agendamento/admin";

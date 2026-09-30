@@ -34,13 +34,11 @@ import com.jh.agendamento_service.repository.AgendamentoRepository;
 import com.jh.agendamento_service.service.ProcedimentoExternalService;
 import com.jh.agendamento_service.service.SecurityService;
 
-import jakarta.transaction.Transactional;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
 public class AgendamentoControllerTest {
 
 	private final String BASE_URL = "/agendamento";
