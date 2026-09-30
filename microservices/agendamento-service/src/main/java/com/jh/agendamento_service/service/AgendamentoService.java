@@ -21,6 +21,7 @@ import com.jh.agendamento_service.exception.NaoAutorizadoException;
 import com.jh.agendamento_service.exception.NaoEncontradoException;
 import com.jh.agendamento_service.exception.ProcedimentoNaoDisponivelException;
 import com.jh.agendamento_service.mapper.AgendamentoMapper;
+import com.jh.agendamento_service.messaging.AgendamentoEventPublisher;
 import com.jh.agendamento_service.repository.AgendamentoCustomRepository;
 import com.jh.agendamento_service.repository.AgendamentoRepository;
 
@@ -36,6 +37,8 @@ public class AgendamentoService {
 	private final AgendamentoRepository agendamentoRepository;
 
 	private final AgendamentoCustomRepository agendamentoCustomRepository;
+	
+	private final AgendamentoEventPublisher agendamentoEventPubliser;
 
 	public void criarAgendamento(AgendamentoRequest agendamentoRequest) {
 		Agendamento agendamento = AgendamentoMapper.INSTANCE.requestToEntity(agendamentoRequest);
@@ -47,6 +50,8 @@ public class AgendamentoService {
 
 		validarConflitoDeHorario(agendamento);
 		agendamentoRepository.save(agendamento);
+		
+		agendamentoEventPubliser.publicarAgendamentoCriado(AgendamentoMapper.INSTANCE.entityToMessage(agendamento));
 	}
 
 	public void atualizarAgendamento(String id, AgendamentoRequest agendamentoRequest) {

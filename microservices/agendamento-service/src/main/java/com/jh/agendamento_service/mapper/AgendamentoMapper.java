@@ -9,6 +9,7 @@ import org.mapstruct.factory.Mappers;
 
 import com.jh.agendamento_service.domain.Agendamento;
 import com.jh.agendamento_service.dto.AgendamentoAdminRequest;
+import com.jh.agendamento_service.dto.AgendamentoCriadoEvent;
 import com.jh.agendamento_service.dto.AgendamentoRequest;
 import com.jh.agendamento_service.dto.AgendamentoResponse;
 import com.jh.agendamento_service.dto.ProcedimentoResponse;
@@ -42,4 +43,6 @@ public interface AgendamentoMapper {
 	AgendamentoResponse entityToResponse(Agendamento agendamento);
 	
 	List<AgendamentoResponse> listEntityToListDTO(List<Agendamento> agendamentos);
+	
+	AgendamentoCriadoEvent entityToMessage(Agendamento agendamento);
 }

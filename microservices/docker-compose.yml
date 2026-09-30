@@ -95,6 +95,13 @@ services:
       SPRING_MONGODB_URI: "mongodb://root:root@mongodb:27017/agendamento?authSource=admin"
       PROCEDIMENTO_SERVICE_URL: http://procedimento-service:8082
       SPRING_PROFILES_ACTIVE: docker
+      NOTIFICATION_QUEUE: notifications.email-send
+      AGENDAMENTO_EXCHANGE: agendamentos.exchange
+      AGENDAMENTO_ROUTING_KEY: agendamentos.criado
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: admin
+      SPRING_RABBITMQ_PASSWORD: admin
     depends_on:
       - mongodb
       - procedimento-service
