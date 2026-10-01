@@ -71,7 +71,7 @@ public class AgendamentoAdminControllerTest {
 
 	@BeforeEach
 	public void setUp() {
-		data = LocalDate.of(2026, 8, 18);
+		data = LocalDate.now().plusDays(2);
 		horario = LocalTime.of(14, 0);
 		agendamentoAdminRequest = new AgendamentoAdminRequest(1L, "usuario", data, horario, AgendamentoStatus.CONCLUIDO,
 				1L);
@@ -84,7 +84,8 @@ public class AgendamentoAdminControllerTest {
 	@WithMockUser(authorities = ADMIN)
 	public void deveRetornar200AoCriarAgendamentoComSucesso() throws JacksonException, Exception {
 		mockMvc.perform(post(BASE_URL).contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(agendamentoAdminRequest))).andExpect(status().isOk());
+				.content(objectMapper.writeValueAsString(agendamentoAdminRequest)))
+		.andExpect(status().isCreated());
 
 		verify(agendamentoAdminService).criarAgendamento(agendamentoAdminRequest);
 	}

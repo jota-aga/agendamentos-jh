@@ -71,7 +71,7 @@ public class AgendamentoControllerTest {
 
 	@BeforeEach
 	public void setUp() {
-		data = LocalDate.of(2026, 9, 18);
+		data = LocalDate.now().plusDays(2);
 		horario = LocalTime.of(14, 0);
 		agendamentoRequest = new AgendamentoRequest(data, horario, 1L);
 		agendamentoResponse = new AgendamentoResponse(AGENDAMENTO_ID, 1L, "usuario", LocalDateTime.now(), data, horario,

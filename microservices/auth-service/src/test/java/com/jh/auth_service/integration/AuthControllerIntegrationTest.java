@@ -14,6 +14,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.mysql.MySQLContainer;
 
 import com.jh.auth_service.domain.User;
 import com.jh.auth_service.dto.LoginRequest;
@@ -26,9 +29,14 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 @SpringBootTest
+@Testcontainers
 @AutoConfigureMockMvc
 @Transactional
 public class AuthControllerIntegrationTest {
+	
+	@Container
+	private MySQLContainer container = new MySQLContainer("mysql:8.4");
+	
 	private final static String BASE_URL = "/auth";
 	
 	@Autowired

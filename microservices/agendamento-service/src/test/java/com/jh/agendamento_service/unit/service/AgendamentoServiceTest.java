@@ -38,6 +38,7 @@ import com.jh.agendamento_service.exception.NaoAutorizadoException;
 import com.jh.agendamento_service.exception.NaoEncontradoException;
 import com.jh.agendamento_service.exception.ProcedimentoNaoDisponivelException;
 import com.jh.agendamento_service.mapper.AgendamentoMapper;
+import com.jh.agendamento_service.messaging.AgendamentoEventPublisher;
 import com.jh.agendamento_service.repository.AgendamentoCustomRepository;
 import com.jh.agendamento_service.repository.AgendamentoRepository;
 import com.jh.agendamento_service.service.AgendamentoService;
@@ -68,6 +69,9 @@ public class AgendamentoServiceTest {
 
 	@Mock
 	private SecurityService securityService;
+	
+	@Mock
+	private AgendamentoEventPublisher agendamentoEventPublisher;
 
 	ArgumentCaptor<Agendamento> agendamentoCaptor;
 
@@ -122,6 +126,8 @@ public class AgendamentoServiceTest {
 		assertEquals(procedimentoResponse.preco(), agendamento.getPreco());
 		assertEquals(categoriaResponse.nome(), agendamento.getNomeDaCategoria());
 		assertEquals(AgendamentoStatus.AGENDADO, agendamento.getStatus());
+		
+		verify(agendamentoEventPublisher).publicarAgendamentoCriado(AgendamentoMapper.INSTANCE.entityToMessage(agendamento));
 	}
 
 	@Test

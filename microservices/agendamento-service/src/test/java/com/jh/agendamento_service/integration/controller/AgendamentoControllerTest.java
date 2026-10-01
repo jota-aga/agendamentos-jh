@@ -21,8 +21,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.rabbitmq.RabbitMQContainer;
 
 import com.jh.agendamento_service.domain.Agendamento;
 import com.jh.agendamento_service.dto.AgendamentoRequest;
@@ -38,9 +43,21 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 @SpringBootTest
+@Testcontainers
 @AutoConfigureMockMvc
 public class AgendamentoControllerTest {
-
+	
+	@Container
+	private static RabbitMQContainer container = new RabbitMQContainer("rabbitmq:4-management");
+	
+	@DynamicPropertySource
+	static void configureProperties(DynamicPropertyRegistry registry) {
+	    registry.add("spring.rabbitmq.host", container::getHost);
+	    registry.add("spring.rabbitmq.port", container::getAmqpPort);
+	    registry.add("spring.rabbitmq.username", container::getAdminUsername);
+	    registry.add("spring.rabbitmq.password", container::getAdminPassword);
+	}
+	
 	private final String BASE_URL = "/agendamento";
 
 	@Autowired

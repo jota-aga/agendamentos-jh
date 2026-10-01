@@ -62,7 +62,7 @@ public class UserService {
 
 		String senhaCriptografada = bCryptPasswordEncoder.encode(userRequest.senha());
 		user.setSenha(senhaCriptografada);
-
+		
 		UserRole role = userRoleRepository.findByNome(UserRole.Role.CLIENT.name())
 				.orElseThrow(() -> new NaoEncontradoException("Role"));
 
@@ -70,6 +70,4 @@ public class UserService {
 
 		return user;
 	}
-
-	
 }
