@@ -1,5 +1,8 @@
 package com.jh.notication_service.service;
 
+import java.time.format.DateTimeFormatter;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -14,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class NotificationEmailService implements NotificationMessageStrategy, NotificationStrategy {
+	@Value("${notification.email.from}")
+	private String emailFrom;
 
 	private final JavaMailSender javaMailSender;
 	
@@ -25,6 +30,7 @@ public class NotificationEmailService implements NotificationMessageStrategy, No
 		
 		SimpleMailMessage mailMessage = new SimpleMailMessage();
 		
+		mailMessage.setFrom(emailFrom);
 		mailMessage.setTo(usuarioResponse.email());
 		mailMessage.setText(criarMensagemParaAgendamentoCriado(agendamentoCriadoEvent));
 		mailMessage.setSubject("Agendamento na Barbearia JH");
@@ -34,6 +40,10 @@ public class NotificationEmailService implements NotificationMessageStrategy, No
 
 	@Override
 	public String criarMensagemParaAgendamentoCriado(AgendamentoCriadoEvent agendamentoCriadoEvent) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		String dataFormatada = agendamentoCriadoEvent.data()
+				.format(formatter);
+		
 		String mensagem = """
 					Olá,
 
@@ -43,7 +53,7 @@ public class NotificationEmailService implements NotificationMessageStrategy, No
 					Horário: %s
 					Procedimento: %s
 
-				""".formatted(agendamentoCriadoEvent.data(), agendamentoCriadoEvent.inicio(),
+				""".formatted(dataFormatada, agendamentoCriadoEvent.inicio(),
 				agendamentoCriadoEvent.tituloDoProcedimento());
 
 		return mensagem;
