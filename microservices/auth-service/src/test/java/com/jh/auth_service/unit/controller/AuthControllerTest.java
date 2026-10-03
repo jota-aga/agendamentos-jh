@@ -23,11 +23,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.jh.auth_service.controller.AuthController;
 import com.jh.auth_service.dto.LoginRequest;
-import com.jh.auth_service.dto.UserRequest;
+import com.jh.auth_service.dto.UsuarioRequest;
 import com.jh.auth_service.exceptions.EmailRepetidoExecption;
 import com.jh.auth_service.exceptions.LoginIncorretoException;
 import com.jh.auth_service.infra.SecurityConfig;
-import com.jh.auth_service.service.UserService;
+import com.jh.auth_service.service.UsuarioService;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
@@ -46,15 +46,15 @@ public class AuthControllerTest {
 	private ObjectMapper objectMapper;
 	
 	@MockitoBean
-	private UserService userService;
+	private UsuarioService usuarioService;
 	
-	private UserRequest userRequest;
+	private UsuarioRequest usuarioRequest;
 	
 	private LoginRequest loginRequest;
 	
 	@BeforeEach
 	public void setUp() {
-		userRequest = new UserRequest("email@email.com", "nome", "senha123");
+		usuarioRequest = new UsuarioRequest("email@email.com", "nome", "senha123");
 		loginRequest = new LoginRequest("email@email.com", "senha123");
 	}
 	
@@ -62,36 +62,36 @@ public class AuthControllerTest {
 	public void deveRegistrarOUsuarioERetornar201() throws JacksonException, Exception {
 		mockMvc.perform(post(BASE_URL+"/register")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(userRequest)))
+				.content(objectMapper.writeValueAsString(usuarioRequest)))
 		.andExpect(status().isCreated());
 	
 	}
 	
 	@Test
 	public void deveRetornar400QuandoBodyIncorreto() throws JacksonException, Exception {
-		userRequest = new UserRequest("emailmail.com", "", "");
+		usuarioRequest = new UsuarioRequest("emailmail.com", "", "");
 		
 		mockMvc.perform(post(BASE_URL+"/register")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(userRequest)))
+				.content(objectMapper.writeValueAsString(usuarioRequest)))
 		.andExpect(status().isBadRequest())
 		.andExpect(jsonPath("$.senha").value("Senha deve ter entre 8 a 32 caracteres"))
 		.andExpect(jsonPath("$.nome").value("Nome não deve ser vazio"))
 		.andExpect(jsonPath("$.email").value("Email não é válido"));
 		
-		verify(userService, never()).salvarNovoUsuario(any());
+		verify(usuarioService, never()).salvarNovoUsuario(any());
 	}
 	
 	@Test
 	public void deveRetornar409QuandoEmailRepetido() throws JacksonException, Exception {
 		EmailRepetidoExecption ex = new EmailRepetidoExecption();
 		doThrow(new EmailRepetidoExecption())
-			.when(userService)
-			.salvarNovoUsuario(userRequest);
+			.when(usuarioService)
+			.salvarNovoUsuario(usuarioRequest);
 		
 		mockMvc.perform(post(BASE_URL+"/register")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(userRequest)))
+				.content(objectMapper.writeValueAsString(usuarioRequest)))
 		.andExpect(status().isConflict())
 		.andExpect(jsonPath("$").value(ex.getMessage()));
 	}
@@ -99,7 +99,7 @@ public class AuthControllerTest {
 	@Test
 	public void deveRealizarLoginERetornar200() throws JacksonException, Exception {
 		String token = "123456789";
-		when(userService.realizarLogin(loginRequest)).thenReturn(token);
+		when(usuarioService.realizarLogin(loginRequest)).thenReturn(token);
 		
 		mockMvc.perform(post(BASE_URL+"/login")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -107,14 +107,14 @@ public class AuthControllerTest {
 		.andExpect(status().isOk())
 		.andExpect(jsonPath("$.token").value(token));
 		
-		verify(userService, atLeastOnce()).realizarLogin(loginRequest);
+		verify(usuarioService, atLeastOnce()).realizarLogin(loginRequest);
 	}
 	
 	@Test
 	public void deveRetonar401QuandoLoginIncorreto() throws JacksonException, Exception {
 		LoginIncorretoException ex = new LoginIncorretoException();
 		doThrow(new LoginIncorretoException())
-		.when(userService)
+		.when(usuarioService)
 		.realizarLogin(loginRequest);
 		
 		mockMvc.perform(post(BASE_URL+"/login")

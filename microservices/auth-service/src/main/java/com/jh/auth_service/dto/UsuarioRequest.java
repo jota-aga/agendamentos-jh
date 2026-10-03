@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public record UserRequest(
+public record UsuarioRequest(
 		
 		@Email(message = "Email não é válido")
 		@NotBlank(message = "Email não deve ser vazio")

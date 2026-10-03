@@ -18,11 +18,11 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.mysql.MySQLContainer;
 
-import com.jh.auth_service.domain.User;
+import com.jh.auth_service.domain.Usuario;
 import com.jh.auth_service.dto.LoginRequest;
-import com.jh.auth_service.dto.UserRequest;
-import com.jh.auth_service.repository.UserRepository;
-import com.jh.auth_service.service.UserService;
+import com.jh.auth_service.dto.UsuarioRequest;
+import com.jh.auth_service.repository.UsuarioRepository;
+import com.jh.auth_service.service.UsuarioService;
 
 import jakarta.transaction.Transactional;
 import tools.jackson.core.JacksonException;
@@ -46,51 +46,51 @@ public class AuthControllerIntegrationTest {
 	private ObjectMapper objectMapper;
 	
 	@Autowired
-	private UserRepository userRepository;
+	private UsuarioRepository usuarioRepository;
 	
 	@Autowired
-	private UserService userService;
+	private UsuarioService usuarioService;
 	
-	private UserRequest userRequest;
+	private UsuarioRequest usuarioRequest;
 	
 	private LoginRequest loginRequest;
 	
 	@BeforeEach
 	public void setUp() {
-		userRequest = new UserRequest("email@email", "nome", "senha123");
-		loginRequest = new LoginRequest(userRequest.email(), userRequest.senha());
-		userRepository.deleteAll();
+		usuarioRequest = new UsuarioRequest("email@email", "nome", "senha123");
+		loginRequest = new LoginRequest(usuarioRequest.email(), usuarioRequest.senha());
+		usuarioRepository.deleteAll();
 	}
 	
 	@Test
 	public void deveSalvarUsuarioComSucesso() throws JacksonException, Exception {
 		mockMvc.perform(post(BASE_URL+"/register")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(userRequest)))
+				.content(objectMapper.writeValueAsString(usuarioRequest)))
 		.andExpect(status().isCreated());
 		
-		List<User> users = userRepository.findAll();
+		List<Usuario> usuarios = usuarioRepository.findAll();
 		
-		assertEquals(users.size(), 1);
+		assertEquals(usuarios.size(), 1);
 	}
 	
 	@Test
 	public void naoDeveSalvarUsuarioQuandoEmailJaExistir() throws JacksonException, Exception {
-		userService.salvarNovoUsuario(userRequest);
+		usuarioService.salvarNovoUsuario(usuarioRequest);
 		
 		mockMvc.perform(post(BASE_URL+"/register")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(userRequest)))
+				.content(objectMapper.writeValueAsString(usuarioRequest)))
 		.andExpect(status().isConflict());
 		
-		List<User> users = userRepository.findAll();
+		List<Usuario> usuarios = usuarioRepository.findAll();
 		
-		assertEquals(users.size(), 1);
+		assertEquals(usuarios.size(), 1);
 	}
 	
 	@Test
 	public void deveRetornarTokenQuandoLoginCorreto() throws JacksonException, Exception {
-		userService.salvarNovoUsuario(userRequest);
+		usuarioService.salvarNovoUsuario(usuarioRequest);
 		
 		mockMvc.perform(post(BASE_URL+"/login")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -101,8 +101,8 @@ public class AuthControllerIntegrationTest {
 	}
 	
 	@Test
-	public void naoDeveRetornarTokenQuandoUsernameNaoEncontrado() throws JacksonException, Exception {
-		loginRequest = new LoginRequest("emailincorreto@email.com", userRequest.senha());
+	public void naoDeveRetornarTokenQuandoUsuarioNameNaoEncontrado() throws JacksonException, Exception {
+		loginRequest = new LoginRequest("emailincorreto@email.com", usuarioRequest.senha());
 		
 		mockMvc.perform(post(BASE_URL+"/login")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -114,8 +114,8 @@ public class AuthControllerIntegrationTest {
 	
 	@Test
 	public void naoDeveRetornarTokenQuandoSenhaIncorreta() throws JacksonException, Exception {
-		userService.salvarNovoUsuario(userRequest);
-		loginRequest = new LoginRequest(userRequest.email(), "senhaincorreta");
+		usuarioService.salvarNovoUsuario(usuarioRequest);
+		loginRequest = new LoginRequest(usuarioRequest.email(), "senhaincorreta");
 		
 		mockMvc.perform(post(BASE_URL+"/login")
 				.contentType(MediaType.APPLICATION_JSON)

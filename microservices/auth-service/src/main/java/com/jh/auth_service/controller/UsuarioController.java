@@ -8,20 +8,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jh.auth_service.dto.UsuarioResponse;
-import com.jh.auth_service.service.UserService;
+import com.jh.auth_service.service.UsuarioService;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/usuario")
 @RequiredArgsConstructor
-public class UserController {
+public class UsuarioController {
 	
-	private final UserService userService;
+	private final UsuarioService usuarioService;
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<UsuarioResponse> procurarUsuarioPorId(@PathVariable Long id){
-		UsuarioResponse usuarioResponse = userService.procurarUsuarioPorId(id);
+		UsuarioResponse usuarioResponse = usuarioService.procurarUsuarioPorId(id);
 		
 		return ResponseEntity.status(HttpStatus.OK).body(usuarioResponse);
 	}

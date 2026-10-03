@@ -9,8 +9,8 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
-import com.jh.auth_service.domain.User;
-import com.jh.auth_service.domain.UserRole;
+import com.jh.auth_service.domain.Usuario;
+import com.jh.auth_service.domain.UsuarioRole;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,16 +26,16 @@ public class TokenService {
 	
 	private final JwtEncoder jwtEncoder;
 	
-	public String gerarToken(User user) {
-		var scope = user.getRoles()
+	public String gerarToken(Usuario usuario) {
+		var scope = usuario.getRoles()
 				.stream()
-				.map(UserRole::getNome)
+				.map(UsuarioRole::getNome)
 				.collect(Collectors.joining(" "));
 		
-		String stringId = user.getId()
+		String stringId = usuario.getId()
 				.toString();
 		
-		String nomeDoUsuario = user.getNome();
+		String nomeDoUsuario = usuario.getNome();
 		
 		Instant now = Instant.now();
 		
