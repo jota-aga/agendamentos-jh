@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jh.auth_service.dto.UsuarioResponse;
@@ -22,6 +23,20 @@ public class UsuarioController {
 	@GetMapping("/{id}")
 	public ResponseEntity<UsuarioResponse> procurarUsuarioPorId(@PathVariable Long id){
 		UsuarioResponse usuarioResponse = usuarioService.procurarUsuarioPorId(id);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(usuarioResponse);
+	}
+	
+	@GetMapping("/email")
+	public ResponseEntity<UsuarioResponse> procurarUsuarioEmail(@PathVariable String email){
+		UsuarioResponse usuarioResponse = usuarioService.procurarUsuarioPorEmail(email);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(usuarioResponse);
+	}
+	
+	@GetMapping("/nome")
+	public ResponseEntity<UsuarioResponse> procurarUsuarioPorNome(@RequestParam String nome){
+		UsuarioResponse usuarioResponse = usuarioService.procurarUsuarioPorNome(nome);
 		
 		return ResponseEntity.status(HttpStatus.OK).body(usuarioResponse);
 	}

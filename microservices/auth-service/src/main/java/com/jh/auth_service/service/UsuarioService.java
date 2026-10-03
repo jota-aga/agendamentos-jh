@@ -1,22 +1,12 @@
 package com.jh.auth_service.service;
 
-import java.util.Set;
-
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.jh.auth_service.domain.Usuario;
-import com.jh.auth_service.domain.UsuarioRole;
-import com.jh.auth_service.dto.LoginRequest;
-import com.jh.auth_service.dto.UsuarioRequest;
 import com.jh.auth_service.dto.UsuarioResponse;
-import com.jh.auth_service.exceptions.EmailRepetidoExecption;
-import com.jh.auth_service.exceptions.LoginIncorretoException;
 import com.jh.auth_service.exceptions.NaoEncontradoException;
 import com.jh.auth_service.repository.UsuarioRepository;
-import com.jh.auth_service.repository.UsuarioRoleRepository;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -24,32 +14,6 @@ import lombok.RequiredArgsConstructor;
 public class UsuarioService {
 
 	private final UsuarioRepository usuarioRepository;
-
-	private final UsuarioRoleRepository usuarioRoleRepository;
-
-	private final BCryptPasswordEncoder bCryptPasswordEncoder;
-	
-	private final TokenService tokenService;
-	
-	@Transactional
-	public void salvarNovoUsuario(UsuarioRequest usuarioRequest) {
-		validarNovoUsuario(usuarioRequest);
-
-		Usuario usuario = criarUsuario(usuarioRequest);
-
-		usuarioRepository.save(usuario);
-	}
-
-	public String realizarLogin(LoginRequest loginRequest) {
-		Usuario usuario = usuarioRepository.findByEmail(loginRequest.email())
-				.orElseThrow(() -> new LoginIncorretoException());
-		
-		if (!bCryptPasswordEncoder.matches(loginRequest.senha(),usuario.getSenha())) {
-			throw new LoginIncorretoException();
-		}
-		
-		return tokenService.gerarToken(usuario);
-	}
 	
 	public UsuarioResponse procurarUsuarioPorId(Long id) {
 		Usuario usuario = usuarioRepository.findById(id)
@@ -59,25 +23,22 @@ public class UsuarioService {
 		
 		return usuarioResponse;
 	}
-
-	private void validarNovoUsuario(UsuarioRequest usuarioRequest) {
-		if (usuarioRepository.findByEmail(usuarioRequest.email()).isPresent())
-			throw new EmailRepetidoExecption();
-	}
-
-	private Usuario criarUsuario(UsuarioRequest usuarioRequest) {
-		Usuario usuario = new Usuario();
-		usuario.setEmail(usuarioRequest.email());
-		usuario.setNome(usuarioRequest.nome());
-
-		String senhaCriptografada = bCryptPasswordEncoder.encode(usuarioRequest.senha());
-		usuario.setSenha(senhaCriptografada);
+	
+	public UsuarioResponse procurarUsuarioPorEmail(String email) {
+		Usuario usuario = usuarioRepository.findByEmail(email)
+				.orElseThrow(() -> new NaoEncontradoException("usuario"));
 		
-		UsuarioRole role = usuarioRoleRepository.findByNome(UsuarioRole.Role.CLIENT.name())
-				.orElseThrow(() -> new NaoEncontradoException("Role"));
-
-		usuario.setRoles(Set.of(role));
-
-		return usuario;
+		UsuarioResponse usuarioResponse = new UsuarioResponse(usuario.getEmail(), usuario.getNome());
+		
+		return usuarioResponse;
+	}
+	
+	public UsuarioResponse procurarUsuarioPorNome(String nome) {
+		Usuario usuario = usuarioRepository.findByNomeContainsIgnoreCase(nome)
+				.orElseThrow(() -> new NaoEncontradoException("usuario"));
+		
+		UsuarioResponse usuarioResponse = new UsuarioResponse(usuario.getEmail(), usuario.getNome());
+		
+		return usuarioResponse;
 	}
 }

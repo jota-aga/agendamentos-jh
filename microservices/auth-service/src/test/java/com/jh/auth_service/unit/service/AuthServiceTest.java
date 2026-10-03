@@ -27,11 +27,11 @@ import com.jh.auth_service.exceptions.LoginIncorretoException;
 import com.jh.auth_service.exceptions.NaoEncontradoException;
 import com.jh.auth_service.repository.UsuarioRepository;
 import com.jh.auth_service.repository.UsuarioRoleRepository;
+import com.jh.auth_service.service.AuthService;
 import com.jh.auth_service.service.TokenService;
-import com.jh.auth_service.service.UsuarioService;
 
 @ExtendWith(MockitoExtension.class)
-public class UsuarioServiceTest {
+public class AuthServiceTest {
 	@Mock
     private UsuarioRepository usuarioRepository;
 
@@ -45,7 +45,7 @@ public class UsuarioServiceTest {
     private TokenService tokenService;
 
     @InjectMocks
-    private UsuarioService usuarioService;
+    private AuthService authService;
     
     private UsuarioRole role;
     
@@ -70,7 +70,7 @@ public class UsuarioServiceTest {
     	when(passwordEncoder.encode(usuarioRequest.senha())).thenReturn("senha criptografada");
     	when(usuarioRoleRepository.findByNome(role.getNome())).thenReturn(Optional.of(role));
     	
-    	usuarioService.salvarNovoUsuario(usuarioRequest);
+    	authService.salvarNovoUsuario(usuarioRequest);
     	
     	verify(usuarioRepository).save(any());
     }
@@ -79,7 +79,7 @@ public class UsuarioServiceTest {
     public void deveLancarExceptionQuandoEmailERepetido() {
     	when(usuarioRepository.findByEmail(usuarioRequest.email())).thenReturn(Optional.of(new Usuario()));
     	
-    	assertThrows(EmailRepetidoExecption.class, () -> usuarioService.salvarNovoUsuario(usuarioRequest));
+    	assertThrows(EmailRepetidoExecption.class, () -> authService.salvarNovoUsuario(usuarioRequest));
     	
     	verify(usuarioRepository, never()).save(any());
     }
@@ -90,7 +90,7 @@ public class UsuarioServiceTest {
     	when(passwordEncoder.encode(usuarioRequest.senha())).thenReturn("senha criptografada");
     	when(usuarioRoleRepository.findByNome(role.getNome())).thenReturn(Optional.empty());
 
-    	assertThrows(NaoEncontradoException.class, () -> usuarioService.salvarNovoUsuario(usuarioRequest));
+    	assertThrows(NaoEncontradoException.class, () -> authService.salvarNovoUsuario(usuarioRequest));
     	
     	verify(usuarioRepository, never()).save(any());
     }
@@ -101,7 +101,7 @@ public class UsuarioServiceTest {
     	when(passwordEncoder.matches(loginRequest.senha(), usuario.getSenha())).thenReturn(true);
     	when(tokenService.gerarToken(usuario)).thenReturn("token");
     	
-    	String token = usuarioService.realizarLogin(loginRequest);
+    	String token = authService.realizarLogin(loginRequest);
     	
     	assertFalse(token.isEmpty());
     }
@@ -110,7 +110,7 @@ public class UsuarioServiceTest {
     public void deveLancarExceptionQuandoUsuarioNaoEncontrado() {
     	when(usuarioRepository.findByEmail(loginRequest.email())).thenReturn(Optional.empty());
     	
-    	assertThrows(LoginIncorretoException.class, () -> usuarioService.realizarLogin(loginRequest));
+    	assertThrows(LoginIncorretoException.class, () -> authService.realizarLogin(loginRequest));
     }
     
     @Test
@@ -118,6 +118,6 @@ public class UsuarioServiceTest {
     	when(usuarioRepository.findByEmail(loginRequest.email())).thenReturn(Optional.of(usuario));
     	when(passwordEncoder.matches(loginRequest.senha(), usuario.getSenha())).thenReturn(false);
     	
-    	assertThrows(LoginIncorretoException.class, () -> usuarioService.realizarLogin(loginRequest));
+    	assertThrows(LoginIncorretoException.class, () -> authService.realizarLogin(loginRequest));
     }
 }	

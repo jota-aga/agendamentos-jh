@@ -27,7 +27,7 @@ import com.jh.auth_service.dto.UsuarioRequest;
 import com.jh.auth_service.exceptions.EmailRepetidoExecption;
 import com.jh.auth_service.exceptions.LoginIncorretoException;
 import com.jh.auth_service.infra.SecurityConfig;
-import com.jh.auth_service.service.UsuarioService;
+import com.jh.auth_service.service.AuthService;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
@@ -46,7 +46,7 @@ public class AuthControllerTest {
 	private ObjectMapper objectMapper;
 	
 	@MockitoBean
-	private UsuarioService usuarioService;
+	private AuthService authService;
 	
 	private UsuarioRequest usuarioRequest;
 	
@@ -79,14 +79,14 @@ public class AuthControllerTest {
 		.andExpect(jsonPath("$.nome").value("Nome não deve ser vazio"))
 		.andExpect(jsonPath("$.email").value("Email não é válido"));
 		
-		verify(usuarioService, never()).salvarNovoUsuario(any());
+		verify(authService, never()).salvarNovoUsuario(any());
 	}
 	
 	@Test
 	public void deveRetornar409QuandoEmailRepetido() throws JacksonException, Exception {
 		EmailRepetidoExecption ex = new EmailRepetidoExecption();
 		doThrow(new EmailRepetidoExecption())
-			.when(usuarioService)
+			.when(authService)
 			.salvarNovoUsuario(usuarioRequest);
 		
 		mockMvc.perform(post(BASE_URL+"/register")
@@ -99,7 +99,7 @@ public class AuthControllerTest {
 	@Test
 	public void deveRealizarLoginERetornar200() throws JacksonException, Exception {
 		String token = "123456789";
-		when(usuarioService.realizarLogin(loginRequest)).thenReturn(token);
+		when(authService.realizarLogin(loginRequest)).thenReturn(token);
 		
 		mockMvc.perform(post(BASE_URL+"/login")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -107,14 +107,14 @@ public class AuthControllerTest {
 		.andExpect(status().isOk())
 		.andExpect(jsonPath("$.token").value(token));
 		
-		verify(usuarioService, atLeastOnce()).realizarLogin(loginRequest);
+		verify(authService, atLeastOnce()).realizarLogin(loginRequest);
 	}
 	
 	@Test
 	public void deveRetonar401QuandoLoginIncorreto() throws JacksonException, Exception {
 		LoginIncorretoException ex = new LoginIncorretoException();
 		doThrow(new LoginIncorretoException())
-		.when(usuarioService)
+		.when(authService)
 		.realizarLogin(loginRequest);
 		
 		mockMvc.perform(post(BASE_URL+"/login")

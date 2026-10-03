@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jh.auth_service.dto.LoginRequest;
 import com.jh.auth_service.dto.LoginResponse;
 import com.jh.auth_service.dto.UsuarioRequest;
-import com.jh.auth_service.service.UsuarioService;
+import com.jh.auth_service.service.AuthService;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -20,18 +20,18 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class AuthController {
 	
-	private final UsuarioService usuarioService;
+	private final AuthService authService;
 	
 	@PostMapping("/register")
 	public ResponseEntity<?> registrarUser(@Valid @RequestBody UsuarioRequest usuarioRequest){
-		usuarioService.salvarNovoUsuario(usuarioRequest);
+		authService.salvarNovoUsuario(usuarioRequest);
 		
 		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 	
 	@PostMapping("/login")
 	public ResponseEntity<?> realizarLogin(@RequestBody LoginRequest loginRequest){
-		String token = usuarioService.realizarLogin(loginRequest);
+		String token = authService.realizarLogin(loginRequest);
 		LoginResponse loginResponse = new LoginResponse(token);
 		
 		return ResponseEntity.status(HttpStatus.OK).body(loginResponse);

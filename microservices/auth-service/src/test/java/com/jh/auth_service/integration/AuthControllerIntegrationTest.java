@@ -22,7 +22,7 @@ import com.jh.auth_service.domain.Usuario;
 import com.jh.auth_service.dto.LoginRequest;
 import com.jh.auth_service.dto.UsuarioRequest;
 import com.jh.auth_service.repository.UsuarioRepository;
-import com.jh.auth_service.service.UsuarioService;
+import com.jh.auth_service.service.AuthService;
 
 import jakarta.transaction.Transactional;
 import tools.jackson.core.JacksonException;
@@ -49,7 +49,7 @@ public class AuthControllerIntegrationTest {
 	private UsuarioRepository usuarioRepository;
 	
 	@Autowired
-	private UsuarioService usuarioService;
+	private AuthService authService;
 	
 	private UsuarioRequest usuarioRequest;
 	
@@ -76,7 +76,7 @@ public class AuthControllerIntegrationTest {
 	
 	@Test
 	public void naoDeveSalvarUsuarioQuandoEmailJaExistir() throws JacksonException, Exception {
-		usuarioService.salvarNovoUsuario(usuarioRequest);
+		authService.salvarNovoUsuario(usuarioRequest);
 		
 		mockMvc.perform(post(BASE_URL+"/register")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -90,7 +90,7 @@ public class AuthControllerIntegrationTest {
 	
 	@Test
 	public void deveRetornarTokenQuandoLoginCorreto() throws JacksonException, Exception {
-		usuarioService.salvarNovoUsuario(usuarioRequest);
+		authService.salvarNovoUsuario(usuarioRequest);
 		
 		mockMvc.perform(post(BASE_URL+"/login")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -114,7 +114,7 @@ public class AuthControllerIntegrationTest {
 	
 	@Test
 	public void naoDeveRetornarTokenQuandoSenhaIncorreta() throws JacksonException, Exception {
-		usuarioService.salvarNovoUsuario(usuarioRequest);
+		authService.salvarNovoUsuario(usuarioRequest);
 		loginRequest = new LoginRequest(usuarioRequest.email(), "senhaincorreta");
 		
 		mockMvc.perform(post(BASE_URL+"/login")
