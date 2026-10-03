@@ -8,7 +8,11 @@ import org.springframework.stereotype.Component;
 
 import com.jh.agendamento_service.dto.AgendamentoCriadoEvent;
 
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+
 @Component
+@RequiredArgsConstructor
 public class AgendamentoEventPublisher {
 
     private final RabbitTemplate rabbitTemplate;
@@ -20,10 +24,6 @@ public class AgendamentoEventPublisher {
     private String routingKey;
     
     private Logger log = LoggerFactory.getLogger(AgendamentoEventPublisher.class);
-    
-    public AgendamentoEventPublisher(RabbitTemplate rabbitTemplate) {
-        this.rabbitTemplate = rabbitTemplate;
-    }
 
     public void publicarAgendamentoCriado(AgendamentoCriadoEvent agendamento) {
     	log.info("mensagem sendo publicada");

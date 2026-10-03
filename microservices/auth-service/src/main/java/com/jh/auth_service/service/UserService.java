@@ -9,6 +9,7 @@ import com.jh.auth_service.domain.User;
 import com.jh.auth_service.domain.UserRole;
 import com.jh.auth_service.dto.LoginRequest;
 import com.jh.auth_service.dto.UserRequest;
+import com.jh.auth_service.dto.UsuarioResponse;
 import com.jh.auth_service.exceptions.EmailRepetidoExecption;
 import com.jh.auth_service.exceptions.LoginIncorretoException;
 import com.jh.auth_service.exceptions.NaoEncontradoException;
@@ -48,6 +49,15 @@ public class UserService {
 		}
 		
 		return tokenService.gerarToken(user);
+	}
+	
+	public UsuarioResponse procurarUsuarioPorId(Long id) {
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new NaoEncontradoException("usuario"));
+		
+		UsuarioResponse usuarioResponse = new UsuarioResponse(user.getEmail(), user.getNome());
+		
+		return usuarioResponse;
 	}
 
 	private void validarNovoUser(UserRequest userRequest) {

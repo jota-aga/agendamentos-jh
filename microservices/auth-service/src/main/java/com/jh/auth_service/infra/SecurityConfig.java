@@ -40,6 +40,7 @@ public class SecurityConfig {
 		return httpSecurity
 				.authorizeHttpRequests(authorize -> authorize
 															 .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
+															 .requestMatchers(HttpMethod.GET, "/usuario/**").permitAll()
 															 .anyRequest().authenticated()
 															 )
 															 

@@ -107,7 +107,28 @@ services:
       - procedimento-service
     networks:
       - microservices-network
-
+    
+  notification-service:
+   build:
+    context: ./notification-service
+    dockerfile: Dockerfile
+   container_name: notification-service
+   restart: unless-stopped
+   ports:
+    - "8084:8084"
+   environment:
+    SPRING_MAIL_HOST: ${SPRING_MAIL_HOST}
+    SPRING_MAIL_PORT: ${SPRING_MAIL_PORT}
+    SPRING_EMAIL_USERNAME: ${SPRING_EMAIL_USERNAME}
+    SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
+    SPRING_RABBITMQ_HOST: rabbitmq
+    SPRING_RABBITMQ_PORT: 5672
+    SPRING_RABBITMQ_USERNAME: admin
+    SPRING_RABBITMQ_PASSWORD: admin
+   depends_on:
+    - auth-service 
+   networks:
+    - microservices-network
 volumes:
 
   mysql_data:
