@@ -65,38 +65,38 @@ public class AuthServiceTest {
     }
     
     @Test
-    public void deveSalvarNovoUsuario() {    	
+    public void deveRegistrarUsuarioComSucesso() {    	
     	when(usuarioRepository.findByEmail(usuarioRequest.email())).thenReturn(Optional.empty());
     	when(passwordEncoder.encode(usuarioRequest.senha())).thenReturn("senha criptografada");
     	when(usuarioRoleRepository.findByNome(role.getNome())).thenReturn(Optional.of(role));
     	
-    	authService.salvarNovoUsuario(usuarioRequest);
+    	authService.registrarUsuario(usuarioRequest);
     	
     	verify(usuarioRepository).save(any());
     }
     
     @Test
-    public void deveLancarExceptionQuandoEmailERepetido() {
+    public void deveLancarExceptionQuandoEmailERepetidoAoRegistrarUsuario() {
     	when(usuarioRepository.findByEmail(usuarioRequest.email())).thenReturn(Optional.of(new Usuario()));
     	
-    	assertThrows(EmailRepetidoExecption.class, () -> authService.salvarNovoUsuario(usuarioRequest));
+    	assertThrows(EmailRepetidoExecption.class, () -> authService.registrarUsuario(usuarioRequest));
     	
     	verify(usuarioRepository, never()).save(any());
     }
     
     @Test
-    public void deveLancarExceptionQuandoRoleNaoEncontrada() {
+    public void deveLancarExceptionQuandoRoleNaoEncontradaAoRegistrarUsuario() {
     	when(usuarioRepository.findByEmail(usuarioRequest.email())).thenReturn(Optional.empty());
     	when(passwordEncoder.encode(usuarioRequest.senha())).thenReturn("senha criptografada");
     	when(usuarioRoleRepository.findByNome(role.getNome())).thenReturn(Optional.empty());
 
-    	assertThrows(NaoEncontradoException.class, () -> authService.salvarNovoUsuario(usuarioRequest));
+    	assertThrows(NaoEncontradoException.class, () -> authService.registrarUsuario(usuarioRequest));
     	
     	verify(usuarioRepository, never()).save(any());
     }
     
     @Test
-    public void deveRealizarLogin() {
+    public void deveRealizarLoginDeUsuarioComSucesso() {
     	when(usuarioRepository.findByEmail(loginRequest.email())).thenReturn(Optional.of(usuario));
     	when(passwordEncoder.matches(loginRequest.senha(), usuario.getSenha())).thenReturn(true);
     	when(tokenService.gerarTokenParaUsuario(usuario)).thenReturn("token");
@@ -107,14 +107,14 @@ public class AuthServiceTest {
     }
     
     @Test
-    public void deveLancarExceptionQuandoUsuarioNaoEncontrado() {
+    public void deveLancarLoginIncorretoExceptionQuandoUsuarioNaoEncontradoAoRealizarLoginDeUsuario() {
     	when(usuarioRepository.findByEmail(loginRequest.email())).thenReturn(Optional.empty());
     	
     	assertThrows(LoginIncorretoException.class, () -> authService.realizarLoginDeUsuario(loginRequest));
     }
     
     @Test
-    public void deveLancarExceptionQuandoSenhasNaoSaoIguais() {
+    public void deveLancarLoginIncorretoExceptionQuandoSenhasNaoSaoIguaisAoRealizarLoginDeUsuario() {
     	when(usuarioRepository.findByEmail(loginRequest.email())).thenReturn(Optional.of(usuario));
     	when(passwordEncoder.matches(loginRequest.senha(), usuario.getSenha())).thenReturn(false);
     	

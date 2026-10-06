@@ -63,7 +63,7 @@ public class AuthControllerIntegrationTest {
 	}
 	
 	@Test
-	public void deveSalvarUsuarioComSucesso() throws JacksonException, Exception {
+	public void deveRegistrarUsuarioComSucesso() throws JacksonException, Exception {
 		mockMvc.perform(post(BASE_URL+"/register")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(usuarioRequest)))
@@ -75,8 +75,8 @@ public class AuthControllerIntegrationTest {
 	}
 	
 	@Test
-	public void naoDeveSalvarUsuarioQuandoEmailJaExistir() throws JacksonException, Exception {
-		authService.salvarNovoUsuario(usuarioRequest);
+	public void naoDeveRegistrarUsuarioQuandoEmailJaExistir() throws JacksonException, Exception {
+		authService.registrarUsuario(usuarioRequest);
 		
 		mockMvc.perform(post(BASE_URL+"/register")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -89,8 +89,8 @@ public class AuthControllerIntegrationTest {
 	}
 	
 	@Test
-	public void deveRetornarTokenQuandoLoginCorreto() throws JacksonException, Exception {
-		authService.salvarNovoUsuario(usuarioRequest);
+	public void deveRetornar200ETokenAoRealizarLoginComSucesso() throws JacksonException, Exception {
+		authService.registrarUsuario(usuarioRequest);
 		
 		mockMvc.perform(post(BASE_URL+"/login")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -101,7 +101,7 @@ public class AuthControllerIntegrationTest {
 	}
 	
 	@Test
-	public void naoDeveRetornarTokenQuandoUsuarioNameNaoEncontrado() throws JacksonException, Exception {
+	public void deveRetornarQuandoUsuarioNameEmailNaoForEncontradoAoRealizarLoginDeUsuario() throws JacksonException, Exception {
 		loginRequest = new LoginRequest("emailincorreto@email.com", usuarioRequest.senha());
 		
 		mockMvc.perform(post(BASE_URL+"/login")
@@ -113,8 +113,8 @@ public class AuthControllerIntegrationTest {
 	}
 	
 	@Test
-	public void naoDeveRetornarTokenQuandoSenhaIncorreta() throws JacksonException, Exception {
-		authService.salvarNovoUsuario(usuarioRequest);
+	public void deveRetornar401QuandoASenhaForIncorretaAoRealizarLoginDoUsuario() throws JacksonException, Exception {
+		authService.registrarUsuario(usuarioRequest);
 		loginRequest = new LoginRequest(usuarioRequest.email(), "senhaincorreta");
 		
 		mockMvc.perform(post(BASE_URL+"/login")

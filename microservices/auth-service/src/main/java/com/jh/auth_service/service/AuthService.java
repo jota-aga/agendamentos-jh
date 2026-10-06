@@ -35,7 +35,7 @@ public class AuthService {
 	private final TokenService tokenService;
 	
 	@Transactional
-	public void salvarNovoUsuario(UsuarioRequest usuarioRequest) {
+	public void registrarUsuario(UsuarioRequest usuarioRequest) {
 		validarNovoUsuario(usuarioRequest);
 
 		Usuario usuario = criarUsuario(usuarioRequest);

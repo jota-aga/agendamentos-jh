@@ -59,7 +59,7 @@ public class AuthControllerTest {
 	}
 	
 	@Test
-	public void deveRegistrarOUsuarioERetornar201() throws JacksonException, Exception {
+	public void deveRegistrarUsuarioERetornar201() throws JacksonException, Exception {
 		mockMvc.perform(post(BASE_URL+"/register")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(usuarioRequest)))
@@ -68,7 +68,7 @@ public class AuthControllerTest {
 	}
 	
 	@Test
-	public void deveRetornar400QuandoBodyIncorreto() throws JacksonException, Exception {
+	public void deveRetornar400QuandoBodyIncorretoAoRegistrarUsuario() throws JacksonException, Exception {
 		usuarioRequest = new UsuarioRequest("emailmail.com", "", "");
 		
 		mockMvc.perform(post(BASE_URL+"/register")
@@ -79,15 +79,15 @@ public class AuthControllerTest {
 		.andExpect(jsonPath("$.nome").value("Nome não deve ser vazio"))
 		.andExpect(jsonPath("$.email").value("Email não é válido"));
 		
-		verify(authService, never()).salvarNovoUsuario(any());
+		verify(authService, never()).registrarUsuario(any());
 	}
 	
 	@Test
-	public void deveRetornar409QuandoEmailRepetido() throws JacksonException, Exception {
+	public void deveRetornar409QuandoEmailForRepetidoAoRegistrarUsuario() throws JacksonException, Exception {
 		EmailRepetidoExecption ex = new EmailRepetidoExecption();
 		doThrow(new EmailRepetidoExecption())
 			.when(authService)
-			.salvarNovoUsuario(usuarioRequest);
+			.registrarUsuario(usuarioRequest);
 		
 		mockMvc.perform(post(BASE_URL+"/register")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -97,7 +97,7 @@ public class AuthControllerTest {
 	}
 	
 	@Test
-	public void deveRealizarLoginERetornar200() throws JacksonException, Exception {
+	public void deveRealizarLoginDeUsuarioERetornar200() throws JacksonException, Exception {
 		String token = "123456789";
 		when(authService.realizarLoginDeUsuario(loginRequest)).thenReturn(token);
 		
@@ -111,7 +111,7 @@ public class AuthControllerTest {
 	}
 	
 	@Test
-	public void deveRetonar401QuandoLoginIncorreto() throws JacksonException, Exception {
+	public void deveRetonar401QuandoLoginDeUsuarioIncorreto() throws JacksonException, Exception {
 		LoginIncorretoException ex = new LoginIncorretoException();
 		doThrow(new LoginIncorretoException())
 		.when(authService)
