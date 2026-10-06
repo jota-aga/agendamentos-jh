@@ -2,7 +2,6 @@ package com.jh.auth_service.unit.service;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -24,6 +23,7 @@ import com.jh.auth_service.domain.Usuario;
 import com.jh.auth_service.domain.UsuarioRole;
 import com.jh.auth_service.dto.AutenticacaoServicoExternoDTO;
 import com.jh.auth_service.dto.LoginRequest;
+import com.jh.auth_service.dto.LoginResponse;
 import com.jh.auth_service.dto.UsuarioRequest;
 import com.jh.auth_service.exceptions.EmailRepetidoExecption;
 import com.jh.auth_service.exceptions.LoginIncorretoException;
@@ -107,9 +107,9 @@ public class AuthServiceTest {
 		when(passwordEncoder.matches(loginRequest.senha(), usuario.getSenha())).thenReturn(true);
 		when(tokenService.gerarTokenParaUsuario(usuario)).thenReturn("token");
 
-		String token = authService.realizarLoginDeUsuario(loginRequest);
+		LoginResponse loginResponse = authService.realizarLoginDeUsuario(loginRequest);
 
-		assertFalse(token.isEmpty());
+		assertFalse(loginResponse.token().isEmpty());
 	}
 
 	@Test
@@ -131,9 +131,9 @@ public class AuthServiceTest {
 	public void deveRealizarLoginDeServicoComSucesso() {
 		when(tokenService.gerarTokenParaServicoExterno(servicoExternoDTO)).thenReturn("token");
 
-		String token = authService.realizarLoginDeServicoExterno(servicoExternoDTO);
-		
-		assertFalse(token.isEmpty());
+		LoginResponse loginResponse = authService.realizarLoginDeServicoExterno(servicoExternoDTO);
+
+		assertFalse(loginResponse.token().isEmpty());
 	}
 	
 	@Test

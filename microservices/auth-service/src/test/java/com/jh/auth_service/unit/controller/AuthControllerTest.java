@@ -7,6 +7,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -22,7 +23,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.jh.auth_service.controller.AuthController;
+import com.jh.auth_service.dto.AutenticacaoServicoExternoDTO;
 import com.jh.auth_service.dto.LoginRequest;
+import com.jh.auth_service.dto.LoginResponse;
 import com.jh.auth_service.dto.UsuarioRequest;
 import com.jh.auth_service.exceptions.EmailRepetidoExecption;
 import com.jh.auth_service.exceptions.LoginIncorretoException;
@@ -52,10 +55,13 @@ public class AuthControllerTest {
 	
 	private LoginRequest loginRequest;
 	
+	private AutenticacaoServicoExternoDTO servicoExternoDTO;
+	
 	@BeforeEach
 	public void setUp() {
 		usuarioRequest = new UsuarioRequest("email@email.com", "nome", "senha123");
 		loginRequest = new LoginRequest("email@email.com", "senha123");
+		servicoExternoDTO = new AutenticacaoServicoExternoDTO("servico-id", "service-secret");
 	}
 	
 	@Test
@@ -98,14 +104,14 @@ public class AuthControllerTest {
 	
 	@Test
 	public void deveRealizarLoginDeUsuarioERetornar200() throws JacksonException, Exception {
-		String token = "123456789";
-		when(authService.realizarLoginDeUsuario(loginRequest)).thenReturn(token);
+		LoginResponse loginResponse = new LoginResponse("token");
+		when(authService.realizarLoginDeUsuario(loginRequest)).thenReturn(loginResponse);
 		
-		mockMvc.perform(post(BASE_URL+"/login")
+		mockMvc.perform(post(BASE_URL+"/login/usuario")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(loginRequest)))
 		.andExpect(status().isOk())
-		.andExpect(jsonPath("$.token").value(token));
+		.andExpect(content().string(objectMapper.writeValueAsString(loginResponse)));
 		
 		verify(authService, atLeastOnce()).realizarLoginDeUsuario(loginRequest);
 	}
@@ -117,10 +123,34 @@ public class AuthControllerTest {
 		.when(authService)
 		.realizarLoginDeUsuario(loginRequest);
 		
-		mockMvc.perform(post(BASE_URL+"/login")
+		mockMvc.perform(post(BASE_URL+"/login/usuario")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(loginRequest)))
 		.andExpect(status().isUnauthorized())
 		.andExpect(jsonPath("$").value(ex.getMessage()));
+	}
+	
+	@Test
+	public void deveRetornar200AoRealizarLoginDeServicoComSucesso() throws JacksonException, Exception {
+		LoginResponse loginResponse = new LoginResponse("token");
+		when(authService.realizarLoginDeServicoExterno(servicoExternoDTO)).thenReturn(loginResponse);
+		
+		mockMvc.perform(post(BASE_URL+"/login/servico")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(servicoExternoDTO)))
+		.andExpect(status().isOk())
+		.andExpect(content().json(objectMapper.writeValueAsString(loginResponse)));
+	}
+	
+	@Test
+	public void deveRetornar401QuandoLoginForIncorretoAoRealizarLoginDeServico() throws JacksonException, Exception {
+		LoginIncorretoException exception = new LoginIncorretoException();
+		doThrow(exception).when(authService).realizarLoginDeServicoExterno(servicoExternoDTO);
+		
+		mockMvc.perform(post(BASE_URL+"/login/servico")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(servicoExternoDTO)))
+		.andExpect(status().isUnauthorized())
+		.andExpect(content().string(exception.getMessage()));
 	}
 }

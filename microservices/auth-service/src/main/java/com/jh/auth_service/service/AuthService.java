@@ -10,6 +10,7 @@ import com.jh.auth_service.domain.Usuario;
 import com.jh.auth_service.domain.UsuarioRole;
 import com.jh.auth_service.dto.AutenticacaoServicoExternoDTO;
 import com.jh.auth_service.dto.LoginRequest;
+import com.jh.auth_service.dto.LoginResponse;
 import com.jh.auth_service.dto.UsuarioRequest;
 import com.jh.auth_service.exceptions.EmailRepetidoExecption;
 import com.jh.auth_service.exceptions.LoginIncorretoException;
@@ -43,7 +44,7 @@ public class AuthService {
 		usuarioRepository.save(usuario);
 	}
 
-	public String realizarLoginDeUsuario(LoginRequest loginRequest) {
+	public LoginResponse realizarLoginDeUsuario(LoginRequest loginRequest) {
 		Usuario usuario = usuarioRepository.findByEmail(loginRequest.email())
 				.orElseThrow(() -> new LoginIncorretoException());
 		
@@ -51,14 +52,22 @@ public class AuthService {
 			throw new LoginIncorretoException();
 		}
 		
-		return tokenService.gerarTokenParaUsuario(usuario);
+		String token = tokenService.gerarTokenParaUsuario(usuario);
+		
+		LoginResponse loginResponse = new LoginResponse(token);
+		
+		return loginResponse;
 	}
 	
-	public String realizarLoginDeServicoExterno(AutenticacaoServicoExternoDTO servicoExternoDTO) {
+	public LoginResponse realizarLoginDeServicoExterno(AutenticacaoServicoExternoDTO servicoExternoDTO) {
 		if(!servicoExternoDTO.servicoSecret().equals(secretApiNotificao))
 			throw new LoginIncorretoException();
 		
-		return tokenService.gerarTokenParaServicoExterno(servicoExternoDTO);
+		String token = tokenService.gerarTokenParaServicoExterno(servicoExternoDTO);
+		
+		LoginResponse loginResponse = new LoginResponse(token);
+		
+		return loginResponse;
 	}
 
 	private void validarNovoUsuario(UsuarioRequest usuarioRequest) {

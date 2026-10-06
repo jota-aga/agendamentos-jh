@@ -32,16 +32,14 @@ public class AuthController {
 	
 	@PostMapping("/login/usuario")
 	public ResponseEntity<?> realizarLoginParaUsuario(@RequestBody LoginRequest loginRequest){
-		String token = authService.realizarLoginDeUsuario(loginRequest);
-		LoginResponse loginResponse = new LoginResponse(token);
+		LoginResponse loginResponse = authService.realizarLoginDeUsuario(loginRequest);
 		
 		return ResponseEntity.status(HttpStatus.OK).body(loginResponse);
 	}
 	
 	@PostMapping("/login/servico")
 	public ResponseEntity<?> realizarLoginParaServicoExterno(@RequestBody  AutenticacaoServicoExternoDTO externoDTO){
-		String token = authService.realizarLoginDeServicoExterno(externoDTO);
-		LoginResponse loginResponse = new LoginResponse(token);
+		LoginResponse loginResponse = authService.realizarLoginDeServicoExterno(externoDTO);
 		
 		return ResponseEntity.status(HttpStatus.OK).body(loginResponse);
 	}
