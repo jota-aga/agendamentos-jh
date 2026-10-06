@@ -25,7 +25,9 @@ public class UsuarioRole {
 	
 	public enum Role{
 		ADMIN(1L),
-		CLIENT(2L);
+		CLIENT(2L),
+		NOTIFICATION_SERVICE(3L);
+		
 		
 		private Long id;
 		

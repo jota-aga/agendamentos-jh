@@ -58,6 +58,7 @@ services:
       SPRING_DATASOURCE_USERNAME: microservices
       SPRING_DATASOURCE_PASSWORD: microservices
       SPRING_PROFILES_ACTIVE: docker
+      SECRET_API_NOTIFICACAO_SERVICE: ${SECRET_API_NOTIFICACAO_SERVICE}
     depends_on:
       - mysql
     networks:
@@ -128,6 +129,7 @@ services:
     SPRING_RABBITMQ_USERNAME: admin
     SPRING_RABBITMQ_PASSWORD: admin
     AUTH_SERVICE_BASE_URL: http://auth-service:8081
+    SECRET_API_NOTIFICACAO_SERVICE: ${SECRET_API_NOTIFICACAO_SERVICE}
    depends_on:
     - auth-service 
    networks:

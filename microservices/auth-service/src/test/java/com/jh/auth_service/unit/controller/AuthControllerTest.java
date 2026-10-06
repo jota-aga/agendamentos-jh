@@ -99,7 +99,7 @@ public class AuthControllerTest {
 	@Test
 	public void deveRealizarLoginERetornar200() throws JacksonException, Exception {
 		String token = "123456789";
-		when(authService.realizarLogin(loginRequest)).thenReturn(token);
+		when(authService.realizarLoginDeUsuario(loginRequest)).thenReturn(token);
 		
 		mockMvc.perform(post(BASE_URL+"/login")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -107,7 +107,7 @@ public class AuthControllerTest {
 		.andExpect(status().isOk())
 		.andExpect(jsonPath("$.token").value(token));
 		
-		verify(authService, atLeastOnce()).realizarLogin(loginRequest);
+		verify(authService, atLeastOnce()).realizarLoginDeUsuario(loginRequest);
 	}
 	
 	@Test
@@ -115,7 +115,7 @@ public class AuthControllerTest {
 		LoginIncorretoException ex = new LoginIncorretoException();
 		doThrow(new LoginIncorretoException())
 		.when(authService)
-		.realizarLogin(loginRequest);
+		.realizarLoginDeUsuario(loginRequest);
 		
 		mockMvc.perform(post(BASE_URL+"/login")
 				.contentType(MediaType.APPLICATION_JSON)

@@ -2,11 +2,13 @@ package com.jh.auth_service.service;
 
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.jh.auth_service.domain.Usuario;
 import com.jh.auth_service.domain.UsuarioRole;
+import com.jh.auth_service.dto.AutenticacaoServicoExternoDTO;
 import com.jh.auth_service.dto.LoginRequest;
 import com.jh.auth_service.dto.UsuarioRequest;
 import com.jh.auth_service.exceptions.EmailRepetidoExecption;
@@ -21,7 +23,9 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-
+	@Value("${secret.api.notificacao.service}")
+	private String secretApiNotificao;
+	
 	private final UsuarioRepository usuarioRepository;
 
 	private final UsuarioRoleRepository usuarioRoleRepository;
@@ -39,7 +43,7 @@ public class AuthService {
 		usuarioRepository.save(usuario);
 	}
 
-	public String realizarLogin(LoginRequest loginRequest) {
+	public String realizarLoginDeUsuario(LoginRequest loginRequest) {
 		Usuario usuario = usuarioRepository.findByEmail(loginRequest.email())
 				.orElseThrow(() -> new LoginIncorretoException());
 		
@@ -47,7 +51,14 @@ public class AuthService {
 			throw new LoginIncorretoException();
 		}
 		
-		return tokenService.gerarToken(usuario);
+		return tokenService.gerarTokenParaUsuario(usuario);
+	}
+	
+	public String realizarLoginDeServicoExterno(AutenticacaoServicoExternoDTO servicoExternoDTO) {
+		if(!servicoExternoDTO.servicoSecret().equals(secretApiNotificao))
+			throw new LoginIncorretoException();
+		
+		return tokenService.gerarTokenParaServicoExterno(servicoExternoDTO);
 	}
 
 	private void validarNovoUsuario(UsuarioRequest usuarioRequest) {

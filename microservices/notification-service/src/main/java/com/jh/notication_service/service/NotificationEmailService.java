@@ -26,8 +26,8 @@ public class NotificationEmailService implements NotificationMessageStrategy, No
 	
 	@Override
 	public void enviarNotificacao(AgendamentoCriadoEvent agendamentoCriadoEvent) {
-		UsuarioResponse usuarioResponse = userExternalService.procurarUsuarioPorId(agendamentoCriadoEvent.usuarioId()); 
-		
+		UsuarioResponse usuarioResponse = userExternalService.procurarUsuarioPorId(agendamentoCriadoEvent.usuarioId());
+				
 		SimpleMailMessage mailMessage = new SimpleMailMessage();
 		
 		mailMessage.setFrom(emailFrom);

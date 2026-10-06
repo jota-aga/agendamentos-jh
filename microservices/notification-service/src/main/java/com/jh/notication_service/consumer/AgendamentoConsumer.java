@@ -21,7 +21,6 @@ public class AgendamentoConsumer {
 	
 	@RabbitListener(queues = "notifications.email-send")
 	public void receiveAgendamentoCriado(@Payload AgendamentoCriadoEvent agendamentoCriadoEvent) throws JsonMappingException, JsonProcessingException {
-		System.out.println("Mensagem Recebida: "+agendamentoCriadoEvent);
 		
 		notificationEmailService.enviarNotificacao(agendamentoCriadoEvent);
 	}

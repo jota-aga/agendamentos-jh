@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.jh.auth_service.domain.Usuario;
 import com.jh.auth_service.domain.UsuarioRole;
+import com.jh.auth_service.dto.AutenticacaoServicoExternoDTO;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,7 +27,7 @@ public class TokenService {
 	
 	private final JwtEncoder jwtEncoder;
 	
-	public String gerarToken(Usuario usuario) {
+	public String gerarTokenParaUsuario(Usuario usuario) {
 		var scope = usuario.getRoles()
 				.stream()
 				.map(UsuarioRole::getNome)
@@ -48,6 +49,28 @@ public class TokenService {
 				.expiresAt(expiresAt)
 				.claim("scope", scope)
 				.claim("nome", nomeDoUsuario)
+				.build();
+
+		var jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+
+		return jwtValue;
+	}
+	
+	public String gerarTokenParaServicoExterno(AutenticacaoServicoExternoDTO servicoExterno) {
+		var scope = UsuarioRole.Role.NOTIFICATION_SERVICE.name();
+		
+		String stringId = servicoExterno.servicoId();
+		
+		Instant now = Instant.now();
+		
+		Instant expiresAt = now.plusSeconds(60);
+
+		var claims = JwtClaimsSet.builder()
+				.issuer(issuer)
+				.subject(stringId)
+				.issuedAt(now)
+				.expiresAt(expiresAt)
+				.claim("scope", scope)
 				.build();
 
 		var jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();

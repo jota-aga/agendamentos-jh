@@ -99,9 +99,9 @@ public class AuthServiceTest {
     public void deveRealizarLogin() {
     	when(usuarioRepository.findByEmail(loginRequest.email())).thenReturn(Optional.of(usuario));
     	when(passwordEncoder.matches(loginRequest.senha(), usuario.getSenha())).thenReturn(true);
-    	when(tokenService.gerarToken(usuario)).thenReturn("token");
+    	when(tokenService.gerarTokenParaUsuario(usuario)).thenReturn("token");
     	
-    	String token = authService.realizarLogin(loginRequest);
+    	String token = authService.realizarLoginDeUsuario(loginRequest);
     	
     	assertFalse(token.isEmpty());
     }
@@ -110,7 +110,7 @@ public class AuthServiceTest {
     public void deveLancarExceptionQuandoUsuarioNaoEncontrado() {
     	when(usuarioRepository.findByEmail(loginRequest.email())).thenReturn(Optional.empty());
     	
-    	assertThrows(LoginIncorretoException.class, () -> authService.realizarLogin(loginRequest));
+    	assertThrows(LoginIncorretoException.class, () -> authService.realizarLoginDeUsuario(loginRequest));
     }
     
     @Test
@@ -118,6 +118,6 @@ public class AuthServiceTest {
     	when(usuarioRepository.findByEmail(loginRequest.email())).thenReturn(Optional.of(usuario));
     	when(passwordEncoder.matches(loginRequest.senha(), usuario.getSenha())).thenReturn(false);
     	
-    	assertThrows(LoginIncorretoException.class, () -> authService.realizarLogin(loginRequest));
+    	assertThrows(LoginIncorretoException.class, () -> authService.realizarLoginDeUsuario(loginRequest));
     }
 }	
