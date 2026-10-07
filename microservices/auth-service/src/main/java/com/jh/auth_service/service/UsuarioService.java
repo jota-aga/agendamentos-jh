@@ -1,5 +1,7 @@
 package com.jh.auth_service.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.jh.auth_service.domain.Usuario;
@@ -33,12 +35,13 @@ public class UsuarioService {
 		return usuarioResponse;
 	}
 	
-	public UsuarioResponse procurarUsuarioPorNome(String nome) {
-		Usuario usuario = usuarioRepository.findByNomeContainsIgnoreCase(nome)
-				.orElseThrow(() -> new NaoEncontradoException("usuario"));
+	public List<UsuarioResponse> procurarUsuarioPorNome(String nome) {
+		List<Usuario> usuarios = usuarioRepository.findByNomeContainsIgnoreCase(nome);
 		
-		UsuarioResponse usuarioResponse = new UsuarioResponse(usuario.getEmail(), usuario.getNome());
+		List<UsuarioResponse> usuariosResponse = usuarios.stream()
+			.map(usuario -> new UsuarioResponse(usuario.getEmail(), usuario.getNome()))
+			.toList();
 		
-		return usuarioResponse;
+		return usuariosResponse;
 	}
 }
