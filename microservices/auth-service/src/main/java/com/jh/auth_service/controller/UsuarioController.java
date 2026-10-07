@@ -30,7 +30,7 @@ public class UsuarioController {
 	}
 	
 	@GetMapping("/email")
-	public ResponseEntity<UsuarioResponse> procurarUsuarioEmail(@PathVariable String email){
+	public ResponseEntity<UsuarioResponse> procurarUsuarioEmail(@RequestParam String email){
 		UsuarioResponse usuarioResponse = usuarioService.procurarUsuarioPorEmail(email);
 		
 		return ResponseEntity.status(HttpStatus.OK).body(usuarioResponse);
