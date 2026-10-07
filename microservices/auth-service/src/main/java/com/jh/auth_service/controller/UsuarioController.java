@@ -1,5 +1,7 @@
 package com.jh.auth_service.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,9 +37,9 @@ public class UsuarioController {
 	}
 	
 	@GetMapping("/nome")
-	public ResponseEntity<UsuarioResponse> procurarUsuarioPorNome(@RequestParam String nome){
-		UsuarioResponse usuarioResponse = usuarioService.procurarUsuarioPorNome(nome);
+	public ResponseEntity<List<UsuarioResponse>> procurarUsuarioPorNome(@RequestParam String nome){
+		List<UsuarioResponse> usuariosResponse = usuarioService.procurarUsuarioPorNome(nome);
 		
-		return ResponseEntity.status(HttpStatus.OK).body(usuarioResponse);
+		return ResponseEntity.status(HttpStatus.OK).body(usuariosResponse);
 	}
 }
