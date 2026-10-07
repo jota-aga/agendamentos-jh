@@ -10,6 +10,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
@@ -19,6 +20,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.mysql.MySQLContainer;
 
 import com.jh.auth_service.domain.Usuario;
+import com.jh.auth_service.dto.AutenticacaoServicoExternoDTO;
 import com.jh.auth_service.dto.LoginRequest;
 import com.jh.auth_service.dto.UsuarioRequest;
 import com.jh.auth_service.repository.UsuarioRepository;
@@ -55,10 +57,15 @@ public class AuthControllerIntegrationTest {
 	
 	private LoginRequest loginRequest;
 	
+	private AutenticacaoServicoExternoDTO servicoExternoDTO;
+	
+	@Value("${secret.api.notificacao.service}")
+	private String servicoSecret;
 	@BeforeEach
 	public void setUp() {
 		usuarioRequest = new UsuarioRequest("email@email", "nome", "senha123");
 		loginRequest = new LoginRequest(usuarioRequest.email(), usuarioRequest.senha());
+		servicoExternoDTO = new AutenticacaoServicoExternoDTO("servico-id", servicoSecret);
 		usuarioRepository.deleteAll();
 	}
 	
@@ -92,7 +99,7 @@ public class AuthControllerIntegrationTest {
 	public void deveRetornar200ETokenAoRealizarLoginComSucesso() throws JacksonException, Exception {
 		authService.registrarUsuario(usuarioRequest);
 		
-		mockMvc.perform(post(BASE_URL+"/login")
+		mockMvc.perform(post(BASE_URL+"/login/usuario")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(loginRequest)))
 		.andExpect(status().isOk())
@@ -104,7 +111,7 @@ public class AuthControllerIntegrationTest {
 	public void deveRetornarQuandoUsuarioNameEmailNaoForEncontradoAoRealizarLoginDeUsuario() throws JacksonException, Exception {
 		loginRequest = new LoginRequest("emailincorreto@email.com", usuarioRequest.senha());
 		
-		mockMvc.perform(post(BASE_URL+"/login")
+		mockMvc.perform(post(BASE_URL+"/login/usuario")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(loginRequest)))
 		.andExpect(status().isUnauthorized())
@@ -117,9 +124,31 @@ public class AuthControllerIntegrationTest {
 		authService.registrarUsuario(usuarioRequest);
 		loginRequest = new LoginRequest(usuarioRequest.email(), "senhaincorreta");
 		
-		mockMvc.perform(post(BASE_URL+"/login")
+		mockMvc.perform(post(BASE_URL+"/login/usuario")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(loginRequest)))
+		.andExpect(status().isUnauthorized())
+		.andExpect(jsonPath("$.token").doesNotExist());
+		
+	}
+	
+	@Test
+	public void deveRealizarLoginDeServicoComSucesso() throws JacksonException, Exception {
+		
+		mockMvc.perform(post(BASE_URL+"/login/servico")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(servicoExternoDTO)))
+		.andExpect(status().isOk())
+		.andExpect(jsonPath("$.token").exists());
+	}
+	
+	@Test
+	public void deveRetornar401QuandoCredenciaisDeLoginForIncorretoAoRealizarLoginDeServico() throws JacksonException, Exception {
+		servicoExternoDTO =  new AutenticacaoServicoExternoDTO("servico-id", "secret-incorreta");
+		
+		mockMvc.perform(post(BASE_URL+"/login/servico")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(servicoExternoDTO)))
 		.andExpect(status().isUnauthorized())
 		.andExpect(jsonPath("$.token").doesNotExist());
 		
