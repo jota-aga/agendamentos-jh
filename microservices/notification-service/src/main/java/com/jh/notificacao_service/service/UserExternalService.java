@@ -1,13 +1,13 @@
-package com.jh.notication_service.service;
+package com.jh.notificacao_service.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.jh.notication_service.dto.AutenticacaoServicoExternoDTO;
-import com.jh.notication_service.dto.LoginResponse;
-import com.jh.notication_service.dto.UsuarioResponse;
+import com.jh.notificacao_service.dto.AutenticacaoServicoExternoDTO;
+import com.jh.notificacao_service.dto.LoginResponse;
+import com.jh.notificacao_service.dto.UsuarioResponse;
 
 import lombok.RequiredArgsConstructor;
 

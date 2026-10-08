@@ -1,6 +1,6 @@
-package com.jh.notication_service.strategy;
+package com.jh.notificacao_service.strategy;
 
-import com.jh.notication_service.dto.AgendamentoCriadoEvent;
+import com.jh.notificacao_service.dto.AgendamentoCriadoEvent;
 
 public interface NotificationStrategy {
 	void enviarNotificacao(AgendamentoCriadoEvent agendamentoCriadoEvent);

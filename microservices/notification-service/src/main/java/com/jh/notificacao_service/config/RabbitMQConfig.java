@@ -1,4 +1,4 @@
-package com.jh.notication_service.config;
+package com.jh.notificacao_service.config;
 
 import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;

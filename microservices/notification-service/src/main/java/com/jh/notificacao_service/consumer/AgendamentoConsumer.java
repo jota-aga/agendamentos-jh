@@ -1,4 +1,4 @@
-package com.jh.notication_service.consumer;
+package com.jh.notificacao_service.consumer;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -8,8 +8,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jh.notication_service.dto.AgendamentoCriadoEvent;
-import com.jh.notication_service.service.NotificationEmailService;
+import com.jh.notificacao_service.dto.AgendamentoCriadoEvent;
+import com.jh.notificacao_service.service.NotificationEmailService;
 
 import lombok.RequiredArgsConstructor;
 

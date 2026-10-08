@@ -1,4 +1,4 @@
-package com.jh.notication_service.dto;
+package com.jh.notificacao_service.dto;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

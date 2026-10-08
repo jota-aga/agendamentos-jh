@@ -1,4 +1,4 @@
-package com.jh.notication_service.service;
+package com.jh.notificacao_service.service;
 
 import java.time.format.DateTimeFormatter;
 
@@ -7,10 +7,10 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import com.jh.notication_service.dto.AgendamentoCriadoEvent;
-import com.jh.notication_service.dto.UsuarioResponse;
-import com.jh.notication_service.strategy.NotificationMessageStrategy;
-import com.jh.notication_service.strategy.NotificationStrategy;
+import com.jh.notificacao_service.dto.AgendamentoCriadoEvent;
+import com.jh.notificacao_service.dto.UsuarioResponse;
+import com.jh.notificacao_service.strategy.NotificationMessageStrategy;
+import com.jh.notificacao_service.strategy.NotificationStrategy;
 
 import lombok.RequiredArgsConstructor;
 
