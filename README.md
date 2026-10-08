@@ -288,4 +288,4 @@ Algumas melhorias que podem ser implementadas futuramente:
 
 Desenvolvedor Backend Java
 
-* LinkedIn: [[seu LinkedIn]](https://www.linkedin.com/in/joao-henrique-araujo-de-souza-/)
+* LinkedIn: [LinkedIn](https://www.linkedin.com/in/joao-henrique-araujo-de-souza-/)
