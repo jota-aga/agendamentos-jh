@@ -206,7 +206,7 @@ class AgendamentoServiceIntegrationTest {
 Clone o repositório:
 
 ```bash
-git clone [<URL_DO_REPOSITORIO>](https://github.com/jota-aga/agendamentos-jh)
+git clone https://github.com/jota-aga/agendamentos-jh
 ```
 
 Entre na pasta do projeto:
