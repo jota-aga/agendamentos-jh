@@ -1,5 +1,10 @@
 package com.jh.auth_service.dto;
 
-public record LoginResponse(String token) {
+import io.swagger.v3.oas.annotations.media.Schema;
+
+public record LoginResponse(
+		@Schema(example = "token: sdkjfalkdfnaljdnfa")
+		String token
+		) {
 
 }

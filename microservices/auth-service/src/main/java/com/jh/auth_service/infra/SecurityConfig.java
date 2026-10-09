@@ -41,6 +41,7 @@ public class SecurityConfig {
 				.authorizeHttpRequests(authorize -> authorize
 															 .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
 															 .requestMatchers(HttpMethod.GET, "/usuario/**").hasAnyAuthority("SCOPE_ADMIN", "SCOPE_NOTIFICATION_SERVICE")
+															 .requestMatchers("/swagger-ui/index.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
 															 .anyRequest().authenticated()
 															 )
 															 
