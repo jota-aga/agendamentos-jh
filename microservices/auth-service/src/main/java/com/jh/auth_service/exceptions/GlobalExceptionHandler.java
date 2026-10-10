@@ -9,6 +9,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.jh.auth_service.dto.ErrorResponse;
+
 import jakarta.validation.ConstraintViolationException;
 
 @RestControllerAdvice
@@ -33,16 +35,22 @@ public class GlobalExceptionHandler {
 	
 	@ExceptionHandler(LoginIncorretoException.class)
 	public ResponseEntity<?> handleLoginIncorretoException(LoginIncorretoException ex){
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+		ErrorResponse response = new ErrorResponse(ex.getClass().toString(), ex.getMessage());
+		
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
 	}
 	
 	@ExceptionHandler(NaoEncontradoException.class)
 	public ResponseEntity<?> handleNaoEncotradoException(NaoEncontradoException ex){
-		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+		ErrorResponse response = new ErrorResponse(ex.getClass().toString(), ex.getMessage());
+		
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 	}
 	
 	@ExceptionHandler(EmailRepetidoExecption.class)
 	public ResponseEntity<?> handleEmailRepetidoExecption(EmailRepetidoExecption ex){
-		return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+		ErrorResponse response = new ErrorResponse(ex.getClass().toString(), ex.getMessage());
+		
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
 	}
 }

@@ -35,8 +35,10 @@ public class AuthController {
 	
 	@PostMapping("/register")
 	@Operation(summary = "Registro de usuário", description ="Registra um usuário do tipo CLIENT no sistema e o email deve ser único.")
-	@ApiResponse(responseCode = "201", description = "Usuario registrado com sucesso.")
-	@ApiResponse(responseCode = "409", description = "Email já cadastrado no sistema.")
+	@ApiResponse(responseCode = "201", description = "Usuario registrado com sucesso.", content = {
+			@Content(mediaType = "application/json", schema = @Schema(implementation = LoginResponse.class)) })
+	@ApiResponse(responseCode = "409", description = "Email já cadastrado no sistema.", content = {
+			@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)) })
 	public ResponseEntity<?> registrarUser(@Valid @RequestBody UsuarioRequest usuarioRequest){
 		authService.registrarUsuario(usuarioRequest);
 		
@@ -47,7 +49,8 @@ public class AuthController {
 	@Operation(summary = "Login de usuário", description = "O usuário deve ter feito o registro para conseguir realizar o login")
 	@ApiResponse(responseCode = "200", description = "Retorna token.", content = { @Content(mediaType = "application/json", 
 	          schema = @Schema(implementation = LoginResponse.class)) })
-	@ApiResponse(responseCode = "401", description = "Login incorreto.")
+	@ApiResponse(responseCode = "401", description = "Login incorreto.", content = {
+			@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)) })
 	public ResponseEntity<?> realizarLoginParaUsuario(@RequestBody LoginRequest loginRequest){
 		LoginResponse loginResponse = authService.realizarLoginDeUsuario(loginRequest);
 		
