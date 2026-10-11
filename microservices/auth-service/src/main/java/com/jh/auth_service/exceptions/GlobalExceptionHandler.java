@@ -21,7 +21,9 @@ public class GlobalExceptionHandler {
 		Map<String, String> errors = new HashMap<>();
 		ex.getBindingResult().getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 		
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+		ErrorResponse errorResponse = new ErrorResponse(ex.getClass().getCanonicalName(), errors.toString());
+		
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
 	}
 	
 	@ExceptionHandler(ConstraintViolationException.class)
@@ -29,6 +31,8 @@ public class GlobalExceptionHandler {
 		Map<String, String> errors = new HashMap<>();
 		ex.getConstraintViolations()
 			.forEach(constraint -> errors.put(constraint.getPropertyPath().toString(), constraint.getMessage()));
+		
+		ErrorResponse errorResponse = new ErrorResponse(ex.getClass().getCanonicalName(), errors.toString());
 		
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
 	}
@@ -42,14 +46,14 @@ public class GlobalExceptionHandler {
 	
 	@ExceptionHandler(NaoEncontradoException.class)
 	public ResponseEntity<?> handleNaoEncotradoException(NaoEncontradoException ex){
-		ErrorResponse response = new ErrorResponse(ex.getClass().toString(), ex.getMessage());
+		ErrorResponse response = new ErrorResponse(ex.getClass().getName(), ex.getMessage());
 		
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 	}
 	
 	@ExceptionHandler(EmailRepetidoExecption.class)
 	public ResponseEntity<?> handleEmailRepetidoExecption(EmailRepetidoExecption ex){
-		ErrorResponse response = new ErrorResponse(ex.getClass().toString(), ex.getMessage());
+		ErrorResponse response = new ErrorResponse(ex.getClass().getName(), ex.getMessage());
 		
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
 	}
