@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jh.procedimento_service.dto.AtivoRequest;
 import com.jh.procedimento_service.dto.categoria.CategoriaRequest;
 import com.jh.procedimento_service.dto.categoria.CategoriaResponse;
 import com.jh.procedimento_service.service.CategoriaService;
@@ -65,7 +66,7 @@ public class CategoriaController {
 			@ApiResponse(responseCode = "200", description = "Ativo da categoria foi alterado com sucesso"),
 			@ApiResponse(responseCode = "401", description = "Categoria não encontrada"),
 		})
-	public ResponseEntity<?> atualizarAtivoDaCategoria(@PathVariable Long id, @RequestBody(required = true) Boolean ativo) {
+	public ResponseEntity<?> atualizarAtivoDaCategoria(@PathVariable Long id, @RequestBody(required = true) AtivoRequest ativo) {
 		categoriaService.atualizarAtivo(id, ativo);
 
 		return ResponseEntity.status(HttpStatus.OK).build();

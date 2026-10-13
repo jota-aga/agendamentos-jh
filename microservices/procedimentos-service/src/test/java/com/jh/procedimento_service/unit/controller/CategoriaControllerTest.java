@@ -27,6 +27,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.jh.procedimento_service.controller.CategoriaController;
+import com.jh.procedimento_service.dto.AtivoRequest;
 import com.jh.procedimento_service.dto.categoria.CategoriaRequest;
 import com.jh.procedimento_service.dto.categoria.CategoriaResponse;
 import com.jh.procedimento_service.exceptions.CategoriaRepetidaException;
@@ -159,7 +160,7 @@ public class CategoriaControllerTest {
 	@Test
 	@WithMockUser(authorities = ADMIN)
 	public void deveAlterarAtivoERetornar200QuandoUsuarioForAdmin() throws JacksonException, Exception {
-		Boolean ativo = true;
+		AtivoRequest ativo = new AtivoRequest(true);
 
 		mockMvc.perform(patch(BASE_URL + "/ativo/" + CATEGORIA_ID).contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(ativo))).andExpect(status().isOk());
@@ -170,7 +171,7 @@ public class CategoriaControllerTest {
 	@Test
 	@WithMockUser(authorities = CLIENT)
 	public void deveRetornar403QuandoUsuarioNaoForAdminAoAlterarAtivo() throws JacksonException, Exception {
-		Boolean ativo = true;
+		AtivoRequest ativo = new AtivoRequest(true);
 		
 		mockMvc.perform(patch(BASE_URL+"/ativo/"+CATEGORIA_ID)
 				.contentType(MediaType.APPLICATION_JSON)
@@ -184,7 +185,8 @@ public class CategoriaControllerTest {
 	@WithMockUser(authorities = ADMIN)
 	public void deveRetornar404QuandoCategoriaNaoForEncontradaAoAlterarAtivo()
 			throws JacksonException, Exception {
-		Boolean ativo = true;
+		AtivoRequest ativo = new AtivoRequest(true);
+		
 		doThrow(new NaoEncontradoException("Categoria Por Id")).when(categoriaService)
 				.atualizarAtivo(CATEGORIA_ID, ativo);
 		

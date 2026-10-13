@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.jh.procedimento_service.domain.Categoria;
 import com.jh.procedimento_service.domain.Procedimento;
+import com.jh.procedimento_service.dto.AtivoRequest;
 import com.jh.procedimento_service.dto.categoria.CategoriaRequest;
 import com.jh.procedimento_service.dto.categoria.CategoriaResponse;
 import com.jh.procedimento_service.exceptions.CategoriaRepetidaException;
@@ -56,9 +57,9 @@ public class CategoriaService {
 	}
 	
 	@Transactional
-	public void atualizarAtivo(Long id, Boolean ativo) {
+	public void atualizarAtivo(Long id, AtivoRequest ativoRequest) {
 		Categoria categoria = getCategoriaPorId(id);
-		categoria.setAtivo(ativo);
+		categoria.setAtivo(ativoRequest.ativo());
 		
 		categoriaRepository.save(categoria);
 	}
