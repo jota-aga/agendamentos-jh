@@ -40,6 +40,7 @@ public class SecurityConfig {
 															 .requestMatchers(HttpMethod.GET, "/procedimento/ativos").permitAll()
 															 .requestMatchers(HttpMethod.GET, "/procedimento").hasAuthority("SCOPE_ADMIN")
 															 .requestMatchers(HttpMethod.GET, "/procedimento/*").permitAll()
+															 .requestMatchers("/swagger-ui/index.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
 															 .anyRequest().authenticated()
 															 )
 															 
