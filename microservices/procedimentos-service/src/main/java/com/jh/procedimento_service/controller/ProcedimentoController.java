@@ -14,20 +14,26 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jh.procedimento_service.dto.AtivoRequest;
 import com.jh.procedimento_service.dto.procedimento.ProcedimentoRequest;
 import com.jh.procedimento_service.dto.procedimento.ProcedimentoResponse;
 import com.jh.procedimento_service.service.ProcedimentoService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/procedimento")
 @RequiredArgsConstructor
+@Tag(name = "Procedimento", description = "Endpoints para gerenciamento dos procedimentos")
 public class ProcedimentoController {
 	
 	private final ProcedimentoService procedimentoService;
+	
 	@PostMapping
+	@Operation(summary = "Criar Procedimento", description = "Apenas usuários com escopo de ADMIN podem criar procedimento.")
 	public ResponseEntity<?> criarProcedimento(@Valid @RequestBody ProcedimentoRequest procedimentoRequest){
 		procedimentoService.criarProcedimento(procedimentoRequest);
 		
@@ -35,6 +41,7 @@ public class ProcedimentoController {
 	}
 	
 	@PutMapping("/{id}")
+	@Operation(summary = "Atualizar Procedimento", description = "Apenas usuários com escopo de ADMIN podem atualizar procedimento.")
 	public ResponseEntity<?> atualizarProcedimento(@PathVariable Long id, @Valid @RequestBody ProcedimentoRequest procedimentoRequest){
 		procedimentoService.atualizarProcedimento(id, procedimentoRequest);
 		
@@ -42,13 +49,15 @@ public class ProcedimentoController {
 	}
 	
 	@PatchMapping("/ativo/{id}")
-	public ResponseEntity<?> alterarAtivo(@PathVariable Long id, @RequestBody Boolean ativo){
+	@Operation(summary = "Alterar ativo Procedimento", description = "Apenas usuários com escopo de ADMIN podem alterar ativo do procedimento.")
+	public ResponseEntity<?> alterarAtivo(@PathVariable Long id, @RequestBody AtivoRequest ativo){
 		procedimentoService.alterarAtivo(id, ativo);
 		
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 	
 	@GetMapping
+	@Operation(summary = "Listar todos os procedimentos", description = "Apenas usuários com escopo de ADMIN podem listar todos os procedimentos.")
 	public ResponseEntity<?> listarTodos(){
 		List<ProcedimentoResponse> response = procedimentoService.procurarTodosProcedimentos();
 		
@@ -56,6 +65,7 @@ public class ProcedimentoController {
 	}
 	
 	@GetMapping("/ativos")
+	@Operation(summary = "Lista todos os procedimentos ativos", description = "Listar procedimentos ativos é permitido para todos")
 	public ResponseEntity<?> listarAtivos(){
 		List<ProcedimentoResponse> response = procedimentoService.procurarProcedimentosAtivos();
 		
@@ -63,6 +73,7 @@ public class ProcedimentoController {
 	}
 	
 	@GetMapping("/{id}")
+	@Operation(summary = "Procura um procedimento por id", description = "Apenas usuários com escopo de ADMIN podem procurar procedimento por id.")
 	public ResponseEntity<?> getProcedimentoPorId(@PathVariable Long id){
 		ProcedimentoResponse response = procedimentoService.getProcedimentoPorId(id);
 		
@@ -70,6 +81,7 @@ public class ProcedimentoController {
 	}
 	
 	@DeleteMapping("/{id}")
+	@Operation(summary = "Deleta um procedimento", description = "Apenas usuários com escopo de ADMIN podem deletar procedimento.")
 	public ResponseEntity<?> deletarProcedimento(@PathVariable Long id){
 		procedimentoService.deletarProcedimento(id);
 		

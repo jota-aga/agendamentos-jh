@@ -28,6 +28,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.jh.procedimento_service.controller.ProcedimentoController;
+import com.jh.procedimento_service.dto.AtivoRequest;
 import com.jh.procedimento_service.dto.categoria.CategoriaResponse;
 import com.jh.procedimento_service.dto.procedimento.ProcedimentoRequest;
 import com.jh.procedimento_service.dto.procedimento.ProcedimentoResponse;
@@ -49,7 +50,7 @@ public class ProcedimentoControllerTest {
 
 	private final static String CLIENT = "SCOPE_CLIENT";
 
-	private final static Boolean ATIVO = false;
+	private final static AtivoRequest ATIVO = new AtivoRequest(false);
 
 	private final static Long PROCEDIMENTO_ID = 1L;
 
@@ -239,7 +240,7 @@ public class ProcedimentoControllerTest {
 		CategoriaResponse categoriaResponse = new CategoriaResponse(1L, "categoria", true);
 
 		ProcedimentoResponse procedimentoResponse = new ProcedimentoResponse(1L, procedimentoRequest.titulo(), procedimentoRequest.descricao(),
-				procedimentoRequest.preco(), procedimentoRequest.duracaoEmMinutos(), ATIVO, categoriaResponse);
+				procedimentoRequest.preco(), procedimentoRequest.duracaoEmMinutos(), ATIVO.ativo(), categoriaResponse);
 		
 		return List.of(procedimentoResponse);
 	}

@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.jh.procedimento_service.domain.Categoria;
 import com.jh.procedimento_service.domain.Procedimento;
+import com.jh.procedimento_service.dto.AtivoRequest;
 import com.jh.procedimento_service.dto.procedimento.ProcedimentoRequest;
 import com.jh.procedimento_service.exceptions.NaoEncontradoException;
 import com.jh.procedimento_service.repository.CategoriaRepository;
@@ -104,7 +105,7 @@ public class ProcedimentoServiceTest {
 	public void deveAlterarAtivoComSucesso() {
 		when(procedimentoRepository.findById(procedimento.getId())).thenReturn(Optional.of(procedimento));
 		
-		procedimentoService.alterarAtivo(procedimento.getId(), true);
+		procedimentoService.alterarAtivo(procedimento.getId(), new AtivoRequest(true));
 		
 		verify(procedimentoRepository, atLeastOnce()).save(any());
 	}
@@ -113,7 +114,7 @@ public class ProcedimentoServiceTest {
 	public void deveLancarExcecaoNaAlteracaoDoAtivoQuandoProcedimentoNaoEncontrada() {
 		when(procedimentoRepository.findById(procedimento.getId())).thenReturn(Optional.empty());
 				
-		assertThrows(NaoEncontradoException.class, () -> procedimentoService.alterarAtivo(procedimento.getId(), true));
+		assertThrows(NaoEncontradoException.class, () -> procedimentoService.alterarAtivo(procedimento.getId(), new AtivoRequest(true)));
 		
 		verify(procedimentoRepository, never()).save(any());
 	}

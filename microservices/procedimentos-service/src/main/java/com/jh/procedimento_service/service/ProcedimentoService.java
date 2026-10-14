@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.jh.procedimento_service.domain.Categoria;
 import com.jh.procedimento_service.domain.Procedimento;
+import com.jh.procedimento_service.dto.AtivoRequest;
 import com.jh.procedimento_service.dto.procedimento.ProcedimentoRequest;
 import com.jh.procedimento_service.dto.procedimento.ProcedimentoResponse;
 import com.jh.procedimento_service.exceptions.NaoEncontradoException;
@@ -53,10 +54,10 @@ public class ProcedimentoService {
 	}
 	
 	@Transactional
-	public void alterarAtivo(Long id, Boolean ativo) {
+	public void alterarAtivo(Long id, AtivoRequest ativoRequest) {
 		Procedimento procedimento = procurarProcedimentoPorId(id);;
 		
-		procedimento.setAtivo(ativo);
+		procedimento.setAtivo(ativoRequest.ativo());
 		
 		procedimentoRepository.save(procedimento);
 	}

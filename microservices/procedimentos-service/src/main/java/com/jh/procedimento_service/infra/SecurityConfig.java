@@ -29,7 +29,7 @@ public class SecurityConfig {
 		return httpSecurity
 				.authorizeHttpRequests(authorize -> authorize
 						.requestMatchers(HttpMethod.GET, "/categoria/ativas").permitAll()
-						.requestMatchers(HttpMethod.GET, "/procedimento/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/procedimento/ativos").permitAll()
 						.requestMatchers("/categoria/**").hasAuthority("SCOPE_ADMIN")
 						.requestMatchers("/procedimento/**").hasAuthority("SCOPE_ADMIN")
 						.requestMatchers("/swagger-ui/index.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
