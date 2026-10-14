@@ -20,6 +20,8 @@ import com.jh.procedimento_service.dto.procedimento.ProcedimentoResponse;
 import com.jh.procedimento_service.service.ProcedimentoService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,11 @@ public class ProcedimentoController {
 	
 	@PostMapping
 	@Operation(summary = "Criar Procedimento", description = "Apenas usuários com escopo de ADMIN podem criar procedimento.")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "201", description = "Procedimento criado com sucesso"),
+			@ApiResponse(responseCode = "404", description = "Categoria não encontrada"),
+			@ApiResponse(responseCode = "500", description = "Request body inválido")
+	})
 	public ResponseEntity<?> criarProcedimento(@Valid @RequestBody ProcedimentoRequest procedimentoRequest){
 		procedimentoService.criarProcedimento(procedimentoRequest);
 		
@@ -41,6 +48,11 @@ public class ProcedimentoController {
 	}
 	
 	@PutMapping("/{id}")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Procedimento atualizado com sucesso"),
+			@ApiResponse(responseCode = "404", description = "Categoria não encontrada ou Procedimento não encontrado"),
+			@ApiResponse(responseCode = "500", description = "Request body inválido"),
+	})
 	@Operation(summary = "Atualizar Procedimento", description = "Apenas usuários com escopo de ADMIN podem atualizar procedimento.")
 	public ResponseEntity<?> atualizarProcedimento(@PathVariable Long id, @Valid @RequestBody ProcedimentoRequest procedimentoRequest){
 		procedimentoService.atualizarProcedimento(id, procedimentoRequest);
@@ -49,6 +61,12 @@ public class ProcedimentoController {
 	}
 	
 	@PatchMapping("/ativo/{id}")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Ativo do procedimento atualizado com sucesso"),
+			@ApiResponse(responseCode = "500", description = "Request body inválido"),
+			@ApiResponse(responseCode = "404", description = "Procedimento não encontrado"),
+			
+	})
 	@Operation(summary = "Alterar ativo Procedimento", description = "Apenas usuários com escopo de ADMIN podem alterar ativo do procedimento.")
 	public ResponseEntity<?> alterarAtivo(@PathVariable Long id, @RequestBody AtivoRequest ativo){
 		procedimentoService.alterarAtivo(id, ativo);
@@ -74,14 +92,37 @@ public class ProcedimentoController {
 	
 	@GetMapping("/{id}")
 	@Operation(summary = "Procura um procedimento por id", description = "Apenas usuários com escopo de ADMIN podem procurar procedimento por id.")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Procedimento encontrado com sucesso"),
+			@ApiResponse(responseCode = "404", description = "Procedimento não encontrado")
+			
+	})
 	public ResponseEntity<?> getProcedimentoPorId(@PathVariable Long id){
 		ProcedimentoResponse response = procedimentoService.getProcedimentoPorId(id);
 		
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	
+	@GetMapping("/ativo/{id}")
+	@Operation(summary = "Procura um procedimento por id e que esteja ativo", description = "Procurar Procedimento ativo por id é permitido para todos")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Procedimento encontrado com sucesso"),
+			@ApiResponse(responseCode = "404", description = "Procedimento não encontrado")
+			
+	})
+	public ResponseEntity<?> getProcedimentoPorIdEAtivo(@PathVariable Long id){
+		ProcedimentoResponse response = procedimentoService.getProcedimentoPorIdEAtivo(id);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+	
 	@DeleteMapping("/{id}")
 	@Operation(summary = "Deleta um procedimento", description = "Apenas usuários com escopo de ADMIN podem deletar procedimento.")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Procedimento deletado com sucesso"),
+			@ApiResponse(responseCode = "404", description = "Procedimento não encontrado"),
+			
+	})
 	public ResponseEntity<?> deletarProcedimento(@PathVariable Long id){
 		procedimentoService.deletarProcedimento(id);
 		

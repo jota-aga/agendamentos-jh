@@ -88,6 +88,13 @@ public class ProcedimentoService {
 		procedimentoRepository.delete(procedimento);
 	}
 	
+	public ProcedimentoResponse getProcedimentoPorIdEAtivo(Long id) {
+		Procedimento procedimento = procedimentoRepository.findByIdAndAtivoTrue(id)
+				.orElseThrow(() -> new NaoEncontradoException("Procedimento"));
+		
+		return ProcedimentoMapper.INSTANCE.entityToResponse(procedimento);
+	}
+	
 	private Procedimento procurarProcedimentoPorId(Long id) {
 		return procedimentoRepository.findById(id)
 				.orElseThrow(() -> new NaoEncontradoException("Procedimento por id"));
