@@ -28,7 +28,9 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/agendamento")
 @RequiredArgsConstructor
-@Tag(name = "Agendamento Client", description = "Gerenciamento dos agendamentos do usuário autenticado")
+@Tag(
+		name = "Agendamento Client", 
+		description = "Gerenciamento dos agendamentos do usuário autenticado. Os usuários são limitado a gerenciar apenas os seus agendamentos.")
 public class AgendamentoController {
 
 	private final AgendamentoService agendamentoService;
@@ -74,7 +76,7 @@ public class AgendamentoController {
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 
-	@GetMapping("/horarios")	@Operation(summary = "Listar horários livres", description = "Lista hoários livre dentro de um intevalor de inicio e fim de expediente")
+	@GetMapping("/horarios")	@Operation(summary = "Listar horários livres", description = "Lista hoários livres de acordo com o tempo que o procedimento requerido leva dentro de um intevalo de inicio e fim de expediente")
 	public ResponseEntity<?> listarHorariosDisponiveis(@RequestParam LocalTime inicioDoExpediente,
 			@RequestParam LocalTime fimDoExepediente, @RequestParam LocalDate data, @RequestParam Long procedimentoId) {
 		List<LocalTime> horariosDisponiveis = agendamentoService.horariosDisponiveis(inicioDoExpediente, fimDoExepediente, data, procedimentoId);

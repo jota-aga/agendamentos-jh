@@ -22,17 +22,22 @@ import com.jh.agendamento_service.dto.AgendamentoStatusRequest;
 import com.jh.agendamento_service.enums.AgendamentoStatus;
 import com.jh.agendamento_service.service.AgendamentoAdminService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/agendamento/admin")
 @RequiredArgsConstructor
+@Tag(name = "Agendamento Admin", description = "Gerenciamento dos agendamento como administrador.")
 public class AgendamentoAdminController {
 
 	private final AgendamentoAdminService agendamentoAdminService;
 
 	@PostMapping
+	@Operation(summary = "Criar Agendamento", 
+			description = "Cria um agendamento para algum cliente. O usuarioId é opcional, pois o cliente pode não ter cadastro no sistema")
 	public ResponseEntity<?> criarAgendamento(@Valid @RequestBody AgendamentoAdminRequest agendamentoRequest) {
 		agendamentoAdminService.criarAgendamento(agendamentoRequest);
 
@@ -40,6 +45,7 @@ public class AgendamentoAdminController {
 	}
 	
 	@GetMapping("/{id}")
+	@Operation(summary = "Procurar Agendamento por id")
 	public ResponseEntity<AgendamentoResponse> getAgendamentoPorId(@PathVariable String id){
 		AgendamentoResponse response = agendamentoAdminService.getAgendamentoPorId(id);
 		
@@ -47,6 +53,7 @@ public class AgendamentoAdminController {
 	}
 
 	@PutMapping("/{id}")
+	@Operation(summary = "Atualiza um Agendamento")
 	public ResponseEntity<?> atualizarAgendamento(@PathVariable String id,
 			@Valid @RequestBody AgendamentoAdminRequest agendamentoRequest) {
 		agendamentoAdminService.atualizarAgendamento(id, agendamentoRequest);
@@ -55,6 +62,7 @@ public class AgendamentoAdminController {
 	}
 
 	@PatchMapping("/{id}/status")
+	@Operation(summary = "Atualizar status do agendamento")
 	public ResponseEntity<?> atualizarStatusDoAgendamento(@PathVariable String id,
 			@Valid @RequestBody AgendamentoStatusRequest statusRequest) {
 		agendamentoAdminService.alterarStatusDoAgendamento(id, statusRequest);
@@ -62,7 +70,9 @@ public class AgendamentoAdminController {
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 
-	@GetMapping()
+	@GetMapping
+	@Operation(summary = "Listar agendamentos filtrados", 
+	description = "Caso queira listar todos os agendamentos, basta não passar nenhum parâmetro na requisição.")
 	public ResponseEntity<?> listarAgendamentoFiltrados(@RequestParam(required = false) Long usuarioId,
 			@RequestParam(required = false) LocalDate data, @RequestParam(required = false) LocalTime inicioDoExpediente,
 			@RequestParam(required = false) LocalTime fimDoExpediente, @RequestParam(required = false) String tituloDoProcedimento,
