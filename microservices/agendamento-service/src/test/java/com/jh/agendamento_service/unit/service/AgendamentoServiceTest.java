@@ -412,7 +412,7 @@ public class AgendamentoServiceTest {
 
 		when(agendamentoRepository.findAllByUsuarioId(ID_DO_USUARIO)).thenReturn(List.of(agendamento));
 
-		List<AgendamentoResponse> agendamentosDoUsuario = agendamentoService.listarAgendamentosDoUsuario();
+		List<AgendamentoResponse> agendamentosDoUsuario = agendamentoService.listarAgendamentos();
 
 		assertEquals(1, agendamentosDoUsuario.size());
 		assertEquals(AgendamentoMapper.INSTANCE.entityToResponse(agendamento), agendamentosDoUsuario.get(0));

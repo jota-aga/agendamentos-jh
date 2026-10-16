@@ -56,10 +56,7 @@ public class AgendamentoService {
 
 	public void atualizarAgendamento(String id, AgendamentoRequest agendamentoRequest) {
 		Agendamento agendamento = procurarPorId(id);
-		UsuarioAutenticadoDTO usuarioAutenticado = securityService.getUsuarioAutenticado();
-
-		if (!agendamento.getUsuarioId().equals(usuarioAutenticado.id()))
-			throw new NaoAutorizadoException("Esse agendamento não lhe pertence");
+		validarAcessoAoAgendamento(agendamento);
 
 		if (agendamento.getStatus() != AgendamentoStatus.AGENDADO)
 			throw new ConflitoDeOperacaoException("Não é possível atualizar o agendamento");
@@ -88,7 +85,7 @@ public class AgendamentoService {
 		agendamentoRepository.save(agendamento);
 	}
 	
-	public List<AgendamentoResponse> listarAgendamentosDoUsuario() {
+	public List<AgendamentoResponse> listarAgendamentos() {
 		UsuarioAutenticadoDTO usuarioAutenticadoDTO = securityService.getUsuarioAutenticado();
 		
 		List<Agendamento> agendamentos = agendamentoRepository.findAllByUsuarioId(usuarioAutenticadoDTO.id());
@@ -190,7 +187,7 @@ public class AgendamentoService {
 		Long idDoUsuarioLogado = usuarioAutenticadoDTO.id();
 		Long idDoAgendamento = agendamento.getUsuarioId();
 		
-		if(!idDoUsuarioLogado.equals(idDoAgendamento))
+		if(idDoAgendamento != null && !idDoUsuarioLogado.equals(idDoAgendamento))
 			throw new NaoAutorizadoException("Agendamento não pertence ao usuário");
 	}
 }

@@ -28,6 +28,7 @@ public class SecurityConfig {
 		return httpSecurity
 				.authorizeHttpRequests(authorize -> authorize
 															 .requestMatchers("/agendamento/admin/**").hasAuthority("SCOPE_ADMIN")
+															 .requestMatchers("/swagger-ui/index.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
 															 .anyRequest().authenticated()
 															 )
 															 

@@ -254,13 +254,13 @@ public class AgendamentoControllerTest {
 		
 		String responseEsperada = objectMapper.writeValueAsString(listaDeResponse);
 		
-		when(agendamentoService.listarAgendamentosDoUsuario()).thenReturn(listaDeResponse);
+		when(agendamentoService.listarAgendamentos()).thenReturn(listaDeResponse);
 		
 		mockMvc.perform(get(BASE_URL))
 		.andExpect(status().isOk())
 		.andExpect(content().string(responseEsperada));
 		
-		verify(agendamentoService).listarAgendamentosDoUsuario();
+		verify(agendamentoService).listarAgendamentos();
 	}
 	
 	@Test

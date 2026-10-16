@@ -20,17 +20,21 @@ import com.jh.agendamento_service.dto.AgendamentoRequest;
 import com.jh.agendamento_service.dto.AgendamentoResponse;
 import com.jh.agendamento_service.service.AgendamentoService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/agendamento")
 @RequiredArgsConstructor
+@Tag(name = "Agendamento Client", description = "Gerenciamento dos agendamentos do usuário autenticado")
 public class AgendamentoController {
 
 	private final AgendamentoService agendamentoService;
 
 	@PostMapping
+	@Operation(summary = "Criar agendamento", description = "Cria um agendamento para o usuário")
 	public ResponseEntity<?> criarAgendamento(@Valid @RequestBody AgendamentoRequest agendamentoRequest) {
 		agendamentoService.criarAgendamento(agendamentoRequest);
 
@@ -38,6 +42,7 @@ public class AgendamentoController {
 	}
 
 	@PutMapping("/{id}")
+	@Operation(summary = "Atualizar agendamento", description = "Atualiza um agendamento para o usuário")
 	public ResponseEntity<?> atualizarAgendamento(@PathVariable String id,
 			@Valid @RequestBody AgendamentoRequest agendamentoRequest) {
 		agendamentoService.atualizarAgendamento(id, agendamentoRequest);
@@ -46,6 +51,7 @@ public class AgendamentoController {
 	}
 
 	@PatchMapping("/{id}/cancelar")
+	@Operation(summary = "Cancelar agendamento", description = "Cancela um agendamento do usuário que estava como agendado. Se já foi concluído, não será possível cancelar")
 	public ResponseEntity<?> cancelarAgendamento(@PathVariable String id) {
 		agendamentoService.cancelarAgendamento(id);
 
@@ -53,6 +59,7 @@ public class AgendamentoController {
 	}
 
 	@GetMapping("/{id}")
+	@Operation(summary = "Procurar agendamento por id", description = "Procura um agendamento por id. Caso o agendamento não seja do usuário, ele não terá acesso")
 	public ResponseEntity<?> procurarAgendamentoPorId(@PathVariable String id) {
 		AgendamentoResponse response = agendamentoService.procurarAgendamentoPorId(id);
 
@@ -60,13 +67,14 @@ public class AgendamentoController {
 	}
 
 	@GetMapping
-	public ResponseEntity<?> listarAgendamentoDoUsuario() {
-		List<AgendamentoResponse> response = agendamentoService.listarAgendamentosDoUsuario();
+	@Operation(summary = "Listar agendamentos", description = "Lista agendamentos do usuário")
+	public ResponseEntity<?> listarAgendamentos() {
+		List<AgendamentoResponse> response = agendamentoService.listarAgendamentos();
 
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 
-	@GetMapping("/horarios")
+	@GetMapping("/horarios")	@Operation(summary = "Listar horários livres", description = "Lista hoários livre dentro de um intevalor de inicio e fim de expediente")
 	public ResponseEntity<?> listarHorariosDisponiveis(@RequestParam LocalTime inicioDoExpediente,
 			@RequestParam LocalTime fimDoExepediente, @RequestParam LocalDate data, @RequestParam Long procedimentoId) {
 		List<LocalTime> horariosDisponiveis = agendamentoService.horariosDisponiveis(inicioDoExpediente, fimDoExepediente, data, procedimentoId);
