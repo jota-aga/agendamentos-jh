@@ -58,7 +58,7 @@ Principais recursos:
 * Flyway para controle das migrações do banco
 * MySQL
 
-### Procedimentos Service
+### Procedimento Service
 
 Responsável pelo gerenciamento dos procedimentos oferecidos pela barbearia.
 
@@ -83,7 +83,7 @@ Principais recursos:
 * Persistência com MongoDB
 * Comunicação com o Procedimentos Service através do WebClient
 
-### Notification Service
+### Notificação Service
 
 Responsável pelo envio de notificações por e-mail.
 
