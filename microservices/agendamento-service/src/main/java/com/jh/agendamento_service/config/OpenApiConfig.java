@@ -21,7 +21,8 @@ public class OpenApiConfig {
             .info(new Info()
                 .title("Microsserviço Agendamento")
                 .version("v1.0.0")
-                .description("Microsserviço para gerenciamentos dos agendamentos.")
+                .description("Microsserviço para gerenciamentos dos agendamentos. Para acessar os endpoints, é necessário estar autenticado,"
+                		+ " então, deve-se usar o microsserviço auth-service para isso.")
                 .contact(new Contact()
                     .name("Autor do código")
                     .email("joaolgg2estudos@gmail.com")))

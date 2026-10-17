@@ -5,6 +5,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -21,6 +22,10 @@ import com.jh.agendamento_service.dto.AgendamentoResponse;
 import com.jh.agendamento_service.service.AgendamentoService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +42,15 @@ public class AgendamentoController {
 
 	@PostMapping
 	@Operation(summary = "Criar agendamento", description = "Cria um agendamento para o usuário")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "201", description = "Agendamento criado com sucesso."),
+			@ApiResponse(responseCode = "404", description = "Procedimento não encontrado.", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))
+			}),
+			@ApiResponse(responseCode = "409", description = "Já existe outro agendamento nesse horário.", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))
+			})
+	})
 	public ResponseEntity<?> criarAgendamento(@Valid @RequestBody AgendamentoRequest agendamentoRequest) {
 		agendamentoService.criarAgendamento(agendamentoRequest);
 
@@ -45,6 +59,18 @@ public class AgendamentoController {
 
 	@PutMapping("/{id}")
 	@Operation(summary = "Atualizar agendamento", description = "Atualiza um agendamento para o usuário")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Agendamento atualizado com sucesso."),
+			@ApiResponse(responseCode = "404", description = "Agendamento ou Procedimento não encontrado.", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))
+			}),
+			@ApiResponse(responseCode = "409", description = "Já existe outro agendamento nesse horário ou não possível ataualizar o agendamento mais.", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))
+			}),
+			@ApiResponse(responseCode = "403", description = "Agendamento não pertence ao usuário.", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))
+			})
+	})
 	public ResponseEntity<?> atualizarAgendamento(@PathVariable String id,
 			@Valid @RequestBody AgendamentoRequest agendamentoRequest) {
 		agendamentoService.atualizarAgendamento(id, agendamentoRequest);
@@ -53,7 +79,20 @@ public class AgendamentoController {
 	}
 
 	@PatchMapping("/{id}/cancelar")
-	@Operation(summary = "Cancelar agendamento", description = "Cancela um agendamento do usuário que estava como agendado. Se já foi concluído, não será possível cancelar")
+	@Operation(summary = "Cancelar agendamento", description = "Cancela um agendamento do usuário que estava como agendado. Se tentar cancelar "
+			+ "com menos de 12 horas de antecedência ou quando o Status for diferente de cancelado, não será possível cancelar")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Agendamento criado com sucesso."),
+			@ApiResponse(responseCode = "404", description = "Agendamento não encontrado.", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))
+			}),
+			@ApiResponse(responseCode = "403", description = "Agendamento não pertence ao usuário.", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))
+			}),
+			@ApiResponse(responseCode = "409", description = "Não é mais possível cancelar agendamento.", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))
+			})
+	})
 	public ResponseEntity<?> cancelarAgendamento(@PathVariable String id) {
 		agendamentoService.cancelarAgendamento(id);
 
@@ -61,7 +100,18 @@ public class AgendamentoController {
 	}
 
 	@GetMapping("/{id}")
-	@Operation(summary = "Procurar agendamento por id", description = "Procura um agendamento por id. Caso o agendamento não seja do usuário, ele não terá acesso")
+	@Operation(summary = "Procurar agendamento por id")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Agendamento encontrado com sucesso.", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = AgendamentoResponse.class))
+			}),
+			@ApiResponse(responseCode = "404", description = "Agendamento não encontrado.", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))
+			}),
+			@ApiResponse(responseCode = "403", description = "Agendamento não pertence ao usuário.", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))
+			})
+	})
 	public ResponseEntity<?> procurarAgendamentoPorId(@PathVariable String id) {
 		AgendamentoResponse response = agendamentoService.procurarAgendamentoPorId(id);
 
@@ -69,14 +119,19 @@ public class AgendamentoController {
 	}
 
 	@GetMapping
-	@Operation(summary = "Listar agendamentos", description = "Lista agendamentos do usuário")
+	@Operation(summary = "Listar agendamentos do usuário")
+	@ApiResponse(responseCode = "200", description = "Listagem dos agendamentos", content = {
+			@Content(mediaType = "application/json", schema = @Schema(implementation = AgendamentoResponse[].class))})
 	public ResponseEntity<?> listarAgendamentos() {
 		List<AgendamentoResponse> response = agendamentoService.listarAgendamentos();
 
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 
-	@GetMapping("/horarios")	@Operation(summary = "Listar horários livres", description = "Lista hoários livres de acordo com o tempo que o procedimento requerido leva dentro de um intevalo de inicio e fim de expediente")
+	@GetMapping("/horarios")	
+	@Operation(summary = "Listar horários livres", description = "Lista hoários livres de acordo com o tempo que o procedimento requerido leva dentro de um intevalo de inicio e fim de expediente")
+	@ApiResponse(responseCode = "200", content = {
+			@Content(mediaType = "application/json", schema = @Schema(implementation = LocalTime[].class))})
 	public ResponseEntity<?> listarHorariosDisponiveis(@RequestParam LocalTime inicioDoExpediente,
 			@RequestParam LocalTime fimDoExepediente, @RequestParam LocalDate data, @RequestParam Long procedimentoId) {
 		List<LocalTime> horariosDisponiveis = agendamentoService.horariosDisponiveis(inicioDoExpediente, fimDoExepediente, data, procedimentoId);
